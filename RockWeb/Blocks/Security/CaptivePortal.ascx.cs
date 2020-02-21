@@ -189,7 +189,7 @@ namespace RockWeb.Blocks.Security
             // Go through the UA ignore list and don't load anything we don't care about or want.
             foreach ( string userAgentToIgnore in _userAgentsToIgnore )
             {
-                if ( Request.UserAgent.StartsWith( userAgentToIgnore ) )
+                if ( Request.UserAgent == null || Request.UserAgent.StartsWith( userAgentToIgnore ) )
                 {
                     return;
                 }
@@ -488,8 +488,8 @@ namespace RockWeb.Blocks.Security
             Person person = null;
             string mobilePhoneNumber = string.Empty;
 
-            // Looking for a 100% match
-            if ( tbFirstName.Visible && tbLastName.Visible && tbEmail.Visible && tbMobilePhone.Visible )
+            // Looking for a match using the first name, last name, and mobile number or email address information
+            if ( tbFirstName.Visible && tbLastName.Visible && ( tbMobilePhone.Visible || tbEmail.Visible ) )
             {
                 mobilePhoneNumber = tbMobilePhone.Text.RemoveAllNonAlphaNumericCharacters();
 
@@ -510,17 +510,6 @@ namespace RockWeb.Blocks.Security
                     RockPage.LinkPersonAliasToDevice( person.PrimaryAlias.Id, hfMacAddress.Value );
                     return person.PrimaryAlias.Id;
                 }
-            }
-
-            // Look for minimum info
-            if ( tbFirstName.Visible && tbLastName.Visible && ( tbMobilePhone.Visible || tbEmail.Visible ) )
-            {
-                // If no known person record then create one since we have the minimum info required
-                person = CreateAndSaveNewPerson();
-                
-                // Link new device to person alias
-                RockPage.LinkPersonAliasToDevice( person.PrimaryAlias.Id, hfMacAddress.Value );
-                return person.PrimaryAlias.Id;
             }
 
             // Just match off phone number if no other fields are showing.
