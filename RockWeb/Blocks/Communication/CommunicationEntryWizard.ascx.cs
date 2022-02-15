@@ -279,6 +279,14 @@ namespace RockWeb.Blocks.Communication
 
             phPushControl.Controls.Add( mediumControl );
 
+            tglImagePickerType.ClientScript = $@"
+    $('#{tglImagePickerType.ClientID}').off('click').on('click', function (e) {{
+        debugger
+        $('.js-image-uploader-control').slideToggle();
+        $('.js-asset-manager-control').slideToggle();
+    }});
+";
+
             RegisterTaskActivityScript();
         }
 

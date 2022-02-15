@@ -34,6 +34,8 @@
 
                 });
 
+                options.clientScript;
+
             }
         };
 

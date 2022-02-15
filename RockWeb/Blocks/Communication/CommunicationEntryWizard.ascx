@@ -451,7 +451,13 @@
 
                                         <div class="row">
                                             <div class="col-md-6">
-                                                <Rock:ImageUploader ID="componentImageUploader" ClientIDMode="Static" runat="server" Label="Image" UploadAsTemporary="false" DoneFunctionClientScript="handleImageUpdate(e, data)" DeleteFunctionClientScript="handleImageUpdate()" />
+                                                <Rock:Toggle ID="tglImagePickerType" runat="server" OffText="Image" OnText="Asset" Checked="false" Help='Select "Image" to pick from images saved to Rock or "Asset" to display images stored in an Asset Manager.' ButtonSizeCssClass="btn-xs" />
+                                                <div class="js-image-uploader-control">
+                                                    <Rock:ImageUploader ID="componentImageUploader" ClientIDMode="Static" runat="server" Label="Image" UploadAsTemporary="false" DoneFunctionClientScript="handleImageUpdate(e, data)" DeleteFunctionClientScript="handleImageUpdate()" />
+                                                </div>
+                                                <div class="js-asset-manager-control" style="display: none;">
+                                                    <Rock:ItemFromBlockPicker ID="componentAssetManager" runat="server" BlockTypePath="~/Blocks/CMS/AssetManager.ascx" ShowInModal=true SelectControlCssClass="imageupload-group" CssClass="picker-asset" ModalSaveButtonText="Select" ModalSaveButtonCssClass="js-singleselect aspNetDisabled" ModalCssClass="js-AssetManager-modal" ButtonTextTemplate="Select Asset" PickerButtonTemplate=pickerButtonTemplate ModalTitle="Asset Manager"></Rock:ItemFromBlockPicker>
+                                                </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
