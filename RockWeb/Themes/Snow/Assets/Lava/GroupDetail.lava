@@ -389,3 +389,5 @@
 		<div class='alert alert-warning'>You do not have permission to view this group.</div>
 	{% endif %}
 {% endif %}
+
+<!-- Building Documentation -->
