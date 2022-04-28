@@ -1995,6 +1995,16 @@ namespace RockWeb.Blocks.Connection
                 rConnectorSelect.Visible = editAllowed;
                 gConnectionRequestActivities.IsDeleteEnabled = editAllowed;
                 gConnectionRequestActivities.Actions.ShowAdd = editAllowed;
+                
+                // Only show transfer if there are other Opportunities
+                if ( connectionOpportunity.ConnectionType.ConnectionOpportunities.Count > 1) 
+                {
+                    lbTransfer.Visible = editAllowed;
+                }
+                else
+                {
+                    lbTransfer.Visible = false;
+                }
 
                 // Only show transfer if there are other Opportunities
                 if ( connectionOpportunity.ConnectionType.ConnectionOpportunities.Count > 1 )

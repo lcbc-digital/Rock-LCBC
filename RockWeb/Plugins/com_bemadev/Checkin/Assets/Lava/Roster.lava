@@ -1,0 +1,222 @@
+﻿<script>
+  $(document).ready(function(){
+    $('#printbtn').click(function(){
+       window.print();
+    });
+  });
+</script>
+
+{% assign campusId = 'Global' | PageParameter:'CampusId' %}
+{% assign locationIds = 'Global' | PageParameter:'LocationIds' %}
+{% assign scheduleIds = 'Global' | PageParameter:'ScheduleIds' %}
+{% assign areaGuid = 'Global' | PageParameter:'Area' %}
+
+{% capture wheelHouseUrl %}/page/543?CampusId={{campusId}}&LocationIds=160481%2C160490%2C160491%2C160509%2C160517%2C160530%2C160543%2C160554%2C160565%2C160575%2C160588%2C160599%2C160600%2C160628%2C160629%2C160640%2C160654{% endcapture%}
+
+<div class="row">
+	<div class="col-sm-12">
+		<a href="/checkin/welcome" class="btn btn-primary hiddenButton" role="button" style="margin-right: 10px;background-color: #525252;border-color: #525252;"> Return to Checkin </a>
+		<a id="printbtn" class="btn btn-success hiddenButton" role="button" style="background-color: #00a1dd; border-color: #00a1dd;" > Print Page </a>	
+		<a href="{{wheelHouseUrl}}" class="btn btn-primary hiddenButton" role="button" style="background-color: #525252;border-color: #525252;" > Print Wheelhouse Report </a>	
+	</div>
+</div>
+
+{% assign navPath = CurrentPerson | GetUserPreference:'CurrentNavPath' %}
+{% assign navPaths = navPath | Split:'|' %}
+{% for path in navPaths %}
+	{% assign pathSize = path | Size %}
+	{%if pathSize > 1 %}
+		{% if path contains 'T'%}
+			{% assign groupTypeId = path | Remove:'T' %}
+		{% elseif path contains 'G' %}
+			{% assign groupId = path | Remove:'G' %}
+		{% elseif path contains 'L' %}
+			{% assign locationId = path | Remove:'L' %}
+		{% endif %}
+	{% endif %}
+{% endfor %}
+
+
+
+
+{% assign debug = 'Global' | PageParameter:'Debug' %}
+{% if debug == 'true' %}
+
+	<div class="panel panel-default" style="margin-top: 24px;">
+		<div class="panel-heading">
+			<h4 class="panel-title"
+				data-toggle="collapse" 
+				data-target="#collapseOne">
+				Debugging Info
+			</h4>
+		</div>
+		<div id="collapseOne" class="panel-collapse collapse">
+					<div class="panel-body">
+				NavPath: {{ navPath }}<br>
+				groupTypeId: {{ groupTypeId }}<br>
+				groupId: {{ groupId }}<br>
+				locationId: {{ locationId }}<br>
+				campusId: {{ campusId }}<br>
+				locationIds: {{ locationIds }}<br>
+				scheduleIds: {{ scheduleIds }}<br>
+				areaGuid: {{ areaGuid }}<br>
+			</div>
+			</div>
+	</div>
+{% endif %}
+
+{% sql %} 
+{% if areaGuid != '' %} Declare @ParentGroupTypeId int = (Select Top 1 Id From GroupType Where Guid = '{{areaGuid}}');{% endif %}
+
+{% if campusId != '' %}
+Declare @CampusId int = {{campusId}}
+Declare @CampusLocationId int = (Select LocationId From Campus Where Id = @CampusId)
+Declare @LocationIdTable table(
+LocationId int
+)
+Insert into @LocationIdTable (LocationId) Values (@CampusLocationId);
+
+   WITH CTE AS (
+                    SELECT Id FROM [Location] WHERE [ParentLocationId]=@CampusLocationId
+                    UNION ALL
+                    SELECT [a].Id FROM [Location] [a]
+                    INNER JOIN CTE pcte ON pcte.Id = [a].[ParentLocationId]
+                )
+				Insert Into @LocationIdTable (LocationId) 
+                SELECT L.Id FROM CTE
+                INNER JOIN [Location] L ON L.[Id] = CTE.[Id]
+
+{% endif %}
+
+SELECT 	AC.Code AS Code ,
+		P.NickName + ' ' + P.LastName AS Name,
+		P.Id as PersonId,
+		AV.Value AS Pager,
+        L.Name AS LocationName,
+		G.Name AS GroupName,
+		GT.Name AS GroupTypeName,
+		S.Name AS ScheduleName,
+		(
+			Select Min(gt1.[Order])
+			From GroupType gt1
+			Join [Group] g1 on g1.GroupTypeId = gt1.Id
+			Join AttendanceOccurrence ao1 on ao1.GroupId = g1.Id
+			--{% if areaGuid != '' %} INNER JOIN GroupTypeAssociation GTA1 ON GT1.ID = GTA1.ChildGroupTypeId AND GTA1.GroupTypeId = @ParentGroupTypeId {% endif %}
+			Where ao1.LocationId = l.Id
+			AND DATEDIFF(day, AO1.OccurrenceDate, dateadd(hour,-4,GETUTCDATE())) = 0
+			{% if campusId != '' %} AND AO1.LocationId in (Select * From @LocationIdTable) {% endif %}
+			--{% if groupTypeId %} AND G1.GroupTypeId = {{groupTypeId}} {% endif %}
+			--{% if groupId %} AND G1.Id = {{groupId}} {% endif %}
+			--{% if locationId %} AND AO1.LocationId = {{locationId}} {% endif %}
+			{% if locationIds != '' %} AND AO1.LocationId in ({{locationIds}}){% endif %}
+			{% if scheduleIds != '' %} AND AO1.ScheduleId in ({{scheduleIds}}){% endif %}
+		 )as GroupTypeOrder
+FROM [Attendance] A 
+INNER JOIN [AttendanceOccurrence] AO ON A.OccurrenceId = AO.Id 
+INNER JOIN [Location] L ON AO.LocationId = L.Id
+INNER JOIN [Group] G ON AO.GroupId = G.Id
+INNER JOIN [GroupType] GT ON GT.Id = G.GroupTypeId
+INNER Join [Schedule] S ON S.Id = AO.ScheduleId
+INNER JOIN [PersonAlias] PA ON A.PersonAliasId = PA.Id 
+INNER JOIN [Person] P ON PA.PersonId = P.Id
+--{% if areaGuid != '' %} INNER JOIN GroupTypeAssociation GTA ON GT.ID = GTA.ChildGroupTypeId AND GTA.GroupTypeId = @ParentGroupTypeId {% endif %}
+LEFT OUTER JOIN [AttendanceCode] AC ON A.AttendanceCodeId = AC.Id
+LEFT OUTER JOIN [Attribute] AT ON AT.Guid = '791A4DC9-BB89-41E6-95E9-D377ED4C2F0B'
+LEFT OUTER JOIN [AttributeValue] AV ON AV.AttributeId = AT.Id AND AV.EntityId = A.Id
+WHERE A.DidAttend = 1 AND DATEDIFF(day, AO.OccurrenceDate, dateadd(hour,-4,GETUTCDATE())) = 0
+AND dateadd(hour,-4,GETUTCDATE()) < ISNULL(A.EndDateTime,dateadd(hour,-4,GETUTCDATE())+1)
+{% if campusId != '' %} AND AO.LocationId in (Select * From @LocationIdTable) {% endif %}
+--{% if groupTypeId %} AND G.GroupTypeId = {{groupTypeId}} {% endif %}
+--{% if groupId %} AND G.Id = {{groupId}} {% endif %}
+--{% if locationId %} AND AO.LocationId = {{locationId}} {% endif %}
+{% if locationIds != '' %} AND AO.LocationId in ({{locationIds}}){% endif %}
+{% if scheduleIds != '' %} AND AO.ScheduleId in ({{scheduleIds}}){% endif %}
+ORDER BY GroupTypeOrder, L.Name, S.Name,  G.Name, P.NickName, P.LastName 
+{% endsql %}
+
+<style>
+body { font-family: Arial, Helvetica, sans-serif; font-size: 14px; padding: .2in; }
+table tr td, table tr th { page-break-inside: avoid; border-bottom: .5px solid black; }
+.tr-header { border: none; background: #2E2E2E; }
+.tr-header th { border: none !important; color: #fff !important; background: #2E2E2E !important; }
+@media print { 
+	.hiddenButton { 
+		display :  none; 
+	} 
+	.hidePrint { 
+		display: none;
+	} 
+}
+</style>
+
+{% assign resultSize = results | Size %}
+{% if resultSize > 0 %}
+	<div>
+		<div class="hidePrint">
+			<h2>Check-In Roster Report</h2>
+			<!-- Add totals another night when it's not 2:43am...
+			<div class="panel panel-default">
+				<div class="panel-body"><span style="line-height: 1.5;color: #484848;font-size: 18px;">Totals</span></div>
+			</div>
+			-->
+		</div>
+		
+		{% assign newHeaderText = '' %} 
+		{% for item in results %} 
+			{% capture headerText %}{{item.LocationName}} - {{item.ScheduleName}} Total:{{ results | Where:'LocationName',item.LocationName | Where:'ScheduleName',item.ScheduleName | Size}}{% endcapture %}
+			{% capture phoneNumbers%}
+					{% assign person = item.PersonId | PersonById %}
+					{% assign parents = person | Parents %}
+					{% for parent in parents %}
+						{% assign phoneNumber = parent | PhoneNumber:'Mobile' %}
+						{% if phoneNumber != '' %}						
+							{{ phoneNumber }}<br/>
+						{% endif %}
+					{% endfor %}
+			{% endcapture %}
+			{% if newHeaderText != headerText %}
+				{% if newHeaderText != '' %} 
+					</tbody></table> <div style='page-break-after:always;'></div>
+				{% endif %}
+
+				<table class='table table-striped'> 
+					<thead> 
+						<tr class='tr-header'>
+							<th colspan='8' style='padding-left:15px'> 
+								<h3 style='color:white;'>{{headerText}}</h3> 
+							</th> 
+						</tr>
+						<tr class='tr-header'> 
+							<th>Attendee Name</th>
+							<th>Group Name</th>
+							<th>Phone Number</th>
+							<th>Security Code</th> 
+							<th>Pager</th>
+						</tr> 
+					</thead> 
+				<tbody> 
+
+			{% endif %}
+			{% assign newHeaderText = headerText %} 
+			<tr> 
+				<td>{{item.Name}}</td>
+				<td>{{item.GroupName}}</td> 
+				<td>{{phoneNumbers | ReplaceLast:'<br/>',''}}</td> 
+				<td>{{item.Code}}</td> 
+				<td>{{item.Pager}}</td>
+			</tr> 
+		{% endfor %} 
+		</tbody> 
+		</table>
+	</div>
+
+{% else %}
+	<div class="row">
+		<div class="col-sm-12">
+			<h2>Check-In Roster Report</h2>
+			<div class="panel panel-default">
+				<div class="panel-body"><span style="line-height: 1.5;color: #484848;font-size: 16px;">No check-ins available</span></div>
+			</div>
+		</div>
+	</div>
+{% endif %}
