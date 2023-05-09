@@ -1,0 +1,210 @@
+.page-layout-locationfinder {
+    height: ~"calc(100vh - env(safe-area-inset-bottom, 0) - env(safe-area-inset-top, 0))";
+    min-height: ~"calc(100vh - env(safe-area-inset-bottom, 0) - env(safe-area-inset-top, 0))";
+    overflow: hidden;
+    overflow: -moz-hidden-unscrollable;
+
+    @supports (-webkit-touch-callout: none) {
+        /* for ios safari 15, safe-area-inset-bottom is 0, so a special fix apply here */
+        height: -webkit-fill-available;
+        min-height: -webkit-fill-available;
+    }
+
+  #form1,
+  .page {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  #cms-admin-footer {
+    display: none;
+  }
+}
+
+.map-divider {
+  display: none;
+
+  .has-geolocation & {
+    display: inline;
+  }
+}
+
+.fill-window {
+  flex: 1 0 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden;
+  overflow: -moz-hidden-unscrollable;
+  display: flex;
+  flex-direction: column;
+
+  > .zone-content,
+  .block-instance,
+  .block-instance > .block-content,
+  .block-instance > .block-content > div {
+    height: 100%;
+    display: flex;
+    flex: 1 0 0;
+    flex-direction: column;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .block-instance > .block-content > div:last-child  {
+    display: none;
+  }
+
+  .config-bar {
+    height: 0;
+    display: none !important;
+  }
+}
+
+.page-layout-locationfinder {
+  .prayer-cta-launcher {
+    display: none;
+  }
+}
+
+.location-finder {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+
+
+  .locations {
+    display: contents;
+  }
+
+  .location-filter {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: @zindex-modal;
+    overflow: auto;
+    background: #fff;
+
+    .filter-section {
+      padding: 40px 20px;
+      border-bottom: 1px solid #e6e6e6;
+
+      &:last-child {
+        border-bottom: 0;
+      }
+    }
+
+    .filter-header {
+      padding: 22px 20px;
+    }
+  }
+
+  .map {
+    z-index: -1;
+    display: flex;
+    flex: 1 0 30vh;
+    flex-direction: column;
+    order: -1;
+    padding-top: 0;
+    background: #eef9ed;
+  }
+
+  .location-header {
+    order: -2;
+    padding: 8px (@grid-gutter-width / 2);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .12), inset 0 2px 4px -3px #464646;
+  }
+
+  .location-list {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow: auto;
+    white-space: normal;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: -ms-autohiding-scrollbar;
+    scroll-behavior: smooth;
+    padding-bottom: 80px;
+  }
+
+  .location-list-items {
+    padding: 40px (@grid-gutter-width / 2);
+  }
+
+  .location-list-item-header {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    padding-bottom: 12px;
+  }
+
+
+  @media (min-width: @screen-lg) {
+    flex-direction: row;
+
+    .map {
+      position: relative;
+      flex-basis: 50vw;
+      order: 2;
+    }
+
+    .locations {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex: 0 0 50vw;
+      flex-direction: column;
+      order: 1;
+      overflow: hidden;
+      word-wrap: normal !important;
+      background-color: #f3f3f3;
+      box-shadow: 0 2px 4px 0 rgba(0, 0, 0, .12);
+    }
+
+    .location-header {
+      padding: 12px 24px 20px;
+      background: #fff;
+      box-shadow: none;
+    }
+
+    .location-list-items {
+      padding: 20px 22px 20px 24px;
+    }
+  }
+
+  @media (min-width: 1560px) {
+    .map {
+      flex-basis: 60vw;
+    }
+
+    .locations {
+      flex-basis: 40vw;
+    }
+  }
+}
+
+.location-header {
+  display: flex;
+  flex-flow: column wrap;
+  justify-content: space-between;
+  border-bottom: 1px solid #f3f3f3;
+}
+
+
+.gm-style {
+  .gm-style-iw-c {
+    padding: 0;
+  }
+
+  .gm-style-iw-d {
+    overflow: auto !important;
+  }
+}

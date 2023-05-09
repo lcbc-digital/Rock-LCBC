@@ -1,0 +1,53 @@
+/- {% include '~~/Assets/Lava/shortcodes/sitewidenotification.lava' %} -/
+
+/-
+1. Show countdown 60 minutes before each service
+2. Join us live for Church Online in [Countdown] // Happening Live Now! Join us now for Church Online
+-/
+
+{% assign contentchannelid = 8 %}
+{% assign onlineCampusId = 15 %}
+{% assign now = 'Now' | Date:'yyyy-MM-ddTHH:mm:sszzz' | AsDateTime %}
+
+{% assign data = 'GatheringsSourceTriumph' | PersistedDataset %}
+{% assign schedules = data | Where:'CampusId',onlineCampusId | First | Property:'Schedules' | Sort:'NextStartDateTime' %}
+
+{% for scheduleItem in schedules %}
+    {% assign nextStart = scheduleItem.NextStartDateTime | AsDateTime %}
+    {% assign nextEnd = scheduleItem.NextEndDateTime | AsDateTime %}
+    {% if nextStart < now and nextEnd > now  %}
+        <div id="serviceCountdown" class="alertbar no-index"><a href="https://lcbc.online.church/" class="alertbar-content">
+            {{ watchlivetext }}
+        </a></div>
+        {% break %}
+    {% elseif nextStart > now %}
+        <div id="serviceCountdown" data-countdown-time="{{ nextStart | Date:'yyyy-MM-ddTHH:mm:sszzz' }}" data-live-text="{{ watchlivetext }}" class="alertbar alertbar-service no-index"><a href="https://lcbc.online.church/" id="countdown-wrapper" class="alertbar-content">
+            Join us live for Church Online in <span class="countdown"><span id="olm">&nbsp;&nbsp;</span>:<span id="ols">&nbsp;&nbsp;</span></span>
+        </a></div>
+        {% break %}
+    {% endif %}
+{% endfor %}
+
+{% contentchannelitem where:'ExpireDateTime > "{{ now }}" || ExpireDateTime _= "" && StartDateTime < "{{ now }}" && ContentChannelId == {{ contentchannelid }}' limit:'1' iterator:'Items' sort:'ModifiedDateTime desc' securityenabled:'false' %}
+    {% for item in Items %}
+        {% assign alertText = item | Attribute:'Text' %}
+        {% assign alertLink = item | Attribute:'Link' %}
+        {% assign background = item | Attribute:'BackgroundColor' %}
+        {% assign newWindow = item | Attribute:'NewWindow','RawValue' | AsBoolean %}
+
+        <div id="nab-{{ item.Id }}" class="alertbar no-index js-active js-alertbar" {% if background != '' and background != null %}style="background:{{ background }};"{% endif %} data-alertbar-name="dismiss{{ item.Id }}alertbar" data-alertbar-value="dismissed">
+            {% if alertLink and alertLink != '' %}
+                <a class="alertbar-link" href="{{ alertLink }}" {% if newWindow %}target="_blank" {% endif %}>
+            {% endif %}
+            <div class="alertbar-content">
+                {% if alertText and alertText != '' %}{{ alertText }}{% else %}{{ item.Title }}{% endif %}
+            </div>
+            {% if alertLink and alertLink != '' %}
+                </a>
+            {% endif %}
+            {% if dismissible == 'true' %}
+                <a id="alertbar-close" class="alertbar-close js-alertbar-close" data-dismiss="alert" ><span aria-hidden="true"><i class="fa fa-times"></i></span></a>
+            {% endif %}
+        </div>
+    {% endfor %}
+{% endcontentchannelitem %}
