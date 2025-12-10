@@ -571,6 +571,38 @@ export class Enumerable<T> {
     }
 
     /**
+     * Computes the sum of a sequence of numeric values.
+     *
+     * If a selector is provided, each element is projected into a numeric value before summing.
+     * If no elements exist, the result is 0.
+     *
+     * @param selector A function to transform each element into a number.
+     * @returns The sum of the projected numeric values.
+     *
+     * @example
+     * const nums = Enumerable.from([1, 2, 3]);
+     * console.log(nums.sum(n => n)); // Outputs: 6
+     *
+     * @example
+     * const objs = Enumerable.from([{ v: 1 }, { v: 2 }, { v: 3 }]);
+     * console.log(objs.sum(o => o.v)); // Outputs: 6
+     *
+     * @example
+     * const empty = Enumerable.from<number>([]);
+     * console.log(empty.sum(n => n)); // Outputs: 0
+     */
+    sum(selector: (item: T) => number): number {
+        let total = 0;
+
+        for (const item of this) {
+            total += selector(item);
+        }
+
+        return total;
+    }
+
+
+    /**
      * Returns a new Enumerable that contains the first `count` elements of the sequence.
      * @param count - The number of elements to take.
      * @returns A new Enumerable containing the taken elements.

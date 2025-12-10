@@ -2370,7 +2370,7 @@ namespace Rock.Blocks.Group
                     }
                 }
 
-                var occurrenceDate = attendanceOccurrenceSearchParameters.AttendanceOccurrenceDate ?? RockDateTime.Today;
+                var occurrenceDate = ( attendanceOccurrenceSearchParameters.AttendanceOccurrenceDate ?? RockDateTime.Today ).Date;
                 var locationId = attendanceOccurrenceSearchParameters.LocationId;
                 var scheduleId = attendanceOccurrenceSearchParameters.ScheduleId;
                 var group = attendanceOccurrenceSearchParameters.Group;

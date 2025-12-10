@@ -1974,7 +1974,6 @@ $('#{this.ClientID} .{GRID_SELECT_CELL_CSS_CLASS}').on( 'click', function (event
                     var communicationRockContext = new RockContext();
                     var communicationService = new Rock.Model.CommunicationService( communicationRockContext );
                     var communication = new Rock.Model.Communication();
-                    communication.IsBulkCommunication = true;
                     communication.Status = Model.CommunicationStatus.Transient;
 
                     // Get a list of the mergefield names
