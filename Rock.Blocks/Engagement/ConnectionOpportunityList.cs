@@ -47,7 +47,8 @@ namespace Rock.Blocks.Engagement
 
     [Rock.Cms.DefaultBlockRole( Rock.Enums.Cms.BlockRole.Secondary )]
     [Rock.SystemGuid.EntityTypeGuid( "02713f10-e574-45e0-9178-a02f7957b3a4" )]
-    [Rock.SystemGuid.BlockTypeGuid( "8eb82e1e-c0bd-4591-9d7a-f120a871fec3" )]
+    // was [Rock.SystemGuid.BlockTypeGuid( "8eb82e1e-c0bd-4591-9d7a-f120a871fec3" )]
+    [Rock.SystemGuid.BlockTypeGuid( "481AE184-4654-48FB-A2B4-90F6604B59B8" )]
     [CustomizedGrid]
     public class ConnectionOpportunityList : RockEntityListBlockType<ConnectionOpportunity>
     {
@@ -63,7 +64,21 @@ namespace Rock.Blocks.Engagement
             public const string DetailPage = "DetailPage";
         }
 
+        private static class PageParameterKey
+        {
+            public const string ConnectionTypeId = "ConnectionTypeId";
+        }
+
         #endregion Keys
+
+        #region Fields
+
+        /// <summary>
+        /// Singleton instance of the connection type, should be accessed via <see cref="GetConnectionType"/>.
+        /// </summary>
+        private ConnectionTypeCache _connectionType;
+
+        #endregion Fields
 
         #region Methods
 
@@ -72,9 +87,10 @@ namespace Rock.Blocks.Engagement
         {
             var box = new ListBlockBox<ConnectionOpportunityListOptionsBag>();
             var builder = GetGridBuilder();
+            var isAddEnabled = GetIsAddEnabled();
 
-            box.IsAddEnabled = GetIsAddEnabled();
-            box.IsDeleteEnabled = true;
+            box.IsAddEnabled = isAddEnabled;
+            box.IsDeleteEnabled = isAddEnabled;
             box.ExpectedRowCount = null;
             box.NavigationUrls = GetBoxNavigationUrls();
             box.Options = GetBoxOptions();
@@ -100,9 +116,8 @@ namespace Rock.Blocks.Engagement
         /// <returns>A boolean value that indicates if the add button should be enabled.</returns>
         private bool GetIsAddEnabled()
         {
-            var entity = new ConnectionOpportunity();
-
-            return entity.IsAuthorized( Authorization.EDIT, RequestContext.CurrentPerson );
+            var connectionType = GetConnectionType();
+            return connectionType?.IsAuthorized( Authorization.EDIT, RequestContext.CurrentPerson ) ?? false;
         }
 
         /// <summary>
@@ -111,16 +126,35 @@ namespace Rock.Blocks.Engagement
         /// <returns>A dictionary of key names and URL values.</returns>
         private Dictionary<string, string> GetBoxNavigationUrls()
         {
+            var queryParams = new Dictionary<string, string>
+            {
+                ["ConnectionOpportunityId"] = "((Key))",
+                ["autoEdit"] = "true",
+                ["returnUrl"] = this.GetCurrentPageUrl()
+            };
+
+            var connectionType = GetConnectionType();
+            if ( connectionType != null )
+            {
+                queryParams[PageParameterKey.ConnectionTypeId] = connectionType.IdKey;
+            }
+
             return new Dictionary<string, string>
             {
-                [NavigationUrlKey.DetailPage] = this.GetLinkedPageUrl( AttributeKey.DetailPage, new Dictionary<string, string> { ["ConnectionOpportunityId"] = "((Key))", ["autoEdit"] = "true", ["returnUrl"] = this.GetCurrentPageUrl() } )
+                [NavigationUrlKey.DetailPage] = this.GetLinkedPageUrl( AttributeKey.DetailPage, queryParams )
             };
         }
 
         /// <inheritdoc/>
         protected override IQueryable<ConnectionOpportunity> GetListQueryable( RockContext rockContext )
         {
-            return base.GetListQueryable( rockContext );
+            var connectionType = GetConnectionType();
+            if ( connectionType == null )
+            {
+                return new List<ConnectionOpportunity>().AsQueryable();
+            }
+
+            return base.GetListQueryable( rockContext ).Where( c => c.ConnectionTypeId == connectionType.Id );
         }
 
         /// <inheritdoc/>
@@ -148,6 +182,19 @@ namespace Rock.Blocks.Engagement
         protected override IQueryable<ConnectionOpportunity> GetOrderedListQueryable( IQueryable<ConnectionOpportunity> queryable, RockContext rockContext )
         {
             return queryable.OrderBy( co => co.Order ).ThenBy( co => co.Name );
+        }
+
+        /// <summary>
+        /// Retrieve a singleton connection type for data operations in this block.
+        /// </summary>
+        private ConnectionTypeCache GetConnectionType()
+        {
+            if ( _connectionType == null )
+            {
+                _connectionType = ConnectionTypeCache.Get( PageParameter( PageParameterKey.ConnectionTypeId ), !PageCache.Layout.Site.DisablePredictableIds );
+            }
+
+            return _connectionType;
         }
 
         #endregion

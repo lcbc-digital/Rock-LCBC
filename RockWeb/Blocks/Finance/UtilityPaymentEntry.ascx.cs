@@ -145,7 +145,6 @@ namespace RockWeb.Blocks.Finance
         Key = AttributeKey.AccountHeaderTemplate,
         Description = "The Lava Template to use as the amount input label for each account.",
         EditorMode = CodeEditorMode.Lava,
-        EditorTheme = CodeEditorTheme.Rock,
         EditorHeight = 50,
         IsRequired = true,
         DefaultValue = "{{ Account.PublicName }}",
@@ -275,7 +274,7 @@ namespace RockWeb.Blocks.Finance
 
     [BooleanField(
         "Disable Captcha Support",
-        Description = "If set to 'Yes' the CAPTCHA verification will be skipped. \n\nNote: If the CAPTCHA site key and/or secret key are not configured in the system settings, this option will be forced as 'Yes', even if 'No' is visually selected.",
+        Description = "If set to 'Yes' the CAPTCHA verification step will not be performed.",
         Key = AttributeKey.DisableCaptchaSupport,
         DefaultBooleanValue = false,
         Order = 29 )]
@@ -361,7 +360,6 @@ namespace RockWeb.Blocks.Finance
         Key = AttributeKey.ConfirmationHeader,
         Description = "The text (HTML) to display at the top of the confirmation section.  <span class='tip tip-lava'></span> <span class='tip tip-html'></span>",
         EditorMode = CodeEditorMode.Html,
-        EditorTheme = CodeEditorTheme.Rock,
         EditorHeight = 200,
         IsRequired = true,
         DefaultValue = AttributeString.ConfirmationHeader,
@@ -372,7 +370,6 @@ namespace RockWeb.Blocks.Finance
         Key = AttributeKey.ConfirmationFooter,
         Description = "The text (HTML) to display at the bottom of the confirmation section. <span class='tip tip-lava'></span> <span class='tip tip-html'></span>",
         EditorMode = CodeEditorMode.Html,
-        EditorTheme = CodeEditorTheme.Rock,
         EditorHeight = 200,
         IsRequired = true,
         DefaultValue = AttributeString.ConfirmationFooter,
@@ -392,7 +389,6 @@ namespace RockWeb.Blocks.Finance
         Key = AttributeKey.SuccessFooter,
         Description = "The text (HTML) to display at the bottom of the success section. <span class='tip tip-lava'></span> <span class='tip tip-html'></span>",
         EditorMode = CodeEditorMode.Html,
-        EditorTheme = CodeEditorTheme.Rock,
         EditorHeight = 200,
         IsRequired = false,
         DefaultValue = @"",
@@ -419,7 +415,6 @@ namespace RockWeb.Blocks.Finance
         Key = AttributeKey.PaymentCommentTemplate,
         Description = AttributeString.PaymentCommentDescription,
         EditorMode = CodeEditorMode.Lava,
-        EditorTheme = CodeEditorTheme.Rock,
         EditorHeight = 100,
         IsRequired = false,
         Category = CategoryKey.TextOptions,
@@ -456,7 +451,6 @@ namespace RockWeb.Blocks.Finance
         Key = AttributeKey.InvalidAccountMessage,
         Description = "Display this text (HTML) as an error alert if an invalid 'account' or 'glaccount' is passed through the URL.",
         EditorMode = CodeEditorMode.Html,
-        EditorTheme = CodeEditorTheme.Rock,
         EditorHeight = 200,
         IsRequired = true,
         DefaultValue = "The configured financial accounts are not valid for accepting financial transactions.",
@@ -511,7 +505,6 @@ namespace RockWeb.Blocks.Finance
         Key = AttributeKey.TransactionHeader,
         Description = "The Lava template which will be displayed prior to the Amount entry",
         EditorMode = CodeEditorMode.Lava,
-        EditorTheme = CodeEditorTheme.Rock,
         EditorHeight = 200,
         IsRequired = false,
         DefaultValue = "",
@@ -975,29 +968,21 @@ mission. We are so grateful for your commitment.</p>
             };
 
             _hostedPaymentInfoControl = this.FinancialGatewayComponent.GetHostedPaymentInfoControl( this.FinancialGateway, $"_hostedPaymentInfoControl_{this.FinancialGateway.Id}", hostedPaymentInfoControlOptions );
-            _hostedPaymentInfoControl.Visible = false;
+            _hostedPaymentInfoControl.Visible = true;
             phHostedPaymentControl.Controls.Add( _hostedPaymentInfoControl );
 
-            nbPaymentTokenError.Text = "Loading...";
-            nbPaymentTokenError.Visible = true;
-
-            if ( cpCaptcha.Visible )
-            {
-                btnHostedPaymentInfoNext.Visible = false;
-                btnSavedAccountPaymentInfoNext.Visible = false;
-            }
+            hfHostPaymentInfoSubmitScript.Value = this.FinancialGatewayComponent.GetHostPaymentInfoSubmitScript( this.FinancialGateway, _hostedPaymentInfoControl );
 
             if ( Captcha.CaptchaService.ShouldDisableCaptcha( GetAttributeValue( AttributeKey.DisableCaptchaSupport ).AsBoolean() ) || !cpCaptcha.IsAvailable )
             {
-                hfHostPaymentInfoSubmitScript.Value = this.FinancialGatewayComponent.GetHostPaymentInfoSubmitScript( this.FinancialGateway, _hostedPaymentInfoControl );
-                _hostedPaymentInfoControl.Visible = true;
-
-                nbPaymentTokenError.Visible = false;
-                nbPaymentTokenError.Text = string.Empty;
-
                 var isSavedAccount = rblSavedAccount.SelectedValue.AsInteger() > 0;
                 btnSavedAccountPaymentInfoNext.Visible = isSavedAccount;
                 btnHostedPaymentInfoNext.Visible = !isSavedAccount;
+            }
+            else
+            {
+                btnHostedPaymentInfoNext.Visible = false;
+                btnSavedAccountPaymentInfoNext.Visible = false;
             }
 
             if ( _hostedPaymentInfoControl is IHostedGatewayPaymentControlTokenEvent )
