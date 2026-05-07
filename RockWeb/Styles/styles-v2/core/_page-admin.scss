@@ -68,7 +68,7 @@
 }
 
 .config-bar {
-  font-size:    var(--font-size-h5);
+  font-size:    var(--font-size-regular);
   line-height:  var(--line-height-normal);
 
   &,
@@ -125,14 +125,14 @@
 // ========================== ADMIN FOOTER ==========================
 #cms-admin-footer {
   position:     fixed;
-  right:        0;
+  right:        var(--docked-panel-push-width, 0);
   bottom:       0;
   z-index:      $zindex-modal - 1;
   width:        100%;
   height:       36px;
   padding:      var(--spacing-xsmall) 12px 0;
   margin-right: 0;
-  color:      #fff;
+  color:      var(--base-interface-softest);
   background:   #2d2e31;
   border-color: var(--adminbar-bg); // TODO this should be darken by 10% using css mix() when available
   border-style: solid;
@@ -145,14 +145,17 @@
 
   > span {
     display:        none;
-    margin-top:     3px;
     margin-bottom:  var(--spacing-tiny);
     font-size:      12px;
     text-align:     center;
   }
 
   > span.label {
-    margin-top: 1px;
+
+    a {
+      color: var(--color-interface-stronger);
+    }
+
   }
 
   > span.cms-admin-footer-property {
@@ -162,7 +165,7 @@
   }
 
   a {
-    color: #fff;
+    color: var(--base-interface-softest);
     text-decoration: none;  //Added to remove the underline of "Page Load Time:" span of the admin bar
   }
 
@@ -185,11 +188,83 @@
 }
 
 #cms-admin-footer .btn {
-  color:      #fff;
+  color:      var(--base-interface-softest);
   text-shadow:  none;
   box-shadow:   none;
 }
 // ======================== END ADMIN FOOTER ========================
+
+// ======================== PAGE DEBUG ========================
+
+.traces {
+
+  .trace-timestamp,
+  .trace-queries {
+      text-align: right;
+      text-wrap: nowrap;
+  }
+
+  .timings-tab {
+      max-height: calc(100vh - 250px);
+      overflow-y: auto;
+  }
+
+  .traces-tab {
+      max-height: calc(100vh - 250px);
+      display: flex;
+      flex-direction: column;
+  }
+
+  .traces-list {
+      flex-basis: 70%;
+      flex-grow: 1;
+      overflow-y: auto;
+  }
+
+  .trace-detail {
+      flex-basis: 30%;
+      flex-grow: 1;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh * 0.3);
+  }
+
+  .trace-detail-header {
+      display: flex;
+      gap: var(--spacing-small);
+      margin-bottom: var(--spacing-small);
+  }
+
+  .trace-detail-header .ti {
+      margin-left: auto;
+      cursor: pointer;
+  }
+
+  .trace-tags {
+      flex-grow: 1;
+      overflow-y: auto;
+  }
+
+  .ti-chevron-right,
+  .ti-chevron-down,
+  .trace-name {
+      cursor: pointer;
+  }
+
+  .trace-title {
+      display: flex;
+      gap: var(--spacing-small);
+      align-items: center;
+  }
+
+  .trace-title .trace-name {
+      flex-grow: 1;
+  }
+
+}
+
+// ======================== END PAGE DEBUG ========================
 
 
 // ======================== RESPONSIVE RULES ========================

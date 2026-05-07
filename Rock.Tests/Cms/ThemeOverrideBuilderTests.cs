@@ -20,7 +20,7 @@ namespace Rock.Tests.Cms
         {
             var builder = new ThemeOverrideBuilder( "TestTheme", null );
 
-            Assert.That.IsNotNull( builder.VariableValues );
+            Assert.IsNotNull( builder.VariableValues );
         }
 
         #endregion
@@ -37,7 +37,7 @@ namespace Rock.Tests.Cms
 
             var content = builder.Build( string.Empty );
 
-            Assert.That.DoesNotContain( content, expectedVariable );
+            Assert.DoesNotContain( expectedVariable, content );
         }
 
         [TestMethod]
@@ -50,7 +50,7 @@ namespace Rock.Tests.Cms
 
             var content = builder.Build( string.Empty );
 
-            Assert.That.DoesNotContain( content, expectedVariable );
+            Assert.DoesNotContain( expectedVariable, content );
         }
 
         [TestMethod]
@@ -65,7 +65,7 @@ namespace Rock.Tests.Cms
 
             var content = builder.Build( string.Empty );
 
-            Assert.That.Contains( content, expectedContent );
+            Assert.Contains( expectedContent, content );
         }
 
         #endregion
@@ -82,7 +82,7 @@ namespace Rock.Tests.Cms
 
             var content = builder.Build( string.Empty );
 
-            Assert.That.Contains( content, expectedContent );
+            Assert.Contains( expectedContent, content );
         }
 
         #endregion
@@ -98,7 +98,7 @@ namespace Rock.Tests.Cms
 
             var content = builder.Build( string.Empty );
 
-            Assert.That.DoesNotContain( "@import", content );
+            Assert.DoesNotContain( "@import", content );
         }
 
         [TestMethod]
@@ -110,7 +110,7 @@ namespace Rock.Tests.Cms
 
             var content = builder.Build( string.Empty );
 
-            Assert.That.DoesNotContain( "@import", content );
+            Assert.DoesNotContain( "@import", content );
         }
 
         [TestMethod]
@@ -126,7 +126,7 @@ namespace Rock.Tests.Cms
 
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, expectedContent );
+                Assert.Contains( expectedContent, content );
             }
         }
 
@@ -143,7 +143,7 @@ namespace Rock.Tests.Cms
             {
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, expectedContent );
+                Assert.Contains( expectedContent, content );
             }
         }
 
@@ -167,7 +167,7 @@ namespace Rock.Tests.Cms
 
             var content = builder.Build( string.Empty );
 
-            Assert.That.AreEqual( $"@charset \"UTF-8\";{Environment.NewLine}", content );
+            Assert.IsEmpty( content );
         }
 
         [TestMethod]
@@ -188,8 +188,8 @@ namespace Rock.Tests.Cms
 
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, "fontawesome" );
-                Assert.That.Contains( content, "tabler" );
+                Assert.Contains( "fontawesome", content );
+                Assert.Contains( "tabler", content );
             }
         }
 
@@ -211,7 +211,7 @@ namespace Rock.Tests.Cms
 
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, "/Styles/styles-v2/icons/fontawesome-icon.css" );
+                Assert.Contains( "/Styles/styles-v2/icons/fontawesome-icon.css", content );
             }
         }
 
@@ -234,7 +234,7 @@ namespace Rock.Tests.Cms
 
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, "/Styles/styles-v2/icons/fontawesome-solid.css" );
+                Assert.Contains( "/Styles/styles-v2/icons/fontawesome-solid.css", content );
             }
         }
 
@@ -257,7 +257,7 @@ namespace Rock.Tests.Cms
 
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, "/Styles/styles-v2/icons/fontawesome-regular.css" );
+                Assert.Contains( "/Styles/styles-v2/icons/fontawesome-regular.css", content );
             }
         }
 
@@ -280,7 +280,7 @@ namespace Rock.Tests.Cms
 
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, "/Styles/styles-v2/icons/fontawesome-light.css" );
+                Assert.Contains( "/Styles/styles-v2/icons/fontawesome-light.css", content );
             }
         }
 
@@ -306,7 +306,7 @@ namespace Rock.Tests.Cms
 
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, "/Styles/styles-v2/icons/fontawesome-solid.css" );
+                Assert.Contains( "/Styles/styles-v2/icons/fontawesome-solid.css", content );
             }
         }
 
@@ -332,7 +332,7 @@ namespace Rock.Tests.Cms
 
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, "/Styles/styles-v2/icons/fontawesome-regular.css" );
+                Assert.Contains( "/Styles/styles-v2/icons/fontawesome-regular.css", content );
             }
         }
 
@@ -358,7 +358,7 @@ namespace Rock.Tests.Cms
 
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, "/Styles/styles-v2/icons/fontawesome-light.css" );
+                Assert.Contains( "/Styles/styles-v2/icons/fontawesome-light.css", content );
             }
         }
 
@@ -380,7 +380,7 @@ namespace Rock.Tests.Cms
 
                 var content = builder.Build( string.Empty );
 
-                Assert.That.Contains( content, "/Styles/styles-v2/icons/tabler-icon.css" );
+                Assert.Contains( "/Styles/styles-v2/icons/tabler-icon.css", content );
             }
         }
 
@@ -395,7 +395,7 @@ namespace Rock.Tests.Cms
 
             var content = builder.Build( string.Empty );
 
-            Assert.That.DoesNotContain( ":root {", content );
+            Assert.DoesNotContain( ":root {", content );
         }
 
         [TestMethod]
@@ -407,7 +407,7 @@ namespace Rock.Tests.Cms
 
             var content = builder.Build( string.Empty );
 
-            Assert.That.Contains( content, ":root {" );
+            Assert.Contains( ":root {", content );
         }
 
         [TestMethod]
@@ -418,8 +418,7 @@ namespace Rock.Tests.Cms
                 var tablerPath = RockApp.Current.MapPath( "~/Styles/styles-v2/icons/tabler-icon.css" );
                 var tablerHash = System.IO.File.ReadAllText( tablerPath ).XxHash();
 
-                var expectedContent = $@"@charset ""UTF-8"";
-{ThemeOverrideBuilder.TopOverrideStartMarker}
+                var expectedContent = $@"{ThemeOverrideBuilder.TopOverrideStartMarker}
 @import url('on.css');
 @import url('/Styles/styles-v2/icons/tabler-icon.css?v={tablerHash}');
 {ThemeOverrideBuilder.TopOverrideEndMarker}
@@ -450,7 +449,7 @@ div {{ display: none; }}
 
                 var content = builder.Build( string.Empty ).Trim();
 
-                Assert.That.AreEqual( expectedContent, content );
+                Assert.AreEqual( expectedContent, content );
             }
         }
 
@@ -464,7 +463,7 @@ div {{ display: none; }}
 
                 var content = builder.Build( expectedContent ).Trim();
 
-                Assert.That.Contains( content, expectedContent );
+                Assert.Contains( expectedContent, content );
             }
         }
 
@@ -493,11 +492,11 @@ div {{ display: none; }}
 
                 var content = builder.Build( originalContent ).Trim();
 
-                Assert.That.Contains( content, expectedContent );
-                Assert.That.DoesNotContain( content, ThemeOverrideBuilder.TopOverrideStartMarker );
-                Assert.That.DoesNotContain( content, ThemeOverrideBuilder.TopOverrideEndMarker );
-                Assert.That.DoesNotContain( content, ThemeOverrideBuilder.BottomOverrideStartMarker );
-                Assert.That.DoesNotContain( content, ThemeOverrideBuilder.BottomOverrideEndMarker );
+                Assert.Contains( expectedContent, content );
+                Assert.DoesNotContain( ThemeOverrideBuilder.TopOverrideStartMarker, content );
+                Assert.DoesNotContain( ThemeOverrideBuilder.TopOverrideEndMarker, content );
+                Assert.DoesNotContain( ThemeOverrideBuilder.BottomOverrideStartMarker, content );
+                Assert.DoesNotContain( ThemeOverrideBuilder.BottomOverrideEndMarker, content );
             }
         }
 

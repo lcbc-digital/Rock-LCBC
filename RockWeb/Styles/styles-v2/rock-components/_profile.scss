@@ -1,7 +1,7 @@
 .main-content:has(.profile-content, .person-profile) {
   max-width: 100%;
-  padding: 0 !important;
-  margin: 0 !important;
+  padding: 0;
+  margin: 0;
 }
 
 // When there is profile content, reduce the margin on the footer
@@ -623,7 +623,7 @@ background: currentColor;
   z-index: 1020;
 
   @media (min-width: $screen-medium) {
-    top: 80px;
+    top: var(--sticky-element-offset, 0);
 
     &.outline {
       top: 0;

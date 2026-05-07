@@ -55,7 +55,7 @@
                     <Modal v-model="isAttributeModalOpen" title="Binary File Type Attributes">
 
                         <RockForm v-model:submit="saveAttribute" @submit="onSaveAttribute">
-                            <AttributeEditor v-model="binaryFileTypeAttribute" :reservedKeyNames="reservedKeyNames" />
+                            <AttributeEditor v-model="binaryFileTypeAttribute" :reservedKeyNames="reservedKeyNames" :attributeEntityTypeGuid="EntityType.BinaryFile" />
                         </RockForm>
 
                         <template #customButtons>
@@ -130,6 +130,7 @@
     import { BinaryFileTypeBag } from "@Obsidian/ViewModels/Blocks/Core/BinaryFileTypeDetail/binaryFileTypeBag";
     import { BinaryFileTypeDetailOptionsBag } from "@Obsidian/ViewModels/Blocks/Core/BinaryFileTypeDetail/binaryFileTypeDetailOptionsBag";
     import { newGuid } from "@Obsidian/Utility/guid";
+    import { EntityType } from "@Obsidian/SystemGuids/entityType";
     import { FieldType } from "@Obsidian/SystemGuids/fieldType";
     import { toNumberOrNull } from "@Obsidian/Utility/numberUtils";
     import { ValidPropertiesBox } from "@Obsidian/ViewModels/Utility/validPropertiesBox";
@@ -252,8 +253,8 @@
             const index = binaryFileTypeAttributes.value.findIndex(a => a.guid === binaryFileTypeAttribute.value?.guid);
             if (index !== -1) {
                 // Get the updated attribute and rowItem.
-                let editedAttribute = binaryFileTypeAttributes.value.find(a => a.guid == binaryFileTypeAttribute.value?.guid);
-                let rowItem = attributesGridData.rows?.find(x => x.key == binaryFileTypeAttribute.value?.guid);
+                let editedAttribute = binaryFileTypeAttributes.value.find(a => a.guid === binaryFileTypeAttribute.value?.guid);
+                let rowItem = attributesGridData.rows?.find(x => x.key === binaryFileTypeAttribute.value?.guid);
 
                 if (editedAttribute) {
                     // Replace old attribute with updated attribute.
