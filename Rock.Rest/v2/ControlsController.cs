@@ -4287,6 +4287,14 @@ namespace Rock.Rest.v2
                 System.Web.HttpContext.Current.AddOrReplaceItem( "CurrentPerson", RockRequestContext.CurrentPerson );
                 rockContext.SaveChanges();
 
+                // Read the inserted email section before converting to a bag
+                // to get its final field values that might have been updated from hooks.
+                var query = emailSectionService.Queryable().AsNoTracking()
+                    .Where( es => es.Id == emailSection.Id );
+                query = SetIncludesForEmailEditorEmailSectionBag( query );
+
+                emailSection = query.FirstOrDefault();
+
                 return Content( HttpStatusCode.Created, GetEmailSectionBagFromEmailSection( emailSection ) );
             }
         }
@@ -4318,22 +4326,21 @@ namespace Rock.Rest.v2
             using ( var rockContext = new RockContext() )
             {
                 var emailSectionService = new EmailSectionService( rockContext );
-                var emailSection = emailSectionService.Queryable().AsNoTracking()
-                    .Include( es => es.Category )
-                    .Include( es => es.ThumbnailBinaryFile )
-                    .Where( es => es.Guid == options.EmailSectionGuid )
-                    .ToList()
-                    .Where( es => es.IsAuthorized( Security.Authorization.VIEW, RockRequestContext.CurrentPerson ) )
-                    .Select( es => GetEmailSectionBagFromEmailSection( es ) )
-                    .FirstOrDefault();
 
-                if ( emailSection == null )
+                var query = emailSectionService.Queryable().AsNoTracking()
+                    .Where( es => es.Guid == options.EmailSectionGuid );
+                query = SetIncludesForEmailEditorEmailSectionBag( query );
+
+                var emailSection = query.FirstOrDefault();
+
+                if ( emailSection == null
+                     || !emailSection.IsAuthorized( Security.Authorization.VIEW, RockRequestContext.CurrentPerson ) )
                 {
                     return NotFound();
                 }
                 else
                 {
-                    return Ok( emailSection );
+                    return Ok( GetEmailSectionBagFromEmailSection( emailSection ) );
                 }
             }
         }
@@ -4363,15 +4370,17 @@ namespace Rock.Rest.v2
             using ( var rockContext = new RockContext() )
             {
                 var emailSectionService = new EmailSectionService( rockContext );
-                var emailSection = emailSectionService.Queryable().AsNoTracking()
-                    .Include( es => es.Category )
-                    .Include( es => es.ThumbnailBinaryFile )
+
+                var query = emailSectionService.Queryable().AsNoTracking();
+                query = SetIncludesForEmailEditorEmailSectionBag( query );
+
+                var emailSections = query
                     .ToList()
                     .Where( es => es.IsAuthorized( Security.Authorization.VIEW, RockRequestContext.CurrentPerson ) )
                     .Select( es => GetEmailSectionBagFromEmailSection( es ) )
                     .ToList();
 
-                return Ok( emailSection );
+                return Ok( emailSections );
             }
         }
 
@@ -4491,6 +4500,14 @@ namespace Rock.Rest.v2
 
                 System.Web.HttpContext.Current.AddOrReplaceItem( "CurrentPerson", RockRequestContext.CurrentPerson );
                 rockContext.SaveChanges();
+
+                // Read the updated email section before converting to a bag
+                // to get its final field values that might have been updated from hooks.
+                var query = emailSectionService.Queryable().AsNoTracking()
+                    .Where( es => es.Id == emailSection.Id );
+                query = SetIncludesForEmailEditorEmailSectionBag( query );
+
+                emailSection = query.FirstOrDefault();
 
                 return Ok( GetEmailSectionBagFromEmailSection( emailSection ) );
             }
@@ -4682,10 +4699,24 @@ namespace Rock.Rest.v2
             }
         }
 
-        private static EmailEditorEmailSectionBag GetEmailSectionBagFromEmailSection( EmailSection emailSection )
+        private IQueryable<EmailSection> SetIncludesForEmailEditorEmailSectionBag( IQueryable<EmailSection> query )
         {
+            return query.Include( es => es.Category )
+                .Include( es => es.ThumbnailBinaryFile )
+                .Include( es => es.CreatedByPersonAlias );
+        }
+
+        private EmailEditorEmailSectionBag GetEmailSectionBagFromEmailSection( EmailSection emailSection )
+        {
+            var currentPerson = RockRequestContext.CurrentPerson;
+            var canEdit = emailSection != null
+                && !emailSection.IsSystem
+                && emailSection.IsAuthorized( Authorization.EDIT, currentPerson );
+
             return emailSection == null ? null : new EmailEditorEmailSectionBag
             {
+                CanDelete = canEdit,
+                CanEdit = canEdit,
                 Category = emailSection.Category.ToListItemBag(),
                 Guid = emailSection.Guid,
                 IsSystem = emailSection.IsSystem,
@@ -11255,6 +11286,31 @@ namespace Rock.Rest.v2
                 }
 
                 var itemText = componentValue.IsActive ? componentName : $"{componentName} (inactive)";
+
+                /*
+                     5/13/2026 - NA
+
+                     Append a "(plugin)" suffix when the component is implemented in a non-Rock assembly
+                     so administrators can distinguish core components from third-party plugins in the picker.
+                     Failures here must never break the list, so any reflection is guarded.
+
+                     Reason: Temporary solution for v19
+                */
+                try
+                {
+                    var componentAssemblyName = componentValue?.GetType()?.Assembly?.GetName()?.Name;
+                    if ( !string.IsNullOrEmpty( componentAssemblyName )
+                         && componentAssemblyName != "Rock"
+                         && !componentAssemblyName.StartsWith( "Rock.", StringComparison.Ordinal ) )
+                    {
+                        itemText = $"{itemText} (plugin)";
+                    }
+                }
+                catch
+                {
+                    // Intentionally ignored: plugin-suffix detection is cosmetic and
+                    // must never prevent a component from appearing in the picker.
+                }
 
                 items.Add( new ListItemBag
                 {
