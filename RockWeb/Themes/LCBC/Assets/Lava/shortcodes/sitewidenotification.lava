@@ -8,6 +8,7 @@
 {% assign contentchannelid = 8 %}
 {% assign onlineCampusId = 15 %}
 {% assign now = 'Now' | Date:'yyyy-MM-ddTHH:mm:sszzz' | AsDateTime %}
+{% assign nowString = 'Now' | Date:'yyyy-MM-ddTHH:mm:ss' %}
 
 {% assign data = 'GatheringsSourceTriumph' | PersistedDataset %}
 {% assign schedules = data | Where:'CampusId',onlineCampusId | First | Property:'Schedules' | Sort:'NextStartDateTime' %}
@@ -28,7 +29,7 @@
     {% endif %}
 {% endfor %}
 
-{% contentchannelitem where:'ExpireDateTime > "{{ now }}" || ExpireDateTime _= "" && StartDateTime < "{{ now }}" && ContentChannelId == {{ contentchannelid }}' limit:'1' iterator:'Items' sort:'ModifiedDateTime desc' securityenabled:'false' %}
+{% contentchannelitem where:'ExpireDateTime > "{{ nowString }}" || ExpireDateTime _= "" && StartDateTime < "{{ nowString }}" && ContentChannelId == {{ contentchannelid }}' limit:'1' iterator:'Items' sort:'ModifiedDateTime desc' securityenabled:'false' %}
     {% for item in Items %}
         {% assign alertText = item | Attribute:'Text' %}
         {% assign alertLink = item | Attribute:'Link' %}
