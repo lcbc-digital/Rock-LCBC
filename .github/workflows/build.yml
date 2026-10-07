@@ -46,7 +46,16 @@ jobs:
         env:
           NODE_OPTIONS: --max-old-space-size=8192
         run: |
-          & "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\Common7\IDE\devenv.com" Rock.sln /build Release
+          # Locate devenv with vswhere instead of hardcoding its path. GitHub periodically moves
+          # windows-latest to a new Visual Studio release, which changes the install directory.
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $devenv = & $vswhere -latest -products * -find "Common7\IDE\devenv.com" | Select-Object -First 1
+          if (-not $devenv) {
+            Write-Error "devenv.com not found by vswhere. Check which Visual Studio the runner image includes."
+            exit 1
+          }
+          Write-Host "Building with $devenv"
+          & $devenv Rock.sln /build Release
 
       - name: Upload RockWeb artifact
         uses: actions/upload-artifact@v4
