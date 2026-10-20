@@ -1,0 +1,125 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:buttons, direction:'column' %}
+    Description: A group of up to two buttons. The first renders primary, the second secondary, and
+                 anything beyond the second is ignored. The group is omitted entirely when nothing
+                 renders.
+
+                 Buttons pointing at this site WERE tagged for the dashboard by Common/TrackedUrl.lava.
+                 That is disabled, see the Tracking Tag block below. Used by the module templates and
+                 the header and footer CTAs; an anchor that cannot use this partial calls
+                 TrackedUrl.lava directly, and Features/Home/Partials/Hero.lava still does, so the
+                 hero's Commit button is the one button still reporting where it came from.
+
+    Parameters:
+        buttons   - The buttons to render, in order. (Optional, Array)
+                    This is the shape a Key Value List attribute produces, so a module can pass one
+                    straight through:
+
+                        {% assign buttons = row | Attribute:'Buttons','Object' | ToJSON | FromJSON %}
+
+                    The ToJSON | FromJSON round trip is required, not decorative. The Object form is
+                    a list of KeyValuePair whose .Key and .Value are invisible to Lava and render
+                    blank; re-parsing as JSON turns them into plain objects Lava can address.
+
+                    Each entry:
+                        Key    - The destination URL.
+                        Value  - The button label.
+
+                    Hand-built callers use the same shape:
+
+                        {% assign button = '' | AddToDictionary:'Key','/give' | AddToDictionary:'Value','Give Now' %}
+                        {% assign buttons = '' | AddToArray:button %}
+
+        styles    - Comma separated button classes, applied by position. (Optional, Text. Defaults to
+                    'btn-primary,btn-default'.) Override when a section's first button is deliberately
+                    not the primary style, as on a dark background.
+
+        direction - How the buttons stack. (Optional, responsive | row | column. Defaults to responsive)
+                    responsive - Stacked on mobile, side by side from the sm breakpoint up.
+                    row        - Always side by side.
+                    column     - Always stacked. Use inside anything narrow, such as a card.
+
+        context   - Where these buttons live, for the dashboard. (Optional, Text. e.g. header, footer)
+                    Leave it off inside a module, which names itself. Set it anywhere else or the
+                    buttons report with no place at all.
+
+        wrapperattributes - Raw attributes on the group's own div. (Optional, Text. e.g. tt-cascade-item)
+                    For attributes that must sit on an element this partial owns. Written unescaped,
+                    so templates only. Pass '' rather than leaving it off, per the note on styles.
+
+                    No matching wrapperclass: a class belongs on the button via styles. The header's
+                    header-cta has a display: none at the smallest breakpoint, and this div is d-flex,
+                    which Rock writes as display: flex !important and would outrank it.
+-/
+
+//- MARK: Settings Logic
+{% assign directionClass = 'flex-column flex-sm-row' %}
+{% case direction %}
+    {% when 'row' %}
+        {% assign directionClass = 'flex-row' %}
+    {% when 'column' %}
+        {% assign directionClass = 'flex-column' %}
+{% endcase %}
+
+//- Only rewrites schemeless URLs whose first segment ends in a known TLD, leaving relative
+//- paths (about.html, docs/file.pdf) alone.
+{% assign knownTlds = 'com,org,net,edu,gov,io,co,us,tv,me,app,dev,live,church,info,biz' | Split:',' %}
+
+{% assign buttonStyles = styles | Default:'btn-primary,btn-default' | Split:',' %}
+
+{% assign renderButtons = '' %}
+{% for button in buttons limit:2 %}
+    {% if button.Key != blank and button.Value != blank %}
+        {% assign buttonUrl = button.Key %}
+        {% assign firstCharacter = buttonUrl | Slice:0,1 %}
+
+        {% unless buttonUrl contains ':' or firstCharacter == '/' or firstCharacter == '#' %}
+            {% assign hostSegment = buttonUrl | Split:'/' | First | Split:'?' | First %}
+            {% assign topLevelDomain = hostSegment | Split:'.' | Last | Downcase %}
+
+            {% if knownTlds contains topLevelDomain %}
+                {% capture buttonUrl %}https://{{ button.Key }}{% endcapture %}
+            {% endif %}
+        {% endunless %}
+
+        {% assign buttonStyle = buttonStyles[forloop.index0] %}
+        {% if buttonStyle == blank %}
+            {% assign buttonStyle = buttonStyles | Last %}
+        {% endif %}
+
+        //- lava-lint-disable no-commented-lava
+        /-
+            MARK: Tracking Tag
+            DISABLED. Tagging is what feeds Button Interactions on the dashboard, and that panel is
+            commented out too: the dataset query behind it had to read every component on the site
+            for 30 days.
+
+            Restore this block and the url line below TOGETHER. Untagged, the buttons still work and
+            still report as ordinary page views; what is lost is which button sent someone there.
+
+            Sat here, after the scheme is resolved above, so TrackedUrl.lava could tell internal from
+            external.
+
+            {% capture buttonTrackedUrl %}{% include '~~/Assets/Lava/Custom/Common/TrackedUrl.lava', trackedUrl:buttonUrl, trackedLabel:button.Value, trackedContext:context %}{% endcapture %}
+            {% assign buttonTrackedUrl = buttonTrackedUrl | Trim %}
+        -/
+
+        //- buttonUrl, not buttonTrackedUrl, while the tracking above is disabled. Leaving it on the
+        //- tagged variable would render every button with an empty href.
+        {% assign renderButton = ''
+            | AddToDictionary:'url',buttonUrl
+            | AddToDictionary:'text',button.Value
+            | AddToDictionary:'style',buttonStyle
+        %}
+        {% assign renderButtons = renderButtons | AddToArray:renderButton %}
+    {% endif %}
+{% endfor %}
+
+//- MARK: Markup
+{% if renderButtons != empty %}
+    <div class="button-group d-flex {{ directionClass }} gap-2"{% if wrapperattributes != blank %} {{ wrapperattributes }}{% endif %}>
+        {% for button in renderButtons %}
+            <a href="{{ button.url }}" class="btn {{ button.style }}">{{ button.text }}</a>
+        {% endfor %}
+    </div>
+{% endif %}

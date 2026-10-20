@@ -1,0 +1,54 @@
+/-
+    {% include '~~/Assets/Lava/Custom/Common/Schema/OrganizationSchema.lava' %}
+-/
+
+
+//- MARK: CONFIGURATIONS
+
+{% assign organizationName = 'Global' | Attribute:'OrganizationName' %}
+
+//- Trailing slash stripped so the @id fragment does not end up as "...com/#organization".
+{% assign organizationUrl = 'Global' | Attribute:'OrganizationWebsite' | RegExReplace:'/$','' %}
+
+{% assign organizationPhone = 'Global' | Attribute:'OrganizationPhone' %}
+{% assign organizationEmail = 'Global' | Attribute:'OrganizationEmail' %}
+
+{% assign siteScheme = 'Global' | Page:'Scheme' %}
+{% assign siteHost = 'Global' | Page:'Host' %}
+{% capture campaignUrl %}{{ siteScheme }}://{{ siteHost }}{% endcapture %}
+
+{% assign campaignName = 'Global' | Page:'SiteName' %}
+
+
+//- MARK: MARKUP
+
+{% if organizationName != blank and organizationUrl != blank %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Church",
+        "@id": "{{ organizationUrl }}#organization",
+        "name": {{ organizationName | ToJSON }},
+        "url": "{{ organizationUrl }}"
+        {% if organizationPhone != blank %},
+        "telephone": {{ organizationPhone | ToJSON }}
+        {% endif %}
+        {% if organizationEmail != blank %},
+        "email": {{ organizationEmail | ToJSON }}
+        {% endif %}
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": "{{ campaignUrl }}#website",
+        "name": {{ campaignName | ToJSON }},
+        "url": "{{ campaignUrl }}",
+        "publisher": {
+            "@id": "{{ organizationUrl }}#organization"
+        }
+    }
+    </script>
+{% endif %}

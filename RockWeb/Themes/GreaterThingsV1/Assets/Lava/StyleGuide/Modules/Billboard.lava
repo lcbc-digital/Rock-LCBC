@@ -1,0 +1,233 @@
+/-
+    Billboard, drawn at the width it is meant to be seen at.
+
+    One demo at a time. The examples are variants of the same section rather than a stack of them, so
+    what is on screen is always the whole module at full width, and the bar switches between them.
+
+    The sample content is built here rather than read from a content channel. The adapter in
+    ModularSystem/Modules reads Module V2 attributes, so demoing through it would mean a channel and
+    items in every theme this guide is dropped into. The template underneath takes plain dictionaries,
+    which is what a style guide is actually documenting. The cost is that this proves the template
+    renders, not that the adapter maps its attributes correctly.
+
+    The table lists only what an admin can actually set and only what is worth knowing at a glance.
+    The template accepts more than the module exposes, so building the table from the template's own
+    documentation would list settings that are unreachable in Rock. The list to check against is the
+    two adapters together:
+
+        ModularSystem/Modules/Billboard.lava - Height, VerticalAlignment, ShadowHeight,
+                                               ShowSocialLinks, BackgroundVideo
+        ModularSystem/Modules/Base.lava      - BackgroundColor, ForegroundColor, BackgroundImage,
+                                               Padding, and the intro matrix
+
+    Parameters:
+        variant - Which example to draw. Already validated against the manifest by Base.lava, so an
+                  unknown value never reaches here. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign sampleButton = ''
+    | AddToDictionary:'Key','#'
+    | AddToDictionary:'Value','Make a Commitment'
+%}
+{% assign sampleButtons = '' | AddToArray:sampleButton %}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','Are You Ready?'
+    | AddToDictionary:'heading','Make Your Commitment'
+    | AddToDictionary:'description','A billboard carries one idea and one action. Anything longer belongs in the section under it.'
+    | AddToDictionary:'buttons',sampleButtons
+%}
+
+{% assign content = '' | AddToDictionary:'intro',intro %}
+
+//- MARK: Settings
+/- Built from scratch per variant rather than derived from the one above it. AddToDictionary returns
+   the dictionary it was handed, so deriving would leave every variant pointing at one object and
+   make them depend on the order they happen to be written in. -/
+{% assign colors = ''
+    | AddToDictionary:'background','#000000'
+    | AddToDictionary:'foreground','#f0efe4'
+%}
+
+{% assign sampleImage = '/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg' %}
+
+/- Three examples. Each changes several settings at once rather than isolating one, which is the
+   trade for keeping the list to three: the table underneath is what says which values produced
+   what is on screen.
+
+   Content alignment stays centered throughout, so start, end and split are not shown here.
+
+     height             small      medium     full
+     verticalalignment  top        bottom     center
+     shadowheight       50         100        50
+     verticalpadding    medium     large      large
+     headingsize        h1         display-1  display-1
+     contentalignment   center     center     center -/
+{% case variant %}
+    {% when 'medium' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'headingsize','display-1'
+            | AddToDictionary:'contentalignment','center'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'backgroundimage',sampleImage
+            | AddToDictionary:'height','medium'
+            | AddToDictionary:'verticalalignment','center'
+            | AddToDictionary:'shadowheight',100
+            | AddToDictionary:'verticalpadding','small'
+            | AddToDictionary:'intro',introSettings
+        %}
+
+    {% when 'full' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'headingsize','display-1'
+            | AddToDictionary:'contentalignment','center'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'backgroundimage',sampleImage
+            | AddToDictionary:'height','full'
+            | AddToDictionary:'verticalalignment','center'
+            | AddToDictionary:'shadowheight',50
+            | AddToDictionary:'verticalpadding','small'
+            | AddToDictionary:'intro',introSettings
+        %}
+
+    {% when 'video' %}
+        {% assign sampleVideoArray = sampleVideoIds | Split:',' %}
+        {% assign sampleVideoId = sampleVideoArray | First %}
+        {% assign introSettings = ''
+            | AddToDictionary:'headingsize','display-1'
+            | AddToDictionary:'contentalignment','center'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'backgroundimage',sampleImage
+            | AddToDictionary:'backgroundvideo',sampleVideoId
+            | AddToDictionary:'height','full'
+            | AddToDictionary:'verticalalignment','center'
+            | AddToDictionary:'shadowheight',100
+            | AddToDictionary:'verticalpadding','small'
+            | AddToDictionary:'intro',introSettings
+        %}
+
+    {% when 'dev-heading-only' %}
+        {% assign introHeadingOnly = ''
+            | AddToDictionary:'heading','Make Your Commitment'
+        %}
+        {% assign content = '' | AddToDictionary:'intro',introHeadingOnly %}
+        {% assign introSettings = ''
+            | AddToDictionary:'headingsize','display-1'
+            | AddToDictionary:'contentalignment','center'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'backgroundimage',sampleImage
+            | AddToDictionary:'height','medium'
+            | AddToDictionary:'verticalalignment','center'
+            | AddToDictionary:'shadowheight',100
+            | AddToDictionary:'verticalpadding','small'
+            | AddToDictionary:'intro',introSettings
+        %}
+
+    {% when 'dev-no-image' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'headingsize','display-1'
+            | AddToDictionary:'contentalignment','center'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'height','medium'
+            | AddToDictionary:'verticalalignment','center'
+            | AddToDictionary:'shadowheight',0
+            | AddToDictionary:'verticalpadding','small'
+            | AddToDictionary:'intro',introSettings
+        %}
+
+    {% when 'dev-long-content' %}
+        {% assign longDescription = 'We believe that following Jesus is the most important decision you will ever make, and we want to walk alongside you every step of the way — from your very first visit all the way through baptism, small groups, serving, and beyond. This is not a destination. It is a journey, and it is better together.' %}
+        {% assign introLong = ''
+            | AddToDictionary:'kicker','Are You Ready?'
+            | AddToDictionary:'heading','Make Your Commitment'
+            | AddToDictionary:'description',longDescription
+            | AddToDictionary:'buttons',sampleButtons
+        %}
+        {% assign content = '' | AddToDictionary:'intro',introLong %}
+        {% assign introSettings = ''
+            | AddToDictionary:'headingsize','display-1'
+            | AddToDictionary:'contentalignment','center'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'backgroundimage',sampleImage
+            | AddToDictionary:'height','medium'
+            | AddToDictionary:'verticalalignment','center'
+            | AddToDictionary:'shadowheight',100
+            | AddToDictionary:'verticalpadding','small'
+            | AddToDictionary:'intro',introSettings
+        %}
+
+    {% when 'dev-invalid-video' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'headingsize','display-1'
+            | AddToDictionary:'contentalignment','center'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'backgroundimage',sampleImage
+            | AddToDictionary:'backgroundvideo',99999
+            | AddToDictionary:'height','full'
+            | AddToDictionary:'verticalalignment','center'
+            | AddToDictionary:'shadowheight',100
+            | AddToDictionary:'verticalpadding','small'
+            | AddToDictionary:'intro',introSettings
+        %}
+
+    {% else %}
+        {% assign introSettings = ''
+            | AddToDictionary:'headingsize','h1'
+            | AddToDictionary:'contentalignment','center'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'backgroundimage',sampleImage
+            | AddToDictionary:'height','small'
+            | AddToDictionary:'verticalalignment','center'
+            | AddToDictionary:'shadowheight',50
+            | AddToDictionary:'verticalpadding','small'
+            | AddToDictionary:'intro',introSettings
+        %}
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Billboard', description:'A full width hero. Content over a background image, optionally with a overlay beneath it for legibility.' %}
+</div>
+
+//- Every value is read back out of the dictionary the demo above was handed, so the table cannot
+//- drift from what produced the render. Only the row list is written by hand.
+{% capture rows %}
+    <tr>
+        <th scope="row">Height</th>
+        <td>{{ settings.height }}</td>
+    </tr>
+    <tr>
+        <th scope="row">Overlay height</th>
+        <td>{{ settings.shadowheight }}%{% if settings.shadowheight == 100 %} &middot; flat overlay{% elsif settings.shadowheight == 0 %} &middot; off{% endif %}</td>
+    </tr>
+    <tr>
+        <th scope="row">Heading size</th>
+        <td>{{ settings.intro.headingsize }}</td>
+    </tr>
+    {% if settings.backgroundvideo != blank %}
+    <tr>
+        <th scope="row">Video</th>
+        <td>Media #{{ settings.backgroundvideo }} &middot; muted loop, image fallback</td>
+    </tr>
+    {% endif %}
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/Billboard.lava', content:content, settings:settings %}

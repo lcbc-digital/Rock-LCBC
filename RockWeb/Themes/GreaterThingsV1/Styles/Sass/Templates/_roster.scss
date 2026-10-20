@@ -1,0 +1,369 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Modal
+.roster-modal {
+
+    .roster-modal-person {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .roster-modal-image {
+        flex: 0 0 auto;
+        width: var(--roster-modal-image-size, 72px);
+        height: var(--roster-modal-image-size, 72px);
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .roster-modal-name {
+        font-family: var(--title-font-family);
+        text-transform: uppercase;
+    }
+
+    .roster-modal-role {
+        opacity: var(--roster-role-opacity, 0.6);
+    }
+}
+
+//- MARK: Theme Specific Styles
+.roster-template {
+    --roster-profile-radius: 0;
+    --roster-poster-radius: 0;
+    --roster-role-opacity: 1;
+
+    --roster-poster-lift-duration: 0.35s;
+    --roster-poster-stagger: 0.06s;
+
+    .roster-name {
+        font-family: var(--title-font-family);
+        font-weight: 900;
+        letter-spacing: 0.04em;
+    }
+
+    .roster-link {
+        font-weight: 900;
+        text-transform: uppercase;
+    }
+
+    .roster-profile {
+        --roster-ring-color: transparent;
+
+        //- An outline cannot take a gradient, so the ring is redrawn as a bordered pseudo.
+        &::before {
+            content: "";
+            position: absolute;
+            inset: calc(-1 * (var(--roster-ring-offset, 8px) + var(--roster-ring-width, 3px)));
+            border: var(--roster-ring-width, 3px) solid transparent;
+            border-image: var(--roster-ring-gradient, linear-gradient(180deg, var(--ui-softer) 0%, transparent 90%)) 1;
+            pointer-events: none;
+        }
+    }
+
+    .roster-swiper {
+        --roster-nav-color: var(--template-foreground-color, var(--ui-strongest));
+        --roster-nav-gap: 24px;
+
+        --roster-nav-background: transparent;
+        --roster-nav-background-hover: transparent;
+    }
+}
+
+//- MARK: Generic Styles
+.roster-template {
+
+    &:has(.roster-band) {
+        padding-bottom: 0;
+    }
+
+    .roster-band {
+        padding-bottom: var(--roster-band-bottom, 64px);
+        background: linear-gradient(
+            to bottom,
+            transparent var(--roster-band-start, 30%),
+            var(--roster-band-color, transparent) var(--roster-band-start, 30%)
+        );
+    }
+
+    .roster-swiper .swiper-slide {
+        height: auto;
+        display: flex;
+    }
+
+    .roster-card {
+        width: 100%;
+    }
+
+    //- A card's ring is drawn outside its own box, so .swiper's overflow: hidden would slice it.
+    //- The padding gives the ring room inside the clipped area and the negative margin takes the
+    //- same amount back out of the layout, so slide widths and alignment are unchanged. Every
+    //- padding rule below has to carry the outset for the same reason.
+    .roster-swiper {
+        --roster-outset: 16px;
+
+        padding: var(--roster-outset);
+        margin: calc(-1 * var(--roster-outset));
+    }
+
+    //- MARK: Navigation
+    //- :has so a roster that does not scroll reserves no space.
+    .roster-swiper:has(.swiper-button-next:not(.swiper-button-lock)) {
+        padding-top: calc(var(--roster-nav-size, 40px) + var(--roster-nav-offset, 32px) + var(--roster-outset));
+    }
+
+    .roster-swiper {
+
+        .swiper-button-prev,
+        .swiper-button-next {
+            top: 0;
+            left: auto;
+            margin-top: 0;
+
+            display: inline-grid;
+            place-items: center;
+            width: var(--roster-nav-size, 40px);
+            height: var(--roster-nav-size, 40px);
+            border-radius: 999px;
+
+            background-color: var(--roster-nav-background, var(--ui-softest));
+            color: var(--roster-nav-color, var(--ui-strongest));
+            transition: background-color 0.2s ease, opacity 0.2s ease;
+
+            &:hover {
+                background-color: var(--roster-nav-background-hover, var(--ui-soft));
+            }
+
+            &.swiper-button-disabled {
+                opacity: var(--roster-nav-disabled-opacity, 0.35);
+            }
+        }
+
+        //- 2px in from the edge: the arrow mask is wider than the button holding it, so at
+        //- right: 0 it spills past the track and .swiper's overflow: hidden clips it.
+        .swiper-button-next {
+            right: 2px;
+        }
+
+        .swiper-button-prev {
+            right: calc(var(--roster-nav-size, 40px) + var(--roster-nav-gap, 16px));
+        }
+    }
+
+    @media (max-width: $screen-xs-max) {
+
+        //- Swiper sizes slides off the container, so capping the track caps the card. The cap
+        //- carries the outset because centering here replaces the negative inline margin that
+        //- would otherwise have absorbed it.
+        .roster-swiper {
+            max-width: calc(var(--roster-swiper-max-width, 58.67vh) + (2 * var(--roster-outset)));
+            margin-inline: auto;
+        }
+
+        .roster-swiper:has(.swiper-button-next:not(.swiper-button-lock)) {
+            padding-top: var(--roster-outset);
+            padding-bottom: calc(var(--roster-nav-size, 40px) + var(--roster-nav-offset, 32px) + var(--roster-outset));
+        }
+
+        .roster-swiper {
+
+            .swiper-button-prev,
+            .swiper-button-next {
+                top: auto;
+                bottom: 0;
+            }
+
+            .swiper-button-next {
+                left: calc(50% + var(--roster-nav-gap, 16px) / 2);
+                right: auto;
+            }
+
+            .swiper-button-prev {
+                right: calc(50% + var(--roster-nav-gap, 16px) / 2);
+                left: auto;
+            }
+        }
+    }
+
+    .roster-name {
+        text-transform: uppercase;
+        color: var(--roster-name-color, inherit);
+    }
+
+    .roster-role {
+        color: var(--roster-role-color, inherit);
+        opacity: var(--roster-role-opacity, 0.6);
+        text-wrap: pretty;
+    }
+
+    .roster-link {
+        --color-link: var(--primary);
+        --color-link-shade: var(--color-primary-shade);
+    }
+
+    //- MARK: Profile card
+    .roster-profile {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--roster-profile-padding, 32px 16px);
+        margin: 0 8px;
+        border-radius: var(--roster-profile-radius, 0);
+        background-color: var(--roster-profile-background, var(--ui-softest));
+        color: var(--roster-profile-color, var(--ui-strongest));
+        text-align: center;
+        box-shadow: var(--roster-profile-shadow, 0 12px 32px rgba(0, 0, 0, 0.08));
+        outline: 1px solid var(--roster-ring-color, var(--roster-band-color, transparent));
+        outline-offset: var(--roster-ring-offset, 8px);
+        transition: transform 0.5s ease, box-shadow 0.5s ease;
+
+        &:has(a:hover) {
+            transform: translateY(var(--roster-profile-lift, -4px));
+            box-shadow: var(--roster-profile-shadow-hover, 0 20px 48px rgba(0, 0, 0, 0.14));
+        }
+    }
+
+    .roster-profile-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .roster-profile-image {
+        width: var(--roster-profile-image-size, 120px);
+        height: var(--roster-profile-image-size, 120px);
+        margin-bottom: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .roster-profile-footer {
+        margin-top: 32px;
+    }
+
+    .roster-profile-footer .roster-link::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+    }
+
+    //- MARK: Poster card
+    .roster-poster {
+        display: grid;
+        isolation: isolate;
+        overflow: hidden;
+
+        aspect-ratio: var(--roster-poster-aspect-ratio, 2 / 3);
+        border-radius: var(--roster-poster-radius, 0);
+
+        color: var(--roster-poster-color, var(--ui-softest));
+        text-decoration: none;
+
+        &:focus-visible {
+            outline: 2px solid var(--roster-poster-color, var(--ui-softest));
+            outline-offset: 2px;
+        }
+    }
+
+    .roster-poster-image,
+    .roster-poster-overlay,
+    .roster-poster-body {
+        grid-area: 1 / 1;
+    }
+
+    .roster-poster-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .roster-poster-overlay {
+        opacity: var(--roster-poster-overlay-opacity, 0.85);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--roster-poster-overlay-color, var(--neutral-2)) 0%, transparent) var(--roster-poster-overlay-start, 35%),
+            var(--roster-poster-overlay-color, var(--neutral-2)) 100%
+        );
+    }
+
+    .roster-poster-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        gap: var(--roster-poster-gap, 8px);
+        padding: var(--roster-poster-padding, 24px);
+        text-align: center;
+    }
+
+    .roster-poster-body > * {
+        will-change: transform;
+        transition: transform var(--roster-poster-lift-duration, 0.8s) ease;
+
+        &:nth-child(2) {
+            transition-delay: var(--roster-poster-stagger, 0.1s);
+        }
+
+        &:nth-child(3) {
+            transition-delay: calc(var(--roster-poster-stagger, 0.1s) * 2);
+        }
+
+        &:nth-child(4) {
+            transition-delay: calc(var(--roster-poster-stagger, 0.1s) * 3);
+        }
+    }
+
+    a.roster-poster:hover .roster-poster-body > *,
+    a.roster-poster:focus-visible .roster-poster-body > * {
+        transform: translateY(var(--roster-poster-lift, -8px));
+    }
+
+    .roster-poster-icon {
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+
+        width: var(--roster-poster-icon-size, 40px);
+        height: var(--roster-poster-icon-size, 40px);
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        font-size: 18px;
+    }
+
+    @media (hover: hover) {
+        .roster-poster-icon {
+            margin-bottom: calc(-1 * (var(--roster-poster-icon-size, 40px) + var(--roster-poster-gap, 8px)));
+            opacity: 0;
+            transition:
+                opacity var(--roster-poster-lift-duration, 0.8s) ease,
+                margin-bottom var(--roster-poster-lift-duration, 0.8s) ease,
+                transform var(--roster-poster-lift-duration, 0.8s) ease;
+        }
+
+        a.roster-poster:hover .roster-poster-icon,
+        a.roster-poster:focus-visible .roster-poster-icon {
+            margin-bottom: 0;
+            opacity: 1;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .roster-profile,
+        .roster-poster-body > *,
+        .roster-poster-icon {
+            transition: none;
+        }
+
+        a.roster-poster:hover .roster-poster-body > *,
+        a.roster-poster:focus-visible .roster-poster-body > * {
+            transform: none;
+        }
+    }
+}

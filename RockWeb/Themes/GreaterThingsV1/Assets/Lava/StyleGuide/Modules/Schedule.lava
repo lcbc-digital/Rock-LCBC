@@ -1,0 +1,117 @@
+/-
+    Schedule variant. Three days with a mix of sessions and labels.
+
+    Parameters:
+        variant - Which example to draw. Already validated by Base.lava. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign session1 = '' | AddToDictionary:'time','9 AM' | AddToDictionary:'description','Doors Open' %}
+{% assign session2 = '' | AddToDictionary:'time','10 AM' | AddToDictionary:'description','Main Session' | AddToDictionary:'label','General' | AddToDictionary:'labelcolor','var(--color-primary)' %}
+{% assign session3 = '' | AddToDictionary:'time','11:30 AM' | AddToDictionary:'description','Breakout Rooms' | AddToDictionary:'label','Workshop' | AddToDictionary:'labelcolor','var(--color-secondary)' %}
+{% assign session4 = '' | AddToDictionary:'time','1 PM' | AddToDictionary:'description','Lunch' %}
+{% assign session5 = '' | AddToDictionary:'time','2:30 PM' | AddToDictionary:'description','Panel Discussion' | AddToDictionary:'label','General' | AddToDictionary:'labelcolor','var(--color-primary)' %}
+{% assign session6 = '' | AddToDictionary:'time','4 PM' | AddToDictionary:'description','Wrap Up' %}
+
+{% assign session7 = '' | AddToDictionary:'time','9 AM' | AddToDictionary:'description','Doors Open' %}
+{% assign session8 = '' | AddToDictionary:'time','10 AM' | AddToDictionary:'description','Worship' | AddToDictionary:'label','General' | AddToDictionary:'labelcolor','var(--color-primary)' %}
+{% assign session9 = '' | AddToDictionary:'time','11 AM' | AddToDictionary:'description','Breakout Sessions' | AddToDictionary:'label','Workshop' | AddToDictionary:'labelcolor','var(--color-secondary)' %}
+{% assign session10 = '' | AddToDictionary:'time','12:30 PM' | AddToDictionary:'description','Lunch' %}
+{% assign session11 = '' | AddToDictionary:'time','2 PM' | AddToDictionary:'description','Keynote' | AddToDictionary:'label','General' | AddToDictionary:'labelcolor','var(--color-primary)' %}
+
+{% assign session12 = '' | AddToDictionary:'time','9 AM' | AddToDictionary:'description','Doors Open' %}
+{% assign session13 = '' | AddToDictionary:'time','10 AM' | AddToDictionary:'description','Final Session' | AddToDictionary:'label','General' | AddToDictionary:'labelcolor','var(--color-primary)' %}
+{% assign session14 = '' | AddToDictionary:'time','11:30 AM' | AddToDictionary:'description','Send Off' %}
+
+{% assign day1Sessions = '' | AddToArray:session1 | AddToArray:session2 | AddToArray:session3 | AddToArray:session4 | AddToArray:session5 | AddToArray:session6 %}
+{% assign day2Sessions = '' | AddToArray:session7 | AddToArray:session8 | AddToArray:session9 | AddToArray:session10 | AddToArray:session11 %}
+{% assign day3Sessions = '' | AddToArray:session12 | AddToArray:session13 | AddToArray:session14 %}
+
+{% assign day1 = '' | AddToDictionary:'date','Oct 10' | AddToDictionary:'day','Friday' | AddToDictionary:'sessions',day1Sessions %}
+{% assign day2 = '' | AddToDictionary:'date','Oct 11' | AddToDictionary:'day','Saturday' | AddToDictionary:'sessions',day2Sessions %}
+{% assign day3 = '' | AddToDictionary:'date','Oct 12' | AddToDictionary:'day','Sunday' | AddToDictionary:'sessions',day3Sessions %}
+
+{% assign days = '' | AddToArray:day1 | AddToArray:day2 | AddToArray:day3 %}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','Fall Conference'
+    | AddToDictionary:'heading','Weekend at a Glance'
+    | AddToDictionary:'description','Three days of worship, teaching, and community. Here is what to expect.'
+%}
+
+{% assign introSettings = '' | AddToDictionary:'contentalignment','center' %}
+
+//- MARK: Settings
+{% case variant %}
+
+    {% when 'dev-one-day' %}
+        {% assign oneDay = '' | AddToArray:day1 %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'days',oneDay
+        %}
+        {% assign settings = '' | AddToDictionary:'intro',introSettings | AddToDictionary:'verticalpadding','small' %}
+
+    {% when 'dev-ten-days' %}
+        {% assign s1 = '' | AddToDictionary:'time','9 AM' | AddToDictionary:'description','Doors Open and Registration' %}
+        {% assign s2 = '' | AddToDictionary:'time','10 AM' | AddToDictionary:'description','Opening Keynote: Walking by Faith in a World That Demands Certainty' | AddToDictionary:'label','General' | AddToDictionary:'labelcolor','var(--color-primary)' %}
+        {% assign s3 = '' | AddToDictionary:'time','12 PM' | AddToDictionary:'description','Lunch' %}
+        {% assign s4 = '' | AddToDictionary:'time','1:30 PM' | AddToDictionary:'description','Breakout: Practical Tools for Leading Small Groups Through Difficult Conversations' | AddToDictionary:'label','Workshop' | AddToDictionary:'labelcolor','var(--color-secondary)' %}
+        {% assign s5 = '' | AddToDictionary:'time','3 PM' | AddToDictionary:'description','Closing Session' | AddToDictionary:'label','General' | AddToDictionary:'labelcolor','var(--color-primary)' %}
+        {% assign s6 = '' | AddToDictionary:'time','9 AM' | AddToDictionary:'description','Morning Worship' | AddToDictionary:'label','General' | AddToDictionary:'labelcolor','var(--color-primary)' %}
+        {% assign s7 = '' | AddToDictionary:'time','11 AM' | AddToDictionary:'description','Teaching' %}
+        {% assign s8 = '' | AddToDictionary:'time','9 AM' | AddToDictionary:'description','Opening' %}
+        {% assign s9 = '' | AddToDictionary:'time','10:30 AM' | AddToDictionary:'description','Keynote: Reimagining What the Local Church Can Be in the Next Decade' | AddToDictionary:'label','General' | AddToDictionary:'labelcolor','var(--color-primary)' %}
+        {% assign s10 = '' | AddToDictionary:'time','11:30 AM' | AddToDictionary:'description','Panel Discussion' | AddToDictionary:'label','Workshop' | AddToDictionary:'labelcolor','var(--color-secondary)' %}
+        {% assign s11 = '' | AddToDictionary:'time','1 PM' | AddToDictionary:'description','Lunch' %}
+        {% assign s12 = '' | AddToDictionary:'time','2:30 PM' | AddToDictionary:'description','Breakout Rooms' | AddToDictionary:'label','Workshop' | AddToDictionary:'labelcolor','var(--color-secondary)' %}
+        {% assign s13 = '' | AddToDictionary:'time','4 PM' | AddToDictionary:'description','Wrap Up and Send Off' %}
+        {% assign s14 = '' | AddToDictionary:'time','10 AM' | AddToDictionary:'description','Send Off' %}
+
+        {% assign dayAsessions = '' | AddToArray:s1 | AddToArray:s2 | AddToArray:s3 | AddToArray:s4 | AddToArray:s5 %}
+        {% assign dayBsessions = '' | AddToArray:s6 | AddToArray:s7 %}
+        {% assign dayCsessions = '' | AddToArray:s8 | AddToArray:s9 | AddToArray:s10 | AddToArray:s11 | AddToArray:s12 | AddToArray:s13 %}
+        {% assign dayDsessions = '' | AddToArray:s14 %}
+
+        {% assign dayA = '' | AddToDictionary:'date','Oct 10' | AddToDictionary:'day','Friday' | AddToDictionary:'sessions',dayAsessions %}
+        {% assign dayB = '' | AddToDictionary:'date','Oct 11' | AddToDictionary:'day','Saturday' | AddToDictionary:'sessions',dayBsessions %}
+        {% assign dayC = '' | AddToDictionary:'date','Oct 12' | AddToDictionary:'day','Sunday' | AddToDictionary:'sessions',dayCsessions %}
+        {% assign dayD = '' | AddToDictionary:'date','Oct 13' | AddToDictionary:'day','Monday' | AddToDictionary:'sessions',dayDsessions %}
+        {% assign dayE = '' | AddToDictionary:'date','Oct 14' | AddToDictionary:'day','Tuesday' | AddToDictionary:'sessions',dayAsessions %}
+        {% assign dayF = '' | AddToDictionary:'date','Oct 15' | AddToDictionary:'day','Wednesday' | AddToDictionary:'sessions',dayBsessions %}
+        {% assign dayG = '' | AddToDictionary:'date','Oct 16' | AddToDictionary:'day','Thursday' | AddToDictionary:'sessions',dayCsessions %}
+        {% assign dayH = '' | AddToDictionary:'date','Oct 17' | AddToDictionary:'day','Friday' | AddToDictionary:'sessions',dayAsessions %}
+        {% assign dayI = '' | AddToDictionary:'date','Oct 18' | AddToDictionary:'day','Saturday' | AddToDictionary:'sessions',dayDsessions %}
+        {% assign dayJ = '' | AddToDictionary:'date','Oct 19' | AddToDictionary:'day','Sunday' | AddToDictionary:'sessions',dayBsessions %}
+
+        {% assign tenDays = '' | AddToArray:dayA | AddToArray:dayB | AddToArray:dayC | AddToArray:dayD | AddToArray:dayE | AddToArray:dayF | AddToArray:dayG | AddToArray:dayH | AddToArray:dayI | AddToArray:dayJ %}
+
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'days',tenDays
+        %}
+        {% assign settings = '' | AddToDictionary:'intro',introSettings | AddToDictionary:'verticalpadding','small' %}
+
+    {% else %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'days',days
+        %}
+        {% assign settings = '' | AddToDictionary:'intro',introSettings | AddToDictionary:'verticalpadding','small' %}
+
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Schedule', description:'A day-by-day agenda. Multiple days render as tabs; a single day renders as a plain list.' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Days</th>
+        <td>{{ days | Size }}</td>
+    </tr>
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/Schedule.lava', content:content, settings:settings %}

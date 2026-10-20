@@ -1,0 +1,63 @@
+﻿{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Panels', description:'Bootstrap 3 panel variants and structures.' %}
+
+
+//- MARK: Markup
+{% capture default %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Default Panel</h3>
+    </div>
+    <div class="panel-body">
+        Panel body content goes here.
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'default', title:'Default', demo:default %}
+
+{% capture variants %}
+<div class="panel panel-primary">
+    <div class="panel-heading"><h3 class="panel-title">Primary</h3></div>
+    <div class="panel-body">Primary panel body.</div>
+</div>
+<div class="panel panel-success">
+    <div class="panel-heading"><h3 class="panel-title">Success</h3></div>
+    <div class="panel-body">Success panel body.</div>
+</div>
+<div class="panel panel-info">
+    <div class="panel-heading"><h3 class="panel-title">Info</h3></div>
+    <div class="panel-body">Info panel body.</div>
+</div>
+<div class="panel panel-warning">
+    <div class="panel-heading"><h3 class="panel-title">Warning</h3></div>
+    <div class="panel-body">Warning panel body.</div>
+</div>
+<div class="panel panel-danger">
+    <div class="panel-heading"><h3 class="panel-title">Danger</h3></div>
+    <div class="panel-body">Danger panel body.</div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'variants', title:'Contextual Variants', demo:variants %}
+
+{% capture withfooter %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h3 class="panel-title">Panel with Footer</h3>
+    </div>
+    <div class="panel-body">
+        Panel body content goes here.
+    </div>
+    <div class="panel-footer">
+        Panel footer content.
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'with-footer', title:'With Footer', demo:withfooter %}
+
+{% capture bodyonly %}
+<div class="panel panel-default">
+    <div class="panel-body">
+        Panel with body only — no heading or footer.
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'body-only', title:'Body Only', demo:bodyonly %}

@@ -1,0 +1,70 @@
+/-
+    Path: {% capture imageUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:imageUrl, cdnParams:'' %}{% endcapture %}
+          {% assign imageUrl = imageUrl | Trim %}
+
+    Description: Takes an image url and gives it back routed through Triumph Shield (Bunny CDN and its
+                 Optimizer). The single implementation of that routing for the theme.
+
+                 Only urls on this site are routed. Anything absolute is handed back untouched, which is
+                 what keeps a media element's DefaultThumbnailUrl working: Rock caches that straight from
+                 Vimeo, Wistia and the like, and Bunny can only optimize what it can pull from our origin.
+
+                    /GetImage.ashx...  - Gets cdnParams, optimizer=image, and disableoptimizations=true so
+                                         Rock stops reading width and height and Bunny does the resizing.
+                    /Content/x.jpg     - Gets optimizer=image, which Bunny needs to cache it as an image.
+                    /Themes/x.svg      - Moved onto the CDN host only. The Optimizer is for raster images.
+
+                 Safe to run twice: a url already carrying optimizer= comes back as it went in.
+
+                 The host is the CdnAppRoot global attribute (https://cdn.lcbcchurch.com). When it is blank
+                 the path stays relative and loads from whatever host the page is on, which is only
+                 behind Shield on www, not on rock.lcbcchurch.com. $cdn-theme-root in the Sass
+                 variables restates the same host for theme.css.
+
+                 Emits the url and nothing else, because a Lava include cannot hand a value back. Hence
+                 capture, and the Trim is not optional.
+
+    Parameters:
+        cdnUrl    - The image url. (Required, Text. Blank comes back blank)
+        cdnParams - Bunny Optimizer parameters, without a leading ? or &. Only applied to /GetImage.ashx
+                    urls. (Required, Text. Pass '' for none. e.g. width=1200&aspect_ratio=1200:630)
+
+                    Pass both on every call. Lava includes share scope going in, so one left off keeps
+                    whatever the previous call set it to.
+-/
+
+//- MARK: Settings
+{% assign cdnAppRoot = 'Global' | Attribute:'CdnAppRoot','RawValue' | Trim %}
+{% assign cdnAppRootLast = cdnAppRoot | Right:1 %}
+{% if cdnAppRootLast == '/' %}
+    {% assign cdnAppRoot = cdnAppRoot | ReplaceLast:'/','' %}
+{% endif %}
+
+//- MARK: Route
+{% assign cdnResult = cdnUrl | Trim %}
+{% assign cdnFirst = cdnResult | Slice:0,1 %}
+{% assign cdnFirstTwo = cdnResult | Slice:0,2 %}
+{% assign cdnPath = cdnResult | Split:'?' | First | Downcase %}
+
+{% if cdnFirst == '/' and cdnFirstTwo != '//' %}
+    {% unless cdnResult contains 'optimizer=' %}
+        {% assign cdnJoiner = '?' %}
+        {% if cdnResult contains '?' %}
+            {% assign cdnJoiner = '&' %}
+        {% endif %}
+
+        {% if cdnPath contains 'getimage.ashx' %}
+            {% capture cdnResult %}{{ cdnResult }}{{ cdnJoiner }}{% if cdnParams != blank %}{{ cdnParams }}&{% endif %}optimizer=image&disableoptimizations=true{% endcapture %}
+        {% else %}
+            {% assign cdnExtension = cdnPath | Split:'.' | Last %}
+            {% if cdnExtension != 'svg' %}
+                {% capture cdnResult %}{{ cdnResult }}{{ cdnJoiner }}optimizer=image{% endcapture %}
+            {% endif %}
+        {% endif %}
+    {% endunless %}
+
+    {% assign cdnResult = cdnResult | Prepend:cdnAppRoot %}
+{% endif %}
+
+//- MARK: Markup
+{{ cdnResult }}

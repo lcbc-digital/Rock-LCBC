@@ -1,0 +1,105 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Base.lava' %}
+    Description: Internal Greater Things dashboard. Picks the reporting window out of the persisted
+                 dataset, then hands each summary to its own partial.
+
+                 Every figure comes from the greater-things-dashboard persisted dataset, built by
+                 PersistedDatasets/dashboard.lava. This page runs no queries and needs no cache: it
+                 reads one row, so the block needs no Enabled Lava Commands at all.
+
+                 The window is chosen from a fixed set the dataset publishes, rather than a range
+                 typed into the address. A width nobody precomputed cannot be asked for, so there is
+                 no range to guard and no custom option.
+
+                 Renders on an internal Rock page, so the theme's Sass never loads and every include
+                 needs a full ~/Themes/GreaterThingsV1/ path. A ~~/ path would resolve against the
+                 internal page's own theme.
+
+    Parameters:
+        None. The window is read from the Days page parameter.
+
+    Provides: Read by the partials out of shared include scope. Each partial lists what it uses.
+
+        dashboardWindow           - The selected window from the dataset. Website, Pages,
+                                    SecondaryGoals, Sources and Buttons hang off it.
+        dashboardWindowDays       - Width of the selected window in days.
+        dashboardWindowOptions    - Every width the dataset carries, for the period bar.
+        dashboardRangeLabel       - e.g. "August 22 to September 20, 2026".
+        dashboardShortRangeLabel  - e.g. "Aug. 22 - Sep. 20".
+        dashboardGeneratedAt      - When the dataset was last built.
+-/
+
+//- MARK: Dataset
+{% assign dashboardData = 'greater-things-dashboard' | PersistedDataset %}
+
+{% assign dashboardWindowItems = dashboardData.Windows %}
+{% assign dashboardWindowOptions = dashboardData.AvailableWindows %}
+{% assign dashboardGeneratedAt = dashboardData.GeneratedAt %}
+
+/-
+    MARK: Window
+    The parameter is compared as a number rather than handed to Where, because it arrives off the
+    query string as text and the dataset stores the width as an integer.
+-/
+{% assign dashboardRequestedDays = 'Global' | PageParameter:'Days' | AsInteger %}
+
+{% if dashboardRequestedDays == 0 %}
+    {% assign dashboardRequestedDays = dashboardData.DefaultWindowDays | AsInteger %}
+{% endif %}
+
+{% assign dashboardWindow = null %}
+
+{% for dashboardWindowRow in dashboardWindowItems %}
+    {% assign dashboardRowDays = dashboardWindowRow.WindowDays | AsInteger %}
+
+    {% if dashboardRowDays == dashboardRequestedDays %}
+        {% assign dashboardWindow = dashboardWindowRow %}
+    {% endif %}
+{% endfor %}
+
+//- A width nobody precomputed falls back to the default rather than erroring. The period bar only
+//- ever links to widths the dataset published, so this is a hand edited address.
+{% if dashboardWindow == null %}
+    {% assign dashboardWindow = dashboardWindowItems | First %}
+{% endif %}
+
+/-
+    Coerced, because the period bar names the window with a case on this number and marks the chosen
+    pill by comparing against it. Whether the dataset's integer arrives as one is the deserializer's
+    business, not something the label should depend on.
+-/
+{% assign dashboardWindowDays = dashboardWindow.WindowDays | AsInteger %}
+{% assign dashboardRangeLabel = dashboardWindow.RangeLabel %}
+{% assign dashboardShortRangeLabel = dashboardWindow.ShortRangeLabel %}
+
+//- MARK: Assets
+{{ '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/dashboard.css' | AddCssLink }}
+
+//- MARK: Markup
+<div class="dashboard">
+
+    {% if dashboardWindow == null %}
+        <div class="alert alert-warning">
+            The dashboard dataset has not been built yet. Refresh <strong>greater-things-dashboard</strong>
+            under Admin Tools &gt; System Settings &gt; Persisted Datasets.
+        </div>
+    {% else %}
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/Filters.lava' %}
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/WebsiteSummary.lava' %}
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/InteractionSummary.lava' %}
+    {% endif %}
+
+</div>
+
+//- MARK: Script
+<script>
+    (function () {
+        if (!window.jQuery || !jQuery.fn.tooltip) return;
+
+        jQuery('.js-rank-tooltip').tooltip({
+            container: 'body',
+            html: true,
+            template: '<div class="tooltip rank-tooltip" role="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
+        });
+    })();
+</script>

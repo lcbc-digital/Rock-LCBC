@@ -1,0 +1,183 @@
+/-
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Home/Partials/Introduction.lava' %}
+-/
+
+//- MARK: Settings
+{% assign title = "What is Greater Things?" %}
+{% assign videoId = "2341" %}
+{% assign desktopImageUrl = "/Themes/GreaterThingsV1/Assets/Images/Content/WhatIsGreaterThings-Desktop.jpg" %}
+{% capture desktopImageUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:desktopImageUrl, cdnParams:'' %}{% endcapture %}
+{% assign desktopImageUrl = desktopImageUrl | Trim %}
+{% capture arrowsImageUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:'/Themes/GreaterThingsV1/Assets/Images/Textures/Arrows.jpg', cdnParams:'' %}{% endcapture %}
+{% assign arrowsImageUrl = arrowsImageUrl | Trim %}
+{% assign buttonText = "Commit" %}
+{% assign buttonLink = "/greater-things/commit" %}
+
+{% assign videoModalId = '' | UniqueIdentifier | Prepend:'video-modal-' %}
+
+{% assign contentParagraphOne = "Greater Things is a two-year spiritual growth journey in generosity, focused on moving every person at our church toward greater open-handed, sacrificial giving and unleashing the financial resources needed to fuel the next season of mission advancement." %}
+{% assign contentParagraphTwo = "We believe God is calling our church to Greater Things — and it starts with us. We want each of us to courageously ask, “God, what do you want to do in me and through me?”" %}
+{% assign contentParagraphThree = "As we live more surrendered and more dependent on him, our faith deepens and our impact multiplies. The greater things he does in us will shape the greater things he does through us." %}
+
+{% capture content %}{{ contentParagraphOne }}<br><br>{{ contentParagraphTwo }}<br><br>{{ contentParagraphThree }}{% endcapture %}
+
+//- MARK: Markup
+<div class="homepage-introduction bg-neutral-2">
+    <div class="d-none d-lg-block desktop">
+        <div class="content container-fluid px-md-5">
+            <div class="row d-flex align-items-center">
+                <div class="intro-content col-md-4" style="max-width: 420px;">
+                    <div class="d-flex flex-column">
+                        <h2 class="display-1 text-neutral-1 text-uppercase text-balance mb-4">{{ title }}</h2>
+
+                        <div class="d-flex gap-2">
+                        <a href="{{ buttonLink }}" class="btn btn-primary text-uppercase mb-3">{{ buttonText }}</a>
+                        {% if videoId != blank %}
+                            <button type="button" class="btn btn-ghost text-uppercase mb-3 watch-video-button" data-toggle="modal" data-target="#{{ videoModalId }}">
+                                <span class="round-full play-icon">
+                                    <i class="ti ti-player-play-filled" aria-hidden="true"></i>
+                                </span>
+                                Watch Our Video
+                            </button>
+                        {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 position-relative">
+                    <p class="text-pretty text-neutral-1 o-80">{{ content }}</p>
+                    <img class="d-none d-lg-block arrow-texture arrow-texture-desktop" src="{{ arrowsImageUrl }}" alt="" aria-hidden="true">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <img class="d-none d-lg-block introduction-image" src="{{ desktopImageUrl }}" alt="Greater Things Introduction">
+
+    <div class="d-block d-lg-none mobile">
+        <div class="container position-relative">
+            <h2 class="display-1 text-neutral-1 text-uppercase text-balance text-center mb-4">{{ title }}</h2>
+            {% if videoId != blank %}
+                <div class="mobile-media mb-3">
+                    <div class="mobile-video" aria-hidden="true">
+                        {[ mediaplayer media:'{{ videoId }}' autoplay:'false' clicktoplay:'false' controls:'' trackanonymoussession:'false' tracksession:'false' ]}{[ endmediaplayer ]}
+                    </div>
+                    <button class="play-button" type="button" data-toggle="modal" data-target="#{{ videoModalId }}" aria-label="Play video">
+                        <i class="ti ti-player-play-filled" aria-hidden="true"></i>
+                    </button>
+                </div>
+            {% endif %}
+            <p class="text-pretty text-neutral-1 o-80">{{ content }}</p>
+            <a href="{{ buttonLink }}" class="btn btn-primary text-uppercase mb-3">{{ buttonText }}</a>
+            <img class="arrow-texture arrow-texture-mobile" src="{{ arrowsImageUrl }}" alt="" aria-hidden="true">
+        </div>
+    </div>
+
+    {% if videoId != blank %}
+        <div class="modal fade video-modal" id="{{ videoModalId }}" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <div class="video-frame">
+                            <template class="js-mediaplayer-template">
+                                {[ mediaplayer media:'{{ videoId }}' ]}{[ endmediaplayer ]}
+                            </template>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+//- Same handler and guard as Videos.lava, so it binds once whichever loads first. The player is rebuilt
+//- from the template on every open because a reused Rock media player comes back as a black screen.
+<script>
+    (function ($) {
+        if (window.videoModalBound) { return; }
+        window.videoModalBound = true;
+
+        $(document).on('shown.bs.modal', '.video-modal', function () {
+            var videoFrame = $(this).find('.video-frame')[0];
+            var tpl = videoFrame && videoFrame.querySelector('template.js-mediaplayer-template');
+
+            if (tpl) {
+                videoFrame.appendChild(document.importNode(tpl.content, true));
+                var media = videoFrame.querySelector('video, audio');
+                if (media) {
+                    var played = media.play();
+                    if (played && played.catch) { played.catch(function () {}); }
+                }
+                return;
+            }
+
+            var frame = $(this).find('iframe')[0];
+            if (frame && frame.src === 'about:blank') {
+                frame.src = frame.getAttribute('data-video-src');
+            }
+        });
+
+        $(document).on('hide.bs.modal', '.video-modal', function () {
+            var videoFrame = $(this).find('.video-frame')[0];
+            if (videoFrame) {
+                $(videoFrame).children(':not(template)').remove();
+                return;
+            }
+
+            var frame = $(this).find('iframe')[0];
+            if (frame && frame.src !== 'about:blank') {
+                frame.setAttribute('data-video-src', frame.src);
+                frame.src = 'about:blank';
+            }
+        });
+    })(jQuery);
+</script>
+
+//- MARK: Script
+<script>
+    (function () {
+        var section = document.querySelector('.homepage-introduction');
+        if (!section) return;
+
+        var arrows = section.querySelectorAll('.arrow-texture');
+        if (!arrows.length) return;
+
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+        /-
+            The resting 50% opacity is set by an ID-level selector, so the shared
+            .gsap-fade guard class cannot outrank it. Hiding inline here — while
+            the document is still parsing, before GSAP has even loaded — is what
+            keeps the arrows from painting at rest first.
+        -/
+        arrows.forEach(function (arrow) {
+            arrow.style.opacity = '0';
+            arrow.style.visibility = 'hidden';
+        });
+
+        function play() {
+            if (typeof gsap === 'undefined') return;
+
+            //- .arrow-texture rests at 50% opacity, so that is the tween's end
+            //- value rather than a full fade to 1.
+            gsap.fromTo(arrows,
+                { autoAlpha: 0, x: -80 },
+                {
+                    autoAlpha: 0.5,
+                    x: 0,
+                    duration: 1.1,
+                    ease: 'power2.out',
+                    force3D: true,
+                    scrollTrigger: {
+                        trigger: section,
+                        start: 'top 75%',
+                        toggleActions: 'play none none none'
+                    }
+                }
+            );
+        }
+
+        window.addEventListener('load', play);
+    })();
+</script>

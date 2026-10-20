@@ -1,0 +1,85 @@
+/-
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Home/Partials/Hero.lava' %}
+-/
+
+//- MARK: Tracking
+{% capture heroCtaUrl %}{% include '~~/Assets/Lava/Custom/Common/TrackedUrl.lava', trackedUrl:'/greater-things/commit', trackedLabel:'Commit', trackedContext:'hero' %}{% endcapture %}
+{% assign heroCtaUrl = heroCtaUrl | Trim %}
+
+//- MARK: Markup
+<div class="homepage-hero js-homepage-hero">
+
+    <div class="container">
+        <div class="content">
+            <h3 class="gsap-fade js-hero-overline">A Two-Year Spiritual Growth Journey in Generosity</h3>
+            <div class="title-wrapper gsap-fade js-hero-title">
+                <h1>Greater Things</h1>
+            </div>
+            <a href="{{ heroCtaUrl }}" class="btn btn-primary btn-lg text-uppercase gsap-fade js-hero-cta">Commit</a>
+        </div>
+    </div>
+
+</div>
+
+//- MARK: Script
+<script>
+    (function () {
+        var hero = document.querySelector('.js-homepage-hero');
+        if (!hero) return;
+
+        var overline = hero.querySelector('.js-hero-overline');
+        var title = hero.querySelector('.js-hero-title');
+        var cta = hero.querySelector('.js-hero-cta');
+
+        //- Word spans keep normal wrapping; the char spans inside them are what stagger.
+        function splitCharacters(el) {
+            var text = el.textContent;
+            el.setAttribute('aria-label', text);
+            el.textContent = '';
+
+            var chars = [];
+            text.split(' ').forEach(function (word, wordIndex, words) {
+                var wordSpan = document.createElement('span');
+                wordSpan.setAttribute('aria-hidden', 'true');
+                wordSpan.style.display = 'inline-block';
+                wordSpan.style.whiteSpace = 'pre';
+
+                var wordText = wordIndex < words.length - 1 ? word + ' ' : word;
+                wordText.split('').forEach(function (character) {
+                    var charSpan = document.createElement('span');
+                    charSpan.style.display = 'inline-block';
+                    charSpan.textContent = character;
+                    wordSpan.appendChild(charSpan);
+                    chars.push(charSpan);
+                });
+
+                el.appendChild(wordSpan);
+            });
+
+            return chars;
+        }
+
+        function play() {
+            if (typeof gsap === 'undefined') return;
+
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                gsap.set([title, overline, cta], { autoAlpha: 1 });
+                return;
+            }
+
+            var characters = splitCharacters(overline);
+
+            gsap.set(characters, { autoAlpha: 0, y: 12 });
+            gsap.set(overline, { autoAlpha: 1 });
+
+            var timeline = gsap.timeline({ defaults: { ease: 'power1.out', force3D: true } });
+
+            timeline
+                .fromTo(title, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.7 })
+                .to(characters, { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.015 }, '-=0.2')
+                .fromTo(cta, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.45 }, '-=0.25');
+        }
+
+        window.addEventListener('load', play);
+    })();
+</script>

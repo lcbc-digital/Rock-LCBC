@@ -1,0 +1,64 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/Accordion.lava', content:accordionData, settings:accordionSettings %}
+    Description: A set of collapsible items rendered with the accordion shortcode.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro - Optional lead content above the items. Passed to IntroContent.lava -- see that file
+                    for its keys. Omit it to render items only.
+
+            items - Array of item dictionaries. Keys:
+                title                  - The item heading, always visible. Passed as a single-quoted shortcode
+                                         parameter, so it cannot contain an apostrophe. (Required, Text)
+                description            - The item body, revealed when the item is opened. Accepts HTML. (Required, Text)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of content sitting directly on the section background, meaning the
+                                     intro heading and description. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large. Defaults to medium)
+            firstitemopen          - Whether the first item starts expanded. (Optional, Boolean. Defaults to false)
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+{% assign firstItemOpenBool = settings.firstitemopen | AsBoolean %}
+{% assign firstItemOpen = 'false' %}
+{% if firstItemOpenBool %}
+    {% assign firstItemOpen = 'true' %}
+{% endif %}
+
+//- MARK: Content Logic
+{% assign itemsSpacingClass = '' %}
+{% if content.intro != blank %}
+    {% assign itemsSpacingClass = 'mt-5' %}
+{% endif %}
+
+
+//- MARK: Markup
+{% if content.items != blank %}
+    <section class="accordion-template template template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        <div class="container">
+            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+
+            <div class="{{ itemsSpacingClass }}">
+                {[ accordion firstopen:'{{ firstItemOpen }}' ]}
+                    {% for item in content.items %}
+                        [[ item title:'{{ item.title }}' ]]
+                            {{ item.description }}
+                        [[ enditem ]]
+                    {% endfor %}
+                {[ endaccordion ]}
+            </div>
+        </div>
+    </section>
+{% endif %}

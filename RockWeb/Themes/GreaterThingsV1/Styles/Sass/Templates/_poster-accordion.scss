@@ -1,0 +1,189 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.poster-accordion-template {
+    --poster-accordion-radius: 0;
+
+    .poster-accordion-title {
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+}
+
+//- MARK: Generic Styles
+.poster-accordion-template {
+
+    .poster-accordion-item {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+
+        aspect-ratio: var(--poster-accordion-aspect-ratio, 1);
+        max-height: var(--poster-accordion-max-height, 420px);
+        border-radius: var(--poster-accordion-radius, 0);
+
+        color: var(--poster-accordion-color, var(--ui-softest));
+        cursor: pointer;
+    }
+
+    .poster-accordion-image,
+    .poster-accordion-overlay,
+    .poster-accordion-blur {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .poster-accordion-image {
+        object-fit: cover;
+        object-position: center;
+        z-index: -3;
+    }
+
+    .poster-accordion-overlay {
+        z-index: -2;
+        opacity: var(--poster-accordion-overlay-opacity, 0.8);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--poster-accordion-overlay-color, var(--neutral-2)) 0%, transparent) var(--poster-accordion-overlay-start, 50%),
+            var(--poster-accordion-overlay-color, var(--neutral-2)) 100%
+        );
+    }
+
+    .poster-accordion-blur {
+        z-index: -1;
+        transition: backdrop-filter 0.5s ease;
+    }
+
+    .poster-accordion-body {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .poster-accordion-heading {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .poster-accordion-subtitle {
+        opacity: 0.8;
+    }
+
+    .poster-accordion-title,
+    .poster-accordion-subtitle,
+    .poster-accordion-panel h1,
+    .poster-accordion-panel h2,
+    .poster-accordion-panel h3,
+    .poster-accordion-panel h4,
+    .poster-accordion-panel h5,
+    .poster-accordion-panel h6,
+    .poster-accordion-panel p,
+    .poster-accordion-panel li {
+        color: inherit;
+    }
+
+    .poster-accordion-panel a {
+        color: inherit;
+    }
+
+    .poster-accordion-icon {
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+
+        width: var(--poster-accordion-icon-size, 52px);
+        height: var(--poster-accordion-icon-size, 52px);
+        border: 1px solid var(--poster-accordion-icon-border-color, rgba(255, 255, 255, 0.15));
+        border-radius: 50%;
+        background-color: var(--poster-accordion-icon-background, rgba(0, 0, 0, 0.25));
+        backdrop-filter: blur(8px);
+        font-size: 24px;
+
+        i {
+            grid-area: 1 / 1;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .ti-plus {
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+
+        .ti-minus {
+            opacity: 0;
+            transform: rotate(-90deg);
+        }
+    }
+
+    //- MARK: Revealed panel
+    .poster-accordion-panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 84px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 16px;
+        padding: 40px 16px 16px;
+
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+
+        p {
+            margin: 0;
+            line-height: 1.2;
+        }
+    }
+
+    //- MARK: Open
+    .poster-accordion-item.active {
+        .poster-accordion-panel {
+            opacity: 1;
+            pointer-events: auto;
+            transition: opacity 0.5s ease 0.3s;
+        }
+
+        .poster-accordion-blur {
+            backdrop-filter: blur(var(--poster-accordion-blur, 40px));
+        }
+
+        .poster-accordion-icon {
+            .ti-plus {
+                opacity: 0;
+                transform: rotate(180deg);
+            }
+
+            .ti-minus {
+                opacity: 1;
+                transform: rotate(0deg);
+            }
+        }
+    }
+
+    //- MARK: Interaction
+    .poster-accordion-item:focus-visible {
+        outline: 2px solid var(--poster-accordion-color, var(--ui-softest));
+        outline-offset: 2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .poster-accordion-panel,
+        .poster-accordion-blur,
+        .poster-accordion-icon i {
+            transition: none;
+        }
+    }
+}

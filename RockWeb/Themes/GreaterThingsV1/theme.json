@@ -1,0 +1,137 @@
+{
+    "$schema": "https://community.rockrms.com/schema/2024-10-01/theme.schema.json",
+    "name": "GreaterThingsV1",
+    "description": "The theme for the Greater Things website.",
+    "purpose": "web",
+    "availableIconSets": [
+        "tabler"
+    ],
+    "fields": [
+        {
+            "type": "panel",
+            "title": "Base Theme",
+            "expanded": true,
+            "fields": [
+                {
+                    "type": "color",
+                    "name": "Primary Color",
+                    "variable": "primary",
+                    "description": "The primary accent color used throughout the site (buttons, highlights, links).",
+                    "default": "#ff8610"
+                },
+                {
+                    "type": "color",
+                    "name": "Secondary Color",
+                    "variable": "secondary",
+                    "description": "The secondary accent color used for backgrounds, overlays, and supporting elements.",
+                    "default": "#5c1803"
+                },
+                {
+                    "type": "image",
+                    "name": "Organization Logo",
+                    "variable": "logo-image",
+                    "description": "The logo that will be displayed on the site's footer. For best results, use a white SVG.",
+                    "default": "~~/Assets/Images/Logos/Logomark.svg"
+                }
+            ]
+        },
+        {
+            "type": "panel",
+            "title": "Application Colors",
+            "expanded": false,
+            "fields": [
+                {
+                    "type": "color",
+                    "name": "Link Color",
+                    "variable": "base-link",
+                    "description": "Color used for hyperlinks.",
+                    "default": "#008cd0"
+                },
+                {
+                    "type": "color",
+                    "name": "Success Color",
+                    "variable": "base-success",
+                    "description": "Color used for success alerts, labels, and badges.",
+                    "default": "#b0de67"
+                },
+                {
+                    "type": "color",
+                    "name": "Warning Color",
+                    "variable": "base-warning",
+                    "description": "Color used for warning alerts, labels, and badges.",
+                    "default": "#ffaa57"
+                },
+                {
+                    "type": "color",
+                    "name": "Danger Color",
+                    "variable": "base-danger",
+                    "description": "Color used for danger/error alerts, labels, and badges.",
+                    "default": "#8d4e4e"
+                },
+                {
+                    "type": "color",
+                    "name": "Info Color",
+                    "variable": "base-info",
+                    "description": "Color used for info alerts, labels, and badges.",
+                    "default": "#008cd0"
+                },
+                {
+                    "type": "color",
+                    "name": "Critical Color",
+                    "variable": "base-critical",
+                    "description": "Color used for critical alerts, labels, and badges.",
+                    "default": "#8d4e4e"
+                }
+            ]
+        },
+        {
+            "type": "panel",
+            "title": "Typography",
+            "expanded": false,
+            "fields": [
+                {
+                    "type": "literal",
+                    "name": "Title Font Family",
+                    "variable": "title-font-family",
+                    "description": "Font family for headings and display text.",
+                    "default": "'Bigger Display','DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif"
+                },
+                {
+                    "type": "literal",
+                    "name": "Body Font Family",
+                    "variable": "body-font-family",
+                    "description": "Font family for body copy and UI text.",
+                    "default": "'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif"
+                }
+            ]
+        },
+        {
+            "type": "panel",
+            "title": "Fallback Images",
+            "expanded": false,
+            "fields": [
+                {
+                    "type": "image",
+                    "name": "Vertical Fallback Image",
+                    "variable": "fallback-image-vertical",
+                    "description": "Fallback for portrait-ratio images.",
+                    "default": ""
+                },
+                {
+                    "type": "image",
+                    "name": "Square Fallback Image",
+                    "variable": "fallback-image-square",
+                    "description": "Fallback for square-ratio images.",
+                    "default": ""
+                },
+                {
+                    "type": "image",
+                    "name": "Horizontal Fallback Image",
+                    "variable": "fallback-image-horizontal",
+                    "description": "Fallback for landscape-ratio images.",
+                    "default": ""
+                }
+            ]
+        }
+    ]
+}

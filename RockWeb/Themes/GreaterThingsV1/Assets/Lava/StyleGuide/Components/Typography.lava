@@ -1,0 +1,126 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Typography', description:'This section provides examples of the various typography and color classes available in the GreaterThingsV1 theme.' %}
+
+/-
+    One row per token, desktop on the left and mobile on the right, so the
+    two scales line up for comparison. The right cell carries .mobile, which
+    pins the mobile ramp above the md breakpoint.
+
+    Add or remove a token by editing the list below. Anything in `headings`
+    renders as its own element; everything else renders as a <p> with the
+    token as its class, except body which is a bare <p>.
+-/
+//- MARK: Settings
+{% assign tokens = 'display-1,display-2,h1,h2,h3,h4,h5,h6,lead,body,small,label' | Split:',' %}
+{% assign headings = 'h1,h2,h3,h4,h5,h6' | Split:',' %}
+
+//- MARK: Markup
+<section id="scale" tt-cascade-item>
+    <h3 class="styleguide-section-header">Scale</h3>
+
+    <div class="styleguide-compare">
+        <div class="styleguide-pair styleguide-pair-head">
+            <div class="styleguide-pair-cell"><p class="label">Desktop</p></div>
+            <div class="styleguide-pair-cell"><p class="label">Mobile</p></div>
+        </div>
+
+        {% for token in tokens %}
+            //- h1 -> "Heading 1"; everything else just loses its hyphen.
+            {% if headings contains token %}
+                {% assign labelText = token | Replace:'h','Heading ' %}
+            {% else %}
+                {% assign labelText = token | Replace:'-',' ' | Capitalize %}
+            {% endif %}
+            {%- capture sample -%}
+                {% if headings contains token %}<{{ token }}>{{ labelText }}</{{ token }}>
+                {% elsif token == 'body' %}<p>{{ labelText }}</p>
+                {% else %}<p class="{{ token }}">{{ labelText }}</p>
+                {% endif %}
+            {%- endcapture -%}
+
+            <div class="styleguide-pair">
+                <div class="styleguide-pair-cell">{{ sample }}</div>
+                <div class="styleguide-pair-cell mobile">{{ sample }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+/-
+    Every token in the ramp above. Written out rather than generated from
+    `tokens` so the snippet stays clean -- a loop leaves ragged indentation
+    inside the <pre>. Keep this list in step with `tokens` if you edit one.
+-/
+{% capture markup %}
+<p class="display-1">H1 Display</p>
+<p class="display-2">H2 Display</p>
+<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<h3>Heading 3</h3>
+<h4>Heading 4</h4>
+<h5>Heading 5</h5>
+<h6>Heading 6</h6>
+<p class="lead">Lead</p>
+<p>Body</p>
+<p class="small">Small</p>
+<p class="label">Label</p>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'markup', title:'Markup', demo:markup, codeonly:'true' %}
+
+/-
+    Body copy is split into separate examples so each block element can be
+    checked on its own. Paragraphs run to a few lines deliberately -- a
+    one-line sample tells you nothing about line-height or measure, which
+    is where the ramp is most likely to look wrong.
+-/
+{% capture prose %}
+<p class="lead">A lead paragraph carries the opening statement of a section. It runs heavier and slightly larger than body copy, so it should still read comfortably across two or three lines rather than only as a single short line.</p>
+<p>Body copy is the default. This paragraph is long enough to wrap several times, which is the only way to see whether the line-height and measure are working together. Watch the spacing between lines here, and the gap between this paragraph and the next one.</p>
+<p>A second paragraph confirms the margin between blocks. Content editors produce runs of plain paragraphs more than anything else, so this is the case that has to look right before any of the others matter.</p>
+<p class="small">Small text is for captions, footnotes, and supporting detail that should recede without becoming unreadable.</p>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'prose', title:'Paragraphs', demo:prose %}
+
+{% capture inline %}
+<p>Body copy with an <a href="#">inline link</a>, some <strong>bold text</strong>, some <em>italic text</em>, and <strong><em>both at once</em></strong>.</p>
+<p>Less common inline elements: <u>underline</u>, <s>strikethrough</s>, <mark>highlighted text</mark>, <small>small</small>, and <code>inline code</code>.</p>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'inline', title:'Inline Formatting', demo:inline %}
+
+{% capture lists %}
+<ul>
+    <li>An unordered list item</li>
+    <li>A second item, written long enough that it wraps onto another line and shows how the indent holds</li>
+    <li>An item with a nested list
+        <ul>
+            <li>Nested item one</li>
+            <li>Nested item two</li>
+        </ul>
+    </li>
+</ul>
+
+<ol>
+    <li>An ordered list item</li>
+    <li>A second numbered item</li>
+    <li>A third numbered item</li>
+</ol>
+
+<dl>
+    <dt>Description term</dt>
+    <dd>The definition that belongs to the term above it.</dd>
+    <dt>A second term</dt>
+    <dd>Its matching definition.</dd>
+</dl>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'lists', title:'Lists', demo:lists %}
+
+{% capture quotes %}
+<blockquote>
+    <p>A pull quote or cited passage, long enough to wrap so the indent and the line-height can both be judged properly.</p>
+    <footer class="mb-0">Attribution in <cite title="Source">Source</cite></footer>
+</blockquote>
+
+<hr>
+
+<p>A horizontal rule separates the passage above from the content that follows it.</p>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'quotes', title:'Blockquotes and Rules', demo:quotes %}

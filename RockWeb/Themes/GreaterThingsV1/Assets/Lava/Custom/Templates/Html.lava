@@ -1,0 +1,47 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/Html.lava', content:htmlContent, settings:htmlSettings %}
+    Description: A section wrapper around free-form markup. Optional lead content above it, then whatever
+                 the editor supplied. Deliberately adds no container of its own, so the supplied markup
+                 controls its own width and can go full bleed.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro - Optional lead content above the markup. Passed to IntroContent.lava -- see that
+                    file for its keys. Omit it to render the markup only.
+            html  - The editor supplied markup. Already resolved, since the attribute is a Lava field
+                    type and its formatted value runs the template. (Optional, Text)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of the heading and description. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to none, since the supplied markup usually brings its own spacing)
+
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+//- Defaults to none rather than medium: free-form markup normally carries its own spacing, and a
+//- section that did not ask for padding should not get any.
+{% assign verticalPadding = settings.verticalpadding | Default:'none' %}
+
+//- MARK: Markup
+{% if content.html != blank or content.intro != blank %}
+    <section class="html-template template template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        {% if content.intro != blank %}
+            <div class="container">
+                {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+            </div>
+        {% endif %}
+
+        {{ content.html }}
+    </section>
+{% endif %}

@@ -1,0 +1,53 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/BannerMarquee.lava' %}
+    Description: Two diagonal scrolling marquee strips (one orange, one white) scrolling in opposite directions.
+
+    Parameters:
+        data - Dictionary of the template content. Keys:
+            items        - Marquee phrases (Required, Array of Text)
+            rotationdeg  - Strip rotation in degrees, negative tilts left (Optional, Number)
+            speedseconds - Animation duration in seconds, lower is faster (Optional, Number)
+-/
+
+//- MARK: Logic
+
+{% assign rotationDeg = data.rotationdeg | Default:'-3' %}
+{% assign speedSeconds = data.speedseconds | Default:'90' %}
+
+/-
+    The track scrolls by half its width, so each half has to be wider than the strip (130vw) or the
+    strip shows an empty stretch, most visibly on the reverse strip at load and before the title font
+    arrives. 220 characters covers 130vw of h2 text at 2560px wide. The duration scales with the
+    repeats so speedseconds keeps meaning the time to scroll one set of items.
+-/
+{% assign itemText = data.items | Join:'' %}
+{% assign itemCount = data.items | Size %}
+{% assign separatorCharacterCount = itemCount | Times:3 %}
+{% assign characterCount = itemText | Size | Plus:separatorCharacterCount | AtLeast:1 %}
+{% assign repeatCount = 220 | DividedBy:characterCount,2 | Ceiling | AtLeast:1 %}
+{% assign animationSeconds = speedSeconds | Times:repeatCount %}
+
+//- MARK: Markup
+/-
+    The .template section is what pulls the strips into the sections either side of them: the
+    stylesheet hangs that on .template:has(.banner-marquee-template), so the marquee needs a
+    section wrapper of its own rather than leaning on whatever happens to contain it.
+-/
+{% if data.items %}
+    <section class="banner-marquee-section template template-padding-none">
+        <div class="banner-marquee-template" style="--marquee-rotation: {{ rotationDeg }}deg; --marquee-speed: {{ animationSeconds }}s;">
+            <div class="marquee-strip strip-primary">
+                <div class="marquee-track reverse">
+                    {% for repeatIndex in (1..repeatCount) %}{% for item in data.items %}<span class="h2 marquee-item">{{ item }}</span>{% endfor %}{% endfor %}
+                    {% for repeatIndex in (1..repeatCount) %}{% for item in data.items %}<span class="h2 marquee-item">{{ item }}</span>{% endfor %}{% endfor %}
+                </div>
+            </div>
+            <div class="marquee-strip strip-light">
+                <div class="marquee-track">
+                    {% for repeatIndex in (1..repeatCount) %}{% for item in data.items %}<span class="h2 marquee-item">{{ item }}</span>{% endfor %}{% endfor %}
+                    {% for repeatIndex in (1..repeatCount) %}{% for item in data.items %}<span class="h2 marquee-item">{{ item }}</span>{% endfor %}{% endfor %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}

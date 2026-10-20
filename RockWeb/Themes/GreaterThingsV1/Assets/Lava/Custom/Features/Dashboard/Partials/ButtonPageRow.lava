@@ -1,0 +1,86 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/ButtonPageRow.lava', buttonPageRow:buttonPageRow, buttonClicks:buttonClicks %}
+    Description: One page in Button Interactions, and the buttons underneath it. Used by the panel and
+                 by the modal, so the two cannot drift apart.
+
+                 A sub row is three columns: where the button is, what it says, where it goes. Where
+                 it is comes first because labels repeat constantly, so it is the column that
+                 identifies a button and the one worth scanning.
+
+                 Where it goes is dropped when it matches the label, because Commit goes to Commit
+                 says nothing.
+
+                 Uses the rank-row classes rather than RankRow.lava, which is a whole <li> and leaves
+                 nowhere for the sub list to sit.
+
+                 Labels and places arrive slugged, and are escaped where page names are not: they come
+                 off the query string, which anyone can write.
+
+    Parameters:
+        buttonPageRow - One row of buttonPages. (Required, Object)
+                        PageId, PageName, Presses, PeakPresses.
+        buttonClicks  - Every row of buttonClicks, filtered here so the list costs one query rather
+                        than one per row. (Required, Array)
+-/
+
+//- MARK: Figures
+{% assign pageButtons = buttonClicks | Where:'PageId', buttonPageRow.PageId %}
+
+{% assign buttonRowShare = 0 %}
+
+{% if buttonPageRow.PeakPresses > 0 %}
+    {% assign buttonRowShare = buttonPageRow.Presses | DividedBy:buttonPageRow.PeakPresses,4 | Times:100 %}
+{% endif %}
+
+//- MARK: Markup
+<li class="button-group-row" data-open="false" data-source-page="{{ buttonPageRow.PageId }}">
+
+    <div class="rank-row rank-row-toggle js-button-toggle"
+         role="button"
+         tabindex="0"
+         aria-expanded="false"
+         style="--rank-total: {{ buttonRowShare | Format:'#,##0.#' }}%;">
+
+        <span class="rank-bar" aria-hidden="true"></span>
+
+        <span class="rank-label">
+            <i class="ti ti-chevron-right button-caret" aria-hidden="true"></i>
+            {{ buttonPageRow.PageName }}
+        </span>
+
+        <span class="rank-value js-button-total">{{ buttonPageRow.Presses | Format:'#,##0' }}</span>
+    </div>
+
+    <ul class="button-sublist">
+        {% for pageButton in pageButtons %}
+            {% assign buttonShare = 0 %}
+
+            {% if pageButton.PeakPresses > 0 %}
+                {% assign buttonShare = pageButton.Presses | DividedBy:pageButton.PeakPresses,4 | Times:100 %}
+            {% endif %}
+
+            {% assign buttonName = pageButton.ButtonLabel | Replace:'-',' ' | Humanize | Escape %}
+            {% assign buttonPlace = pageButton.Place | Replace:'-',' ' | Humanize | Default:'Page' | Escape %}
+
+            <li class="rank-row button-subrow"
+                data-destination-page="{{ pageButton.DestinationId }}"
+                data-clicks="{{ pageButton.Presses }}"
+                style="--rank-total: {{ buttonShare | Format:'#,##0.#' }}%;">
+
+                <span class="rank-bar" aria-hidden="true"></span>
+
+                <span class="button-place">{{ buttonPlace }}</span>
+
+                <span class="rank-label">
+                    {{ buttonName }}
+                    {% unless buttonName == pageButton.Destination %}
+                        <span class="button-route">&rarr; {{ pageButton.Destination | Truncate:40,'...' }}</span>
+                    {% endunless %}
+                </span>
+
+                <span class="rank-value">{{ pageButton.Presses | Format:'#,##0' }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+
+</li>

@@ -1,0 +1,44 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/VideoCard.lava', video:video, modalid:modalId %}
+    Description: A video poster with a play control that opens a modal. The modal itself is rendered
+                 separately by VideoModal.lava, because a fixed position element breaks inside a
+                 transformed ancestor and the swiper transforms its slides.
+
+    Parameters:
+        video   - Dictionary describing one video. Keys:
+            video     - A Rock media element Id. (Required, Number)
+            thumbnail - Poster image. Falls back to the media element's DefaultThumbnailUrl, which costs
+                        a lookup, so supply it when the caller already knows it. (Optional, Image Url)
+            title     - Accessible label for the card, which is the click target. (Optional, Text)
+
+        modalid - Id of the matching VideoModal.lava instance. (Required, Text)
+-/
+
+//- MARK: Settings
+{% assign videoId = video.video %}
+
+//- MARK: Markup
+{% if videoId != blank %}
+    {% assign posterUrl = video.thumbnail %}
+
+    //- Only reached when the caller did not supply a poster, since this is a query per video.
+    {% if posterUrl == blank %}
+        {% mediaelement id:'{{ videoId }}' %}
+            {% assign posterUrl = mediaelement.DefaultThumbnailUrl %}
+        {% endmediaelement %}
+    {% endif %}
+    {% capture posterUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:posterUrl, cdnParams:'' %}{% endcapture %}
+    {% assign posterUrl = posterUrl | Trim %}
+
+    {% assign videoLabel = video.title | Default:'Play video' %}
+
+    <button class="video-card" type="button" data-toggle="modal" data-target="#{{ modalid }}" aria-label="{{ videoLabel | Escape }}">
+        {% if posterUrl != blank %}
+            <img class="video-card-image" src="{{ posterUrl }}" alt="" aria-hidden="true" loading="lazy">
+        {% endif %}
+
+        <span class="play-button" aria-hidden="true">
+            <i class="ti ti-player-play-filled"></i>
+        </span>
+    </button>
+{% endif %}

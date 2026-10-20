@@ -1,0 +1,53 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/MetricNumber.lava', value:progress, format:'currency' %}
+    Description: Renders one number the way a metric wants it shown. Kept apart from Metric.lava because
+                 a metric formats two numbers -- its progress and its goal -- in several display types,
+                 and the rules have to be the same every time.
+
+                 Only presentation happens here. The number itself stays a number wherever it is used
+                 for arithmetic, so what a gauge is filled to can never disagree with what is printed
+                 beside it.
+
+    Parameters:
+        value  - The number to render. (Required, Number)
+        format - How to render it. (Optional, number | currency | compact | currency-compact | percent.
+                 Defaults to number)
+                     number           - 5,000,000
+                     currency         - $5,000,000
+                     compact          - 5M
+                     currency-compact - $5M
+                     percent          - 5,000,000%
+-/
+
+//- MARK: Settings
+{% assign metricNumber = value | AsDecimal %}
+{% assign metricFormat = format | Default:'number' %}
+
+{% assign metricPrefix = '' %}
+{% if metricFormat == 'currency' or metricFormat == 'currency-compact' %}
+    {% assign metricPrefix = '$' %}
+{% endif %}
+
+{% assign metricSuffix = '' %}
+{% if metricFormat == 'percent' %}
+    {% assign metricSuffix = '%' %}
+{% endif %}
+
+//- Rounded to one decimal and then formatted with an optional decimal place, so 1500 reads 1.5K while
+//- 20000 reads 20K rather than 20.0K.
+{% if metricFormat == 'compact' or metricFormat == 'currency-compact' %}
+    {% if metricNumber >= 1000000 %}
+        {% assign shortNumber = metricNumber | DividedBy:1000000,1 %}
+        {% capture metricBody %}{{ shortNumber | Format:'#,##0.#' }}M{% endcapture %}
+    {% elseif metricNumber >= 1000 %}
+        {% assign shortNumber = metricNumber | DividedBy:1000,1 %}
+        {% capture metricBody %}{{ shortNumber | Format:'#,##0.#' }}K{% endcapture %}
+    {% else %}
+        {% capture metricBody %}{{ metricNumber | Format:'#,##0' }}{% endcapture %}
+    {% endif %}
+{% else %}
+    {% capture metricBody %}{{ metricNumber | Format:'#,##0' }}{% endcapture %}
+{% endif %}
+
+//- MARK: Markup
+{{ metricPrefix }}{{ metricBody | Trim }}{{ metricSuffix }}

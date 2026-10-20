@@ -1,0 +1,78 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/TexturedSideBySide.lava' %}
+    Description: Content that wraps around a character cutout.
+
+    Parameters:
+        data - Dictionary of the template content. Keys:
+            overline             - Small label above the title (Optional, Text)
+            title                - Remainder of the title (Required, Text)
+            description          - Body copy; on mobile this wraps around the character. 280 character max. (Optional, Text)
+            buttons              - Up to two buttons. See ButtonGroup.lava for the shape. (Optional, Array)
+            image                - The image to be displayed on the side by side. (Required, Image Url)
+-/
+
+//- MARK: Logic
+
+{% assign overline = data.overline | Default:'' %}
+{% assign title = data.title | Default:'' %}
+{% assign description = data.description | Default:'' %}
+{% assign buttons = data.buttons %}
+{% assign image = data.image | Default:'' %}
+{% capture image %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:image, cdnParams:'' %}{% endcapture %}
+{% assign image = image | Trim %}
+
+{% capture mainTextureUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:'/Themes/GreaterThingsV1/Assets/Images/Textures/TextureOne.jpg', cdnParams:'' %}{% endcapture %}
+{% assign mainTextureUrl = mainTextureUrl | Trim %}
+{% capture complimentaryTextureUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:'/Themes/GreaterThingsV1/Assets/Images/Textures/TextureFour.jpg', cdnParams:'' %}{% endcapture %}
+{% assign complimentaryTextureUrl = complimentaryTextureUrl | Trim %}
+{% capture arrowTextureUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:'/Themes/GreaterThingsV1/Assets/Images/Textures/Arrow.png', cdnParams:'' %}{% endcapture %}
+{% assign arrowTextureUrl = arrowTextureUrl | Trim %}
+
+{% assign markerPattern = '[*][*](.+?)[*][*]' %}
+{% assign highlightedTitle = title | RegExReplace:markerPattern,'<span class="highlighted-text">$1</span>' %}
+
+//- MARK: Markup
+{% if data %}
+    <section class="textured-side-by-side-template bg-neutral-2 overflow-hidden">
+        <div class="container-fluid px-md-5">
+            <div class="d-flex flex-column align-items-center justify-content-center mb-5 gsap-fade" data-intro-fade="up">
+                {% if overline != '' %}<h2 class="label mb-4">{{ overline }}</h2>{% endif %}
+                <h3 class="title display-1 text-center m-0">
+                    {{ highlightedTitle }}
+                </h3>
+            </div>
+
+            <div class="container mt-md-5">
+                <div class="row d-flex flex-wrap align-items-center ">
+                    {% if image %}
+                        <div class="col-xs-12 col-md-6 gsap-fade" data-intro-fade="left">
+                            <img src="{{ image }}" alt="Section image" class="w-100" data-intro-fade-item>
+                        </div>
+                    {% endif %}
+
+                    {% if description != blank or buttons != empty %}
+                        //- Copy is left aligned on desktop but the column sits on the right, so the
+                        //- direction is declared rather than read off the alignment.
+                        <div class="col-xs-12 col-md-4 pl-md-5 gsap-fade" data-intro-fade="right">
+                            <div class="d-flex flex-column gap-3 gap-md-4">
+                                {% if description %}
+                                    <p class="description text-neutral-1 text-pretty text-center text-md-left mt-5 mt-md-0">
+                                        {{ description }}
+                                    </p>
+                                {% endif %}
+                                //- btn-default because this section sits on a dark background.
+                                {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:buttons, styles:'btn-default', direction:'column' %}
+                            </div>
+                        </div>
+                    {% endif%}
+                </div>
+            </div>
+        </div>
+
+        <img src="{{ mainTextureUrl }}" alt="" aria-hidden="true" class="texture main-texture">
+        <img src="{{ complimentaryTextureUrl }}" alt="" aria-hidden="true" class="texture complimentary-texture d-none d-md-block">
+        <img src="{{ arrowTextureUrl }}" alt="" aria-hidden="true" class="texture texture-arrow">
+    </section>
+
+    {{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/TexturedSideBySide.js' | AddScriptLink:true }}
+{% endif %}

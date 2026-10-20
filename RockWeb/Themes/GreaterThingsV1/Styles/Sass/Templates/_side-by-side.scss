@@ -1,0 +1,110 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.side-by-side-template {
+    --play-button-background-color: var(--secondary);
+}
+
+//- MARK: Generic Styles
+.side-by-side-template {
+
+    //- row-gap only. A column-gap would push the two col-md-6 past 100% and wrap them.
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        row-gap: var(--side-by-side-gap, 48px);
+    }
+
+    //- Pays for its own padding when the section sets none. Top only from md, where the image stops leading.
+    &.template-padding-none .side-by-side-content {
+        padding-bottom: var(--side-by-side-gap, 48px);
+
+        @media (min-width: $screen-md-min) {
+            padding-top: var(--side-by-side-gap, 48px);
+        }
+    }
+
+    .side-by-side-media {
+        position: relative;
+        display: flex;
+    }
+
+    .media-image {
+        width: 100%;
+        aspect-ratio: var(--side-by-side-media-aspect-ratio, 4 / 5);
+        object-fit: cover;
+        object-position: center;
+        border-radius: var(--side-by-side-media-radius, 0px);
+    }
+
+    .side-by-side-content .intro-content .description {
+        font-weight: 700;
+    }
+
+    @media (max-width: $screen-sm-max) {
+
+        //- Capped on width, not height, so the ratio still derives the height.
+        .media-image {
+            max-width: calc(var(--side-by-side-media-max-height, 50vh) * var(--side-by-side-media-aspect-ratio, 4 / 5));
+            margin-inline: auto;
+        }
+
+        //- Image leads when stacked. reverse only reaches md and up, so nothing to undo here.
+        .side-by-side-media {
+            order: -1;
+        }
+    }
+}
+
+.side-by-side-full-bleed {
+    --side-by-side-media-aspect-ratio: 16 / 9;
+
+    .row {
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .side-by-side-media {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .side-by-side-content {
+        padding-left: 24px;
+        padding-right: 24px;
+
+        .intro-content {
+            @media (min-width: $screen-lg-min) {
+                max-width: 75%;
+            }
+        }
+    }
+
+    @media (min-width: $screen-md-min) {
+        .side-by-side-content {
+            padding-left: 48px;
+            padding-right: 48px;
+        }
+
+        //- Stretching the column makes the ratio a floor instead of a fixed height; object-fit crops.
+        .side-by-side-media {
+            align-self: stretch;
+        }
+
+        .media-image {
+            height: 100%;
+        }
+    }
+}
+
+@media (min-width: $screen-md-min) {
+    .side-by-side-full-bleed {
+        .play-button {
+            left: 0;
+        }
+
+        .flex-md-row-reverse .play-button {
+            left: 100%;
+        }
+    }
+}

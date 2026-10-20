@@ -1,0 +1,11 @@
+@use "../Utils/variables" as *;
+
+.container.container-lg {
+    @media (min-width: $screen-xxl-min) {
+        width: 1400px;
+    }
+}
+
+.highlighted-text {
+    color: var(--highlight-color, var(--primary));
+}

@@ -1,0 +1,8 @@
+//- Large button sizing without .btn-lg in markup. The :not() guards mirror the base .btn rule so the
+//- include cannot lose to it on specificity.
+@mixin button-large {
+    &:not(#cms-admin-footer *):not(.rock-modal *) {
+        font-size: var(--button-font-size, 1.2rem);
+        padding: var(--button-large-padding, 12px 24px);
+    }
+}

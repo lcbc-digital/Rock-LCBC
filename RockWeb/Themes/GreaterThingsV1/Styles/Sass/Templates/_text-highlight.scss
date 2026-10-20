@@ -1,0 +1,16 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+//- Fallback only; the inline style the module writes wins over these.
+.text-highlight-template {
+    --template-background-color: var(--ui-softest);
+    --template-foreground-color: var(--ui-strongest);
+}
+
+//- MARK: Generic Styles
+.text-highlight-template {
+
+    .text {
+        color: var(--template-foreground-color, inherit);
+    }
+}

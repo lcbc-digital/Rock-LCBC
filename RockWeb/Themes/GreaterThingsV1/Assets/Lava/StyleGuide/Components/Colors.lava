@@ -1,0 +1,121 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Colors', description:'The colors used throughout the site. Any color here can be used as a background, text color, or border.' %}
+
+/-
+    Lists drive the whole page. Adding a step or a color is a one-word
+    edit here; keep them in step with the maps in _colors.scss.
+
+    ui has no `base` step on purpose, so it gets its own list.
+-/
+//- MARK: Settings
+{% assign ramps = 'primary,secondary' | Split:',' %}
+{% assign rampSteps = 'strongest,stronger,strong,base,soft,softer,softest' | Split:',' %}
+{% assign uiSteps = 'strongest,stronger,strong,medium,soft,softer,softest' | Split:',' %}
+{% assign system = 'info,success,warning,danger' | Split:',' %}
+{% assign brand = 'sunfire,calgar-blue,pale-ocean,lime,dusk-sea,neutral-1,neutral-2' | Split:',' %}
+
+//- MARK: Markup
+<section id="ramps" tt-cascade-item>
+    <h3 class="styleguide-section-header">Primary Palette</h3>
+    <p>Each color has seven shades, from darkest to lightest. Pick the shade that fits the surface you need.</p>
+
+    {% for ramp in ramps %}
+        <p class="label">{{ ramp | Capitalize }}</p>
+        <div class="styleguide-swatches">
+            {% for step in rampSteps %}
+                {% if step == 'base' %}
+                    {% assign token = ramp %}
+                    {% assign displayName = ramp | Capitalize %}
+                {% else %}
+                    {% capture token %}{{ ramp }}-{{ step }}{% endcapture %}
+                    {% assign displayName = step | Capitalize %}
+                {% endif %}
+                <div class="styleguide-swatch">
+                    <div class="styleguide-swatch-chip bg-{{ token }}">Aa</div>
+                    <p class="styleguide-swatch-name">{{ displayName }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    <p class="label">Interface (Neutrals)</p>
+    <div class="styleguide-swatches">
+        {% for step in uiSteps %}
+            <div class="styleguide-swatch">
+                <div class="styleguide-swatch-chip bg-ui-{{ step }}">Aa</div>
+                <p class="styleguide-swatch-name">{{ step | Capitalize }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section id="system" tt-cascade-item>
+    <hr class="my-5">
+    <h3 class="styleguide-section-header">Status Colors</h3>
+    <p>Reserved for status messages: information, success, warnings, and errors.</p>
+
+    <div class="styleguide-swatches styleguide-swatches-loose">
+        {% for name in system %}
+            <div class="styleguide-swatch">
+                <div class="styleguide-swatch-chip bg-{{ name }}">Aa</div>
+                <p class="styleguide-swatch-name">{{ name | Capitalize }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section id="brand" tt-cascade-item>
+    <hr class="my-5">
+    <h3 class="styleguide-section-header">Brand Colors</h3>
+    <p>The named colors from the LCBC brand palette.</p>
+
+    <div class="styleguide-swatches styleguide-swatches-loose">
+        {% for name in brand %}
+            {% assign displayName = name | Replace:'-',' ' | Capitalize %}
+            <div class="styleguide-swatch">
+                <div class="styleguide-swatch-chip bg-{{ name }}">Aa</div>
+                <p class="styleguide-swatch-name">{{ displayName }}</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section id="usage" tt-cascade-item>
+    <hr class="my-5">
+    <h3 class="styleguide-section-header">How to Use These Colors</h3>
+    <p>Every color above works in three ways. Just add the class to any element. The examples below use <strong>Primary</strong>, but the same pattern works for <em>every</em> color on this page.</p>
+
+    <div class="styleguide-usage">
+        <div class="styleguide-usage-card">
+            <p class="label styleguide-usage-label">Backgrounds</p>
+            <p class="mb-2">Use <code>bg-</code> before the color name. The text color is picked automatically so it stays readable.</p>
+            <div class="styleguide-usage-demo">
+                <div class="bg-primary p-3">bg-primary</div>
+                <div class="bg-primary-soft p-3">bg-primary-soft</div>
+                <div class="bg-primary-strongest p-3">bg-primary-strongest</div>
+            </div>
+        </div>
+
+        <div class="styleguide-usage-card">
+            <p class="label styleguide-usage-label">Text</p>
+            <p class="mb-2">Use <code>text-</code> before the color name to color the text of an element.</p>
+            <div class="styleguide-usage-demo">
+                <p class="text-primary mb-0">text-primary</p>
+                <p class="text-primary-strong mb-0">text-primary-strong</p>
+                <p class="text-primary-strongest mb-0">text-primary-strongest</p>
+            </div>
+        </div>
+
+        <div class="styleguide-usage-card">
+            <p class="label styleguide-usage-label">Borders</p>
+            <p class="mb-2">Use <code>border-</code> before the color name. Pair with a border width so the color has something to show up on.</p>
+            <div class="styleguide-usage-demo">
+                <div class="styleguide-border-demo border-primary">border-primary</div>
+                <div class="styleguide-border-demo border-primary-soft">border-primary-soft</div>
+                <div class="styleguide-border-demo border-primary-strongest">border-primary-strongest</div>
+            </div>
+        </div>
+    </div>
+
+    <p class="styleguide-usage-tip"><strong>Tip:</strong> Swap <em>primary</em> for any color name shown above. For example <code>bg-lime</code>, <code>text-danger</code>, or <code>border-secondary-soft</code>.</p>
+</section>
+

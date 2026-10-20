@@ -1,0 +1,20 @@
+// Print styles, ported from the legacy theme's Styles/_print.less.
+// Uses no $vars, so it needs no @use.
+
+@media print {
+    @page {
+        margin: .5in;
+    }
+
+    .nav-sub {
+        display: none;
+    }
+
+    #cms-admin-footer {
+        display: none;
+    }
+
+    a[href]::after {
+        content: "" !important;
+    }
+}

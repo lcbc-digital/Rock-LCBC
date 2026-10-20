@@ -1,0 +1,7 @@
+/-
+    {% include '~~/Assets/Lava/StyleGuide/Partials/ZoneDisplay.lava', name:'' %}
+-/
+
+<div style="height: 300px; border-width: 24px; border-style: solid;" class="bg-ui-strongest border-ui-soft d-flex align-items-center justify-content-center text-white">
+    <h3>{{ name }}</h3>
+</div>

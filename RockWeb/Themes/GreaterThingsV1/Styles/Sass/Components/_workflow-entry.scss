@@ -1,0 +1,101 @@
+@use "../Utils/variables" as *;
+@use "form-entry";
+
+//- The Rock workflow entry block on top of .form-entry: everything here is aimed at the markup
+//- that block renders. A plain .form-entry form never needs any of it.
+
+//- MARK: Generic Styles
+.workflow-entry {
+    @extend .form-entry;
+
+    .panel.panel-block {
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+        background: none;
+        box-shadow: none;
+    }
+
+    //- The second selector outranks the framework's own .panel.panel-flex > .panel-heading.
+    .panel-heading,
+    .panel.panel-flex > .panel-heading {
+        display: none;
+    }
+
+    .panel-body {
+        padding: 0;
+    }
+
+    //- Person entry nests its fields in unclassed divs inside a half width column.
+    .fieldgroup-personentry {
+
+        > .row > .col-md-6 {
+            width: 100%;
+
+            > div > div {
+                display: flex;
+                flex-wrap: wrap;
+            }
+        }
+
+        .form-group {
+            width: 100%;
+        }
+
+        //- Rock puts .field-firstname on the last name group too, so this pairs them.
+        @media (min-width: $screen-md-min) {
+            .field-firstname,
+            .field-email,
+            .rock-phonenumber-box {
+                width: 50%;
+                padding-inline: 6px;
+            }
+        }
+    }
+
+    .form-section > .rock-header {
+        color: var(--form-entry-section-heading-color, inherit);
+        font-size: var(--form-entry-section-heading-size, 1rem);
+        font-weight: 700;
+
+        .title {
+            color: inherit;
+        }
+    }
+
+    .fieldgroup-personentry + .form-section {
+        border-top: 1px solid var(--form-entry-divider-color, transparent);
+        padding-top: var(--form-entry-gap, 16px);
+    }
+
+    .actions,
+    .form-section-fields ~ div > .btn,
+    > .panel .btn-primary {
+        width: 100%;
+    }
+
+    .actions {
+        border-top: none !important;
+
+        a {
+            margin-right: 0;
+        }
+    }
+
+    //- The framework sets the margins and padding on .panel-body .actions:last-of-type, which
+    //- outranks a plain .actions in here, so these have to carry the same selector to land.
+    .panel-body .actions:last-of-type {
+        @media (max-width: $screen-xs-max) {
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 0;
+            padding-right: 0;
+        }
+    }
+
+    //- Loading placeholders. The framework paints these from --color-interface-softer, which is a
+    //- pale gray meant for a light card and reads as a bright bar against this one.
+    .skeleton {
+        background: var(--form-entry-skeleton-background, currentColor);
+    }
+}

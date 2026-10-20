@@ -1,0 +1,144 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/Videos.lava', content:videosContent, settings:videosSettings %}
+    Description: One or more videos, each opening in a modal player. A single video renders full width;
+                 two or more render in a swiper that peeks the next slide. The swiper only loops and
+                 autoplays once there are enough videos to be worth it -- see loopMinimumVideoCount.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro  - Optional lead content above the videos. Passed to IntroContent.lava -- see that
+                     file for its keys. Omit it to render videos only.
+
+            videos - Array of video dictionaries. Keys:
+                video     - A Rock media element Id, played in the modal. (Required, Number)
+                thumbnail - Poster image. Falls back to the media element's DefaultThumbnailUrl, which
+                            costs a lookup per video, so supply it when the caller already knows it.
+                            (Optional, Image Url)
+                title     - Accessible label for the play button. The modular adapter passes the media
+                            element's own name here. (Optional, Text)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of the heading and description. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to medium)
+
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+
+{% assign videosSpacingClass = '' %}
+{% if content.intro != blank %}
+    {% assign videosSpacingClass = 'mt-5' %}
+{% endif %}
+
+//- MARK: Content Logic
+{% assign videoCount = content.videos | Size %}
+
+{% assign modalPrefix = '' | UniqueIdentifier | Prepend:'video-modal-' %}
+
+{% assign isSingleVideo = false %}
+{% if videoCount == 1 %}
+    {% assign isSingleVideo = true %}
+{% endif %}
+
+/- Looping works by cloning slides to fake continuity, which reads as a stutter when there are only
+   a few to clone, and autoplay on a short run just moves the same videos past the viewer. Under this
+   count the swiper stays put and the slides simply end. -/
+{% assign loopMinimumVideoCount = 5 %}
+
+{% assign shouldLoop = 'false' %}
+{% assign autoplayDelay = '0' %}
+{% if videoCount >= loopMinimumVideoCount %}
+    {% assign shouldLoop = 'true' %}
+    {% assign autoplayDelay = '12000' %}
+{% endif %}
+
+//- MARK: Markup
+{% if videoCount > 0 or content.intro != blank %}
+    <section class="videos-template overflow-hidden template template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        <div class="container">
+            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+        </div>
+
+        {% if videoCount > 0 %}
+            {% if isSingleVideo %}
+                <div class="container">
+                    <div class="videos-single {{ videosSpacingClass }}">
+                        {% for video in content.videos %}
+                            {% capture modalId %}{{ modalPrefix }}-{{ forloop.index0 }}{% endcapture %}
+                            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/VideoCard.lava', video:video, modalid:modalId %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <div class="container {{ videosSpacingClass }}">
+                    {[ swiper containerclass:'videos-swiper' slidesperview:'1.1' spacebetween:'16' breakpoints:'sm-1.6|16,md-1.6|24' centeredslides:'true' shownavigation:'true' showpagination:'false' loop:'{{ shouldLoop }}' autoplay:'{{ autoplayDelay }}' ]}
+                        {% for video in content.videos %}
+                            [[ slide ]]
+                                {% capture modalId %}{{ modalPrefix }}-{{ forloop.index0 }}{% endcapture %}
+                                {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/VideoCard.lava', video:video, modalid:modalId %}
+                            [[ endslide ]]
+                        {% endfor %}
+                    {[ endswiper ]}
+                </div>
+            {% endif %}
+        {% endif %}
+    </section>
+
+    {% for video in content.videos %}
+        {% capture modalId %}{{ modalPrefix }}-{{ forloop.index0 }}{% endcapture %}
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/VideoModal.lava', video:video, modalid:modalId %}
+    {% endfor %}
+
+    <script>
+        (function ($) {
+            if (window.videoModalBound) { return; }
+            window.videoModalBound = true;
+
+            $(document).on('shown.bs.modal', '.video-modal', function () {
+                var videoFrame = $(this).find('.video-frame')[0];
+                var tpl = videoFrame && videoFrame.querySelector('template.js-mediaplayer-template');
+
+                if (tpl) {
+                    videoFrame.appendChild(document.importNode(tpl.content, true));
+                    var media = videoFrame.querySelector('video, audio');
+                    if (media) {
+                        var played = media.play();
+                        if (played && played.catch) { played.catch(function () {}); }
+                    }
+                    return;
+                }
+
+                var frame = $(this).find('iframe')[0];
+                if (frame && frame.src === 'about:blank') {
+                    frame.src = frame.getAttribute('data-video-src');
+                }
+            });
+
+            $(document).on('hide.bs.modal', '.video-modal', function () {
+                var videoFrame = $(this).find('.video-frame')[0];
+                if (videoFrame) {
+                    $(videoFrame).children(':not(template)').remove();
+                    return;
+                }
+
+                var frame = $(this).find('iframe')[0];
+                if (frame && frame.src !== 'about:blank') {
+                    frame.setAttribute('data-video-src', frame.src);
+                    frame.src = 'about:blank';
+                }
+            });
+        })(jQuery);
+    </script>
+{% endif %}

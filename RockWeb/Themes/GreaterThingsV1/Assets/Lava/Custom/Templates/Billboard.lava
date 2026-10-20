@@ -1,0 +1,80 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/Billboard.lava', content:billboardData, settings:billboardSettings %}
+    Description: A full-width hero. Content sits over a background image, optionally with a video on top of it
+                 and a overlay beneath the content for legibility.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro - The lead content. Passed to IntroContent.lava -- see that file for its keys.
+                    Required; a billboard with no content renders nothing.
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section, behind the image. (Optional, Text)
+            colors.foreground      - Color of the heading and description. (Optional, Text)
+
+            backgroundimage        - The hero image. Rendered as an img rather than a CSS background so it can
+                                     carry fetchpriority and be discovered early -- a billboard is usually the
+                                     largest contentful paint element. Also the video's poster and the
+                                     reduced-motion fallback. (Required, Image Url)
+            backgroundvideo        - A Rock media element Id to play over the image, muted and looping. Hidden
+                                     when the visitor prefers reduced motion, so backgroundimage still applies.
+                                     (Optional, Number)
+
+            height                 - The minimum height of the section. (Optional, small | medium | large | full.
+                                     Defaults to medium)
+            verticalalignment      - Where the content sits vertically. (Optional, top | center | bottom.
+                                     Defaults to center)
+            shadowheight           - How much of the section the overlay covers, as a percentage. 0 disables it.
+                                     Below 100 it is a bottom-up gradient of that height; at 100 it becomes a
+                                     flat overlay across the whole section. (Optional, Number 0-100. Defaults to 0)
+            showsociallinks        - Whether to render the social links below the content. (Optional, Boolean)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to medium)
+
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.shadowheight != blank %}--billboard-shadow-height: {{ settings.shadowheight }}%;{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+{% assign height = settings.height | Default:'medium' %}
+{% assign verticalAlignment = settings.verticalalignment | Default:'center' %}
+{% assign showSocialLinks = settings.showsociallinks | AsBoolean %}
+
+//- A shadow below 100 is a bottom-up gradient of that height. At 100 it becomes a flat overlay
+//- across the whole section instead, since a full-height gradient leaves the top unreadable.
+{% assign shadowClass = '' %}
+{% if settings.shadowheight == 100 %}
+    {% assign shadowClass = 'billboard-shadow-flat' %}
+{% endif %}
+
+//- MARK: Markup
+{% if content.intro != blank %}
+    <section class="billboard-template template template-padding-{{ verticalPadding }} billboard-height-{{ height }} billboard-align-{{ verticalAlignment }} {{ shadowClass }}" style="{{ templateStyles }}">
+        {% if settings.backgroundimage != blank %}
+            <img class="billboard-image" src="{{ settings.backgroundimage }}" alt="" aria-hidden="true" fetchpriority="high" loading="eager">
+        {% endif %}
+
+        {% if settings.backgroundvideo != blank %}
+            <div class="billboard-video" aria-hidden="true">
+                {[ mediaplayer media:'{{ settings.backgroundvideo }}' autoplay:'true' clicktoplay:'false' controls:'' muted:'true' trackanonymoussession:'false' tracksession:'false' ]}{[ endmediaplayer ]}
+            </div>
+        {% endif %}
+
+        <div class="container">
+            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+
+            {% if showSocialLinks %}
+                <div class="billboard-social mt-4">
+                    {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/SocialLinks.lava' %}
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}

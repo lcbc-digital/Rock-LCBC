@@ -1,0 +1,164 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Generic Styles
+.btn:not(#cms-admin-footer *):not(.rock-modal *) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: fit-content;
+
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+
+    font-family: var(--button-font-family, inherit);
+    font-weight: var(--button-font-weight, 900);
+    line-height: 1;
+
+    border-width: var(--button-border-width, 3px);
+    border-radius: var(--button-border-radius, 0px);
+    transition: color 150ms ease, background-color 150ms ease, transition 150ms ease;
+
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        background-image: var(--button-background-image, none);
+        background-size: cover;
+        background-position: center;
+        opacity: 1;
+        transition: opacity 150ms ease;
+        pointer-events: none;
+    }
+
+    &:hover::after { opacity: 0.85; }
+
+    &:active {
+        transform: scale(0.97);
+        &::after { opacity: 0.7; }
+    }
+
+    &:focus {
+        box-shadow: none !important;
+        outline-width: 3px;
+        outline-style: solid;
+        outline-offset: -2px;
+    }
+
+    & .ti.ti-chevron-left,
+    & .ti.ti-chevron-right {
+        transition: transform 150ms ease;
+    }
+
+    &:hover {
+        & .ti.ti-chevron-left  { transform: translateX(-2px); }
+        & .ti.ti-chevron-right { transform: translateX(2px); }
+    }
+
+    @media (max-width: $screen-xs-max) {
+        &.btn:not(.btn-icon):not(.no-grow) { width: 100%; }
+    }
+
+    &.btn-primary {
+        color: var(--button-primary-text-color, var(--base-interface-softest));
+        background-color: var(--button-primary-background-color, var(--primary));
+        border-color: var(--button-primary-outline-color, transparent);
+
+        &:hover {
+            color: var(--button-primary-text-color-active, var(--base-interface-softest));
+            background-color: var(--button-primary-background-color-active, var(--color-primary-shade));
+            border-color: var(--button-primary-outline-color-active, transparent);
+        }
+
+        &:focus  { outline-color: var(--button-primary-background-color-active, var(--color-primary-shade)); }
+        &:active { border-color: transparent; }
+    }
+
+    &.btn-default {
+        color: var(--button-default-text-color, var(--primary));
+        background-color: var(--button-default-background-color, transparent);
+        border-color: var(--button-default-outline-color, var(--primary));
+
+        &:hover {
+            color: var(--button-default-text-color-active, var(--color-primary-shade));
+            background-color: var(--button-default-background-color-active, transparent);
+            border-color: var(--button-default-outline-color-active, var(--color-primary-shade));
+        }
+
+        &:focus { outline-color: var(--button-default-text-color-active, var(--color-primary-shade)); }
+    }
+
+    &.btn-link {
+        color: var(--button-link-text-color, var(--color-link));
+        background-color: var(--button-link-background-color, transparent);
+        text-decoration: var(--button-link-text-decoration, none);
+
+        & i { display: inline-block; }
+
+        &:not(:has(i)):hover {
+            color: var(--button-link-text-color-active, var(--color-link-shade));
+            background-color: var(--button-link-background-color-active, transparent);
+            text-decoration: var(--button-link-text-decoration-active, underline);
+            text-decoration-thickness: var(--button-link-text-decoration-thickness, 2px);
+            text-underline-offset: var(--button-link-text-underline-offset, 4px);
+        }
+
+        &:has(i):hover {
+            color: var(--button-link-text-color-active, var(--color-link-shade));
+            background-color: var(--button-link-background-color-active, transparent);
+
+            & span {
+                text-decoration: var(--button-link-text-decoration-active, underline);
+                text-decoration-thickness: var(--button-link-text-decoration-thickness, 2px);
+                text-underline-offset: var(--button-link-text-underline-offset, 4px);
+            }
+        }
+
+        &:focus { outline-color: var(--button-link-text-color, var(--color-link)); }
+    }
+
+    &.btn-outline {
+        color: var(--button-outline-text-color, var(--primary));
+        background-color: var(--button-outline-background-color, transparent);
+        border-color: var(--button-outline-outline-color, var(--primary));
+
+        &:hover {
+            color: var(--button-outline-text-color-active, var(--base-interface-softest));
+            background-color: var(--button-outline-background-color-active, var(--primary));
+            border-color: var(--button-outline-outline-color-active, var(--primary));
+        }
+
+        &:focus  { outline-color: var(--color-primary-shade); }
+        &:active { border-color: transparent; }
+    }
+
+    &.btn-ghost {
+        color: var(--button-ghost-text-color, color-mix(in srgb, var(--neutral-2) 50%, var(--ui-softest) 50%));
+        background-color: var(--button-ghost-background-color, transparent);
+        border-color: var(--button-ghost-outline-color, transparent);
+
+        &:hover {
+            color: var(--button-ghost-text-color-active, var(--ui-softest));
+            background-color: var(--button-ghost-background-color-active, color-mix(in srgb, var(--neutral-2) 85%, var(--ui-softest) 15%));
+            border-color: var(--button-ghost-outline-color-active, transparent);
+        }
+
+        &:focus  { outline-color: var(--ui-strong); }
+        &:active { border-color: transparent; }
+    }
+
+    &.btn-icon {
+        aspect-ratio: 1;
+        border-radius: var(--button-icon-border-radius, 999px);
+
+        &.btn-lg { padding: var(--button-icon-large-padding, 12px); }
+        &, &.btn-md { padding: var(--button-icon-medium-padding, 10px); }
+        &.btn-sm { padding: var(--button-icon-small-padding, 8px); }
+    }
+
+    &.btn-lg { font-size: var(--button-font-size, 1.2rem); padding: var(--button-large-padding, 12px 24px); }
+    &, &.btn-md { font-size: var(--button-font-size, 1rem); padding: var(--button-medium-padding, 10px 24px); }
+    &.btn-sm { font-size: var(--button-font-size, 0.9rem); padding: var(--button-small-padding, 8px 20px); }
+}

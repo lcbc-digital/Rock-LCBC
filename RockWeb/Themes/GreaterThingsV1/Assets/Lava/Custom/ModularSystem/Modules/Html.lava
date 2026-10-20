@@ -1,0 +1,20 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Html.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - HTML channel. Adds the editor supplied markup to the
+                 dictionaries already built by Modules/Base.lava, then renders the HTML template.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: Content
+//- HtmlContent is a Lava field type, so the formatted value is already resolved. Reading RawValue
+//- here would emit the unrendered template source instead.
+{% assign htmlMarkup = module | Attribute:'HtmlContent' %}
+
+{% assign content = content | AddToDictionary:'html',htmlMarkup %}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/Html.lava', content:content, settings:settings %}

@@ -1,0 +1,320 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/VisitorChart.lava' %}
+    Description: Visits per day across the selected window, as three lines: signed in and anonymous
+                 dotted, and their total solid.
+
+                 Presentation only. The daily rows were counted and sliced to this window when the
+                 saint-pauls-dashboard dataset was built, and anonymous was derived there so the two
+                 dotted lines always add to the solid one.
+
+                 Drawn with Rock's chart shortcode, which loads Chart.js and moment. The series are
+                 three [[ dataset ]] blocks rather than three charts, so they share one axis and one
+                 tooltip.
+
+    MARK: Colours
+                 Full strength, and the same three the rest of the dashboard already uses:
+
+                     #ff8610   signed in    the ranked bars' subset colour
+                     #008cd0   anonymous    the ranked bars' total colour
+                     #2a9d4a   all visits   the Logged In Users card's green
+
+                 Hover matches the line rather than brightening it, because at full strength the
+                 points are already legible and the tooltip carries the reading.
+
+                 The total was red for a while. It is green now because the cards already spend red on
+                 a falling trend, and a red line that simply means "how many people came" reads as bad
+                 news at a glance. Green carries no such freight here.
+
+    MARK: borderdash is per dataset
+                 It is documented as a chart level setting only. It IS honoured per dataset, which is
+                 the only reason this partial can draw one solid line and two dotted ones:
+
+                     {%- if dataset.borderdash and dataset.borderdash != '' -%} borderDash: ...
+
+    MARK: Curved on purpose, and why no dataset says so
+                 The shortcode only ever emits lineTension to force lines STRAIGHT:
+
+                     {%- if dataset.curvedlines and dataset.curvedlines == 'false' -%} lineTension: 0,
+
+                 So omitting curvedlines is what produces the smooth line, by leaving Chart.js on its
+                 own default tension. There is no third setting: a series is either straight or at
+                 that one default curve.
+
+                 Note it is read PER DATASET in a multi series chart. A chart level curvedlines is
+                 parsed and then never consulted, so adding one here would do nothing. To go back to
+                 straight lines, put curvedlines:'false' on each of the three datasets, not on the
+                 chart.
+
+                 The trade is that a cubic curve between a busy day and a dead one bows past both.
+                 Visits cannot be negative, so yaxismin holds the floor at zero and the dip is clipped
+                 rather than drawn below the axis, but the curve still implies traffic on days that had
+                 none. On a spiky series that is the cost of a smooth line.
+
+    MARK: The tooltip is rebuilt in script too
+                 The shortcode exposes three tooltip settings: whether it shows, its background and
+                 its font colour. Those are set on the chart tag below. Everything else about it is
+                 fixed, and the fixed defaults are wrong for a three line chart.
+
+                 Chart.js defaults to intersect:true, so hovering reports only the one line under the
+                 cursor. On a chart whose entire point is signed in against anonymous against total,
+                 that answers the least interesting question. The script switches to mode:'index',
+                 which reports all three for the day being hovered.
+
+                 It also replaces two callbacks. The shortcode's own label callback prints the number
+                 and nothing else, which is why the tooltip in isolation reads "29" with no clue which
+                 line it belongs to; the replacement puts the series name in front and keeps the
+                 thousands formatting. And the title arrives as the raw key, 2026-08-28, so it is run
+                 through moment, which the shortcode has already loaded for the time axis.
+
+    MARK: The gridlines are turned off in script, not in the shortcode
+                 The shortcode gives gridLines a colour and nothing else, so there is no setting to
+                 hide them. xaxisshow and yaxisshow are not it either: they set display on the whole
+                 AXIS, which takes the tick labels with it.
+
+                 Nor can CSS reach them. The shortcode resolves the colour with
+
+                     getComputedStyle(document.documentElement).getPropertyValue('--color-interface-soft')
+
+                 against the HTML element, so a variable set on a wrapper around the chart is never
+                 consulted. Setting it on :root would work and would also blank every border on the
+                 page that reads the same token, including the metric cards. It is read once while the
+                 chart is being constructed, so changing it afterwards does nothing either.
+
+                 That leaves the chart instance. Chart.js keeps its live charts in Chart.instances, so
+                 the script below finds the one inside this panel and switches its gridlines off.
+                 Setting the colour to transparent would look the same; display is chosen because it
+                 also drops the axis border, which is what "no gridlines" ought to mean.
+
+                 Scoped by a js- class, so it can only ever touch this chart. Another chart elsewhere
+                 on the page keeps its grid.
+
+    MARK: Not shown on the 1 day window
+                 One day is one point, and a line through a single point is not a line. The caller
+                 gates this include, so there is nothing to draw and nothing to explain.
+
+    Requires from Base.lava:
+        dashboardWindow
+-/
+
+//- MARK: Figures
+{% assign seriesRows = dashboardWindow.Series %}
+{% assign seriesCount = seriesRows | Size %}
+
+/-
+    Joined into the comma separated strings the shortcode expects. Built here rather than in the
+    dataset because this is the shortcode's transport format, not a fact about the data.
+
+    Slot is the day, as yyyy-MM-dd, which moment parses without being told a format.
+-/
+{% assign chartLabels = seriesRows | Select:'Slot' | Join:',' %}
+{% assign chartTotals = seriesRows | Select:'Sessions' | Join:',' %}
+{% assign chartSignedIn = seriesRows | Select:'SignedIn' | Join:',' %}
+{% assign chartAnonymous = seriesRows | Select:'Anonymous' | Join:',' %}
+
+//- MARK: Markup
+<div class="panel panel-block">
+    <div class="panel-heading">
+        <h3 class="panel-title">Visitors per Day</h3>
+    </div>
+    <div class="panel-body js-visitor-chart">
+        {% if seriesCount > 1 %}
+            {[ chart type:'line' labels:'{{ chartLabels }}' xaxistype:'time' yaxismin:'0' legendshow:'true' legendposition:'bottom' chartheight:'280px' borderwidth:'2' pointradius:'2' valueformat:'number' ]}
+                [[ dataset label:'All Visits' data:'{{ chartTotals }}' bordercolor:'#2a9d4a' pointcolor:'#2a9d4a' pointbordercolor:'#2a9d4a' pointhovercolor:'#2a9d4a' pointhoverbordercolor:'#2a9d4a' borderwidth:'2' ]] [[ enddataset ]]
+                [[ dataset label:'Signed In' data:'{{ chartSignedIn }}' bordercolor:'#ff8610' pointcolor:'#ff8610' pointbordercolor:'#ff8610' pointhovercolor:'#ff8610' pointhoverbordercolor:'#ff8610' borderwidth:'2' borderdash:'[5,5]' ]] [[ enddataset ]]
+                [[ dataset label:'Anonymous' data:'{{ chartAnonymous }}' bordercolor:'#008cd0' pointcolor:'#008cd0' pointbordercolor:'#008cd0' pointhovercolor:'#008cd0' pointhoverbordercolor:'#008cd0' borderwidth:'2' borderdash:'[5,5]' ]] [[ enddataset ]]
+            {[ endchart ]}
+        {% else %}
+            <p class="text-muted">No visits were recorded in the selected window.</p>
+        {% endif %}
+    </div>
+</div>
+
+//- MARK: Script
+{% if seriesCount > 1 %}
+    <script>
+        (function () {
+            //- Runs after the shortcode's own inline script, which builds the chart where it stands.
+            //- Guarded for readyState because that ordering is the shortcode's to change, not ours.
+            function formatCount(value) {
+                return window.Intl ? Intl.NumberFormat().format(value) : value;
+            }
+
+            function tuneVisitorChart() {
+                if (!window.Chart || !Chart.instances) return;
+
+                var wrapper = document.querySelector('.js-visitor-chart');
+                if (!wrapper) return;
+
+                Object.keys(Chart.instances).forEach(function (key) {
+                    var chart = Chart.instances[key];
+                    if (!chart.canvas || !wrapper.contains(chart.canvas)) return;
+
+                    var options = chart.options;
+
+                    //- Gridlines off, both directions. The tick labels are on the axis, not the grid,
+                    //- so they stay.
+                    var scales = options.scales;
+
+                    if (scales) {
+                        (scales.xAxes || []).concat(scales.yAxes || []).forEach(function (axis) {
+                            axis.gridLines = axis.gridLines || {};
+                            axis.gridLines.display = false;
+                        });
+
+                        /-
+                            One tick per day, named as a day.
+
+                            Left alone, the time scale picks its own unit from how much room it has,
+                            and over a week it decides hours will fit. Every point here is a whole
+                            day, so those hour ticks label midnight over and over and imply a
+                            resolution the data does not have. Pinning the unit says what is true.
+                        -/
+                        (scales.xAxes || []).forEach(function (axis) {
+                            if (axis.type !== 'time') return;
+
+                            axis.time = axis.time || {};
+                            axis.time.unit = 'day';
+                            axis.time.displayFormats = axis.time.displayFormats || {};
+                            axis.time.displayFormats.day = 'MMM D';
+
+                            //- 30 days of ticks will not fit side by side; Chart.js thins them out.
+                            axis.ticks = axis.ticks || {};
+                            axis.ticks.autoSkip = true;
+                        });
+                    }
+
+                    //- Report the whole day rather than the one line under the cursor. hover is set
+                    //- to match, or the highlighted points disagree with the tooltip listing them.
+                    options.tooltips = options.tooltips || {};
+                    options.tooltips.mode = 'index';
+                    options.tooltips.intersect = false;
+
+                    options.hover = options.hover || {};
+                    options.hover.mode = 'index';
+                    options.hover.intersect = false;
+
+                    options.tooltips.callbacks = options.tooltips.callbacks || {};
+
+                    options.tooltips.callbacks.title = function (items, data) {
+                        if (!items.length) return '';
+
+                        var raw = data.labels[items[0].index];
+                        return window.moment ? moment(raw).format('dddd, MMMM D') : raw;
+                    };
+
+                    options.tooltips.callbacks.label = function (item, data) {
+                        var series = data.datasets[item.datasetIndex].label || '';
+                        return series + ': ' + formatCount(item.yLabel);
+                    };
+
+                    /-
+                        The swatch beside each row. Chart.js takes it from the dataset's current
+                        colour, which while the chart is dimmed is the faded one, so the tooltip's own
+                        key washed out along with the lines behind it. Answered from the stored base
+                        colour instead, so the swatches stay full strength and keep matching the
+                        legend.
+                    -/
+                    options.tooltips.callbacks.labelColor = function (item, instance) {
+                        var dataset = instance.data.datasets[item.datasetIndex];
+                        var base = dataset.baseBorderColor || dataset.borderColor;
+
+                        return { borderColor: base, backgroundColor: base };
+                    };
+
+                    bindVisitorChartDimming(chart);
+
+                    chart.update();
+                });
+            }
+
+            /-
+                MARK: Dim on hover
+                Everything recedes while the pointer is over the chart, so the tooltip reads against a
+                quiet background instead of a thicket of lines.
+
+                CSS cannot do this. Chart.js paints the tooltip onto the SAME canvas as the lines, so
+                opacity on the element fades the tooltip along with everything else. The dimming has to
+                happen in the chart's own colours, which are drawn first, leaving the tooltip to paint
+                over the top at full strength.
+
+                The hover colours are deliberately not dimmed. Chart.js swaps the points of the active
+                day to pointHoverBackgroundColor, so that day stays vivid while the rest of the series
+                fades: the reading the tooltip is describing stays lit.
+
+                Bound once per chart, and only on enter and leave. Redrawing on every mousemove would
+                fight the tooltip for the same frame.
+            -/
+            function bindVisitorChartDimming(chart) {
+                if (chart.canvas.dataset.dimBound) return;
+                chart.canvas.dataset.dimBound = 'true';
+
+                var DIM = 0.15;
+
+                //- Captured before anything is dimmed, so restoring cannot drift toward transparent.
+                chart.data.datasets.forEach(function (dataset) {
+                    dataset.baseBorderColor = dataset.borderColor;
+                    dataset.basePointColor = dataset.pointBackgroundColor;
+                    dataset.basePointBorderColor = dataset.pointBorderColor;
+                });
+
+                function withAlpha(color, alpha) {
+                    if (typeof color !== 'string' || color.charAt(0) !== '#') return color;
+
+                    var red = parseInt(color.substr(1, 2), 16);
+                    var green = parseInt(color.substr(3, 2), 16);
+                    var blue = parseInt(color.substr(5, 2), 16);
+
+                    return 'rgba(' + red + ',' + green + ',' + blue + ',' + alpha + ')';
+                }
+
+                function setDimmed(dimmed) {
+                    var alpha = dimmed ? DIM : 1;
+
+                    chart.data.datasets.forEach(function (dataset) {
+                        dataset.borderColor = dimmed ? withAlpha(dataset.baseBorderColor, alpha) : dataset.baseBorderColor;
+                        dataset.pointBackgroundColor = dimmed ? withAlpha(dataset.basePointColor, alpha) : dataset.basePointColor;
+                        dataset.pointBorderColor = dimmed ? withAlpha(dataset.basePointBorderColor, alpha) : dataset.basePointBorderColor;
+                    });
+
+                    //- The legend and the axis labels are canvas too, so they dim with the rest.
+                    var faded = 'rgba(119,119,119,' + (dimmed ? 0.25 : 1) + ')';
+
+                    if (chart.options.legend && chart.options.legend.labels) {
+                        chart.options.legend.labels.fontColor = faded;
+                    }
+
+                    var scales = chart.options.scales;
+
+                    if (scales) {
+                        (scales.xAxes || []).concat(scales.yAxes || []).forEach(function (axis) {
+                            axis.ticks = axis.ticks || {};
+                            axis.ticks.fontColor = faded;
+
+                            if (axis.scaleLabel) axis.scaleLabel.fontColor = faded;
+                        });
+                    }
+
+                    /-
+                        Eased. Chart.js interpolates string colour properties as well as numbers, by
+                        mixing the old and new through its own colour helper, so a duration here really
+                        does fade the lines rather than cut them.
+
+                        The legend and axis labels are options rather than element models, so they are
+                        not tweened and will snap at the start of the fade. Noticeable only if you look
+                        for it, and the alternative is repainting them by hand every frame.
+                    -/
+                    chart.update({ duration: 180, easing: 'easeOutQuart' });
+                }
+
+                chart.canvas.addEventListener('mouseenter', function () { setDimmed(true); });
+                chart.canvas.addEventListener('mouseleave', function () { setDimmed(false); });
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', tuneVisitorChart);
+            } else {
+                tuneVisitorChart();
+            }
+        })();
+    </script>
+{% endif %}

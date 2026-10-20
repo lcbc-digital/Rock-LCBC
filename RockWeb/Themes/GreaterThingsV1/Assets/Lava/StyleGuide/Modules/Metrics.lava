@@ -1,0 +1,123 @@
+/-
+    Metrics variants. One per display type: bar, semicircle, circle, and card.
+    All three use the same metrics so the only difference is how they are drawn.
+    Bar and semicircle feature the first metric; circle and card feature the middle (second).
+
+    Parameters:
+        variant - Which example to draw. Already validated by Base.lava. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign metric1 = ''
+    | AddToDictionary:'title','Total Attendance'
+    | AddToDictionary:'progress',4823
+    | AddToDictionary:'goal',6000
+    | AddToDictionary:'icon','ti ti-users'
+    | AddToDictionary:'format','number'
+%}
+
+{% assign metric2 = ''
+    | AddToDictionary:'title','First-Time Guests'
+    | AddToDictionary:'progress',312
+    | AddToDictionary:'goal',500
+    | AddToDictionary:'icon','ti ti-door-enter'
+    | AddToDictionary:'format','number'
+%}
+
+{% assign metric3 = ''
+    | AddToDictionary:'title','Amount Raised'
+    | AddToDictionary:'progress',182500
+    | AddToDictionary:'goal',250000
+    | AddToDictionary:'icon','ti ti-heart'
+    | AddToDictionary:'format','currency-compact'
+%}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','By the Numbers'
+    | AddToDictionary:'heading','Our Progress This Year'
+%}
+
+//- MARK: Settings
+{% case variant %}
+    {% when 'semicircle' %}
+        {% assign displayType = 'semicircle' %}
+        {% assign featured = metric1 | AddToDictionary:'featured',true %}
+        {% assign metrics = '' | AddToArray:featured | AddToArray:metric2 | AddToArray:metric3 %}
+
+    {% when 'circle' %}
+        {% assign displayType = 'circle' %}
+        {% assign featured = metric2 | AddToDictionary:'featured',true %}
+        {% assign metrics = '' | AddToArray:metric1 | AddToArray:featured | AddToArray:metric3 %}
+
+    {% when 'card' %}
+        {% assign displayType = 'card' %}
+        {% assign featured = metric2 | AddToDictionary:'featured',true %}
+        {% assign metrics = '' | AddToArray:metric1 | AddToArray:featured | AddToArray:metric3 %}
+
+    {% when 'dev-single' %}
+        {% assign displayType = 'bar' %}
+        {% assign featured = metric1 | AddToDictionary:'featured',true %}
+        {% assign metrics = '' | AddToArray:featured %}
+
+    {% when 'dev-many' %}
+        {% assign displayType = 'bar' %}
+        {% assign featured = metric1 | AddToDictionary:'featured',true %}
+        {% assign metricA = '' | AddToDictionary:'title','Weekly Volunteers' | AddToDictionary:'progress',847 | AddToDictionary:'goal',1000 | AddToDictionary:'icon','ti ti-hand-stop' | AddToDictionary:'format','number' %}
+        {% assign metricB = '' | AddToDictionary:'title','Baptisms' | AddToDictionary:'progress',94 | AddToDictionary:'goal',150 | AddToDictionary:'icon','ti ti-droplet' | AddToDictionary:'format','number' %}
+        {% assign metricC = '' | AddToDictionary:'title','Groups Active' | AddToDictionary:'progress',218 | AddToDictionary:'goal',300 | AddToDictionary:'icon','ti ti-users-group' | AddToDictionary:'format','number' %}
+        {% assign metricD = '' | AddToDictionary:'title','Salvations' | AddToDictionary:'progress',63 | AddToDictionary:'goal',100 | AddToDictionary:'icon','ti ti-star' | AddToDictionary:'format','number' %}
+        {% assign metricE = '' | AddToDictionary:'title','Kids Enrolled' | AddToDictionary:'progress',1104 | AddToDictionary:'goal',1500 | AddToDictionary:'icon','ti ti-mood-smile' | AddToDictionary:'format','number' %}
+        {% assign metrics = '' | AddToArray:featured | AddToArray:metric2 | AddToArray:metric3 | AddToArray:metricA | AddToArray:metricB | AddToArray:metricC | AddToArray:metricD | AddToArray:metricE %}
+
+    {% when 'dev-mixed' %}
+        {% assign displayType = 'bar' %}
+        {% assign noIcon = '' | AddToDictionary:'title','Total Attendance' | AddToDictionary:'progress',4823 | AddToDictionary:'goal',6000 | AddToDictionary:'format','number' | AddToDictionary:'featured',true %}
+        {% assign longTitle = '' | AddToDictionary:'title','Number of First-Time Guests Who Returned for a Second Visit' | AddToDictionary:'progress',148 | AddToDictionary:'goal',200 | AddToDictionary:'icon','ti ti-door-enter' | AddToDictionary:'format','number' %}
+        {% assign zeroPercent = '' | AddToDictionary:'title','Capital Campaign' | AddToDictionary:'progress',80000 | AddToDictionary:'goal',500000 | AddToDictionary:'icon','ti ti-building-church' | AddToDictionary:'format','currency-compact' %}
+        {% assign overGoal = '' | AddToDictionary:'title','Amount Raised' | AddToDictionary:'progress',275000 | AddToDictionary:'goal',250000 | AddToDictionary:'icon','ti ti-heart' | AddToDictionary:'format','currency-compact' %}
+        {% assign percentFormat = '' | AddToDictionary:'title','Volunteer Fill Rate' | AddToDictionary:'progress',87 | AddToDictionary:'goal',100 | AddToDictionary:'icon','ti ti-hand-stop' | AddToDictionary:'format','percent' %}
+        {% assign metrics = '' | AddToArray:noIcon | AddToArray:longTitle | AddToArray:zeroPercent | AddToArray:overGoal | AddToArray:percentFormat %}
+
+    {% else %}
+        {% assign displayType = 'bar' %}
+        {% assign featured = metric1 | AddToDictionary:'featured',true %}
+        {% assign metrics = '' | AddToArray:featured | AddToArray:metric2 | AddToArray:metric3 %}
+{% endcase %}
+
+{% assign metricSettings = '' | AddToDictionary:'displaytype',displayType %}
+
+{% assign content = ''
+    | AddToDictionary:'intro',intro
+    | AddToDictionary:'metrics',metrics
+%}
+
+{% assign settings = '' | AddToDictionary:'metric',metricSettings | AddToDictionary:'verticalpadding','small' %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Metrics', description:'Progress toward a goal, drawn four ways: bar, semicircle (half dial), circle (ring), or card (no gauge).' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Display type</th>
+        <td>{{ displayType }}</td>
+    </tr>
+    <tr>
+        <th scope="row">Metrics</th>
+        <td>{{ metrics | Size }}</td>
+    </tr>
+    <tr>
+        <th scope="row">Number formats</th>
+        <td>
+            <code>number</code> &mdash; plain count (4,823)<br>
+            <code>currency</code> &mdash; full dollars ($182,500)<br>
+            <code>compact</code> &mdash; abbreviated (4.8K)<br>
+            <code>currency-compact</code> &mdash; abbreviated dollars ($182.5K)<br>
+            <code>percent</code> &mdash; percentage (80%)
+        </td>
+    </tr>
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/Metric.lava', content:content, settings:settings %}

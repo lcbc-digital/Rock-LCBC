@@ -1,0 +1,102 @@
+/-
+    Accordion variant. Five FAQ-style items with the first one open.
+
+    Parameters:
+        variant - Which example to draw. Already validated by Base.lava. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign item1 = ''
+    | AddToDictionary:'title','What should I expect on my first visit?'
+    | AddToDictionary:'description','<p>Plan to arrive a few minutes early. Our team will be at the doors to welcome you and help you find your way around. The service runs about 75 minutes and includes music, a message, and time to connect with others.</p>'
+%}
+
+{% assign item2 = ''
+    | AddToDictionary:'title','Is there childcare available?'
+    | AddToDictionary:'description','<p>Yes. We have safe, fun environments for kids from birth through 5th grade during every Sunday service. Check-in opens 20 minutes before the service begins.</p>'
+%}
+
+{% assign item3 = ''
+    | AddToDictionary:'title','How do I get connected with a small group?'
+    | AddToDictionary:'description','<p>Our Groups page lists every open group by day, location, and life stage. You can also stop by the Connections table in the lobby and someone from our team will help you find the right fit.</p>'
+%}
+
+{% assign item4 = ''
+    | AddToDictionary:'title','Where can I give online?'
+    | AddToDictionary:'description','<p>You can give securely at any time through our online giving page. We accept one-time and recurring gifts by card or bank transfer. Your contribution goes directly toward our local and global mission.</p>'
+%}
+
+{% assign item5 = ''
+    | AddToDictionary:'title','How do I find out about upcoming events?'
+    | AddToDictionary:'description','<p>The best way to stay in the loop is to follow us on social media and sign up for our weekly email. Our Events page is also updated regularly with everything happening across all campuses.</p>'
+%}
+
+{% assign items = ''
+    | AddToArray:item1
+    | AddToArray:item2
+    | AddToArray:item3
+    | AddToArray:item4
+    | AddToArray:item5
+%}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','Got Questions'
+    | AddToDictionary:'heading','We Have Answers'
+%}
+
+//- MARK: Settings
+{% case variant %}
+
+    {% when 'dev-mixed' %}
+        {% assign shortItem = ''
+            | AddToDictionary:'title','Do you have parking?'
+            | AddToDictionary:'description','<p>Yes. Free parking is available on site at every campus.</p>'
+        %}
+        {% assign longTitleItem = ''
+            | AddToDictionary:'title','I have never been to a church before and I am not sure what to believe — is this a place where I can ask honest questions and wrestle with doubt without feeling judged or pressured?'
+            | AddToDictionary:'description','<p>Absolutely. We want this to be a safe place for anyone at any point in their spiritual journey. You do not have to have it all figured out to belong here.</p>'
+        %}
+        {% assign longDescriptionItem = ''
+            | AddToDictionary:'title','What does the church believe?'
+            | AddToDictionary:'description','<p>We believe the Bible is the inspired Word of God and the foundation for everything we do. We believe in one God who exists as Father, Son, and Holy Spirit. We believe Jesus Christ is fully God and fully human, that he lived a sinless life, died on the cross as the payment for sin, rose bodily from the dead, and is coming again.</p><p>We believe every person is made in the image of God and has inherent dignity and worth. We believe that salvation comes by grace alone, through faith alone, in Christ alone. We believe the church is the body of Christ, called to make disciples and love our neighbors.</p><p>We hold these convictions with confidence while remaining humble about secondary issues where faithful Christians disagree. If you want to go deeper, we encourage you to read through our full statement of faith or talk with one of our pastors.</p>'
+        %}
+        {% assign items = '' | AddToArray:shortItem | AddToArray:item1 | AddToArray:longTitleItem | AddToArray:longDescriptionItem | AddToArray:item3 %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'items',items
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'firstitemopen',true
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% else %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'items',items
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'firstitemopen',true
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Accordion', description:'Collapsible FAQ-style items using the Rock accordion shortcode. Only one item is open at a time.' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Items</th>
+        <td>{{ items | Size }}</td>
+    </tr>
+    <tr>
+        <th scope="row">First item open</th>
+        <td>yes</td>
+    </tr>
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/Accordion.lava', content:content, settings:settings %}

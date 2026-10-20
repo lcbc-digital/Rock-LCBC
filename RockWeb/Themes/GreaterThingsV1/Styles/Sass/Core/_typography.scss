@@ -1,0 +1,152 @@
+@use "sass:map";
+@use "../Utils/variables" as *;
+
+$display-scale-mobile: 0.55;
+$heading-scale-mobile: 0.87;
+
+:root {
+    --root-font-size: 100%;
+
+    --display-scale: #{$display-scale-mobile};
+    --heading-scale: #{$heading-scale-mobile};
+
+    --title-font-family: 'Bigger Display','DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+    --title-font-weight: 400;
+    --title-text-color: var(--ui-stronger);
+    --title-text-transform: uppercase;
+
+    --body-font-family: 'DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Liberation Sans',sans-serif,'Apple Color Emoji','Segoe UI Emoji','Segoe UI Symbol','Noto Color Emoji';
+    --body-font-weight: 400;
+    --body-text-color: var(--ui-stronger);
+    --body-text-transform: uppercase;
+
+    --display-1-font-size: 7.5rem;
+    --display-1-font-weight: 400;
+    --display-1-line-height: 0.9;
+    --display-1-letter-spacing: 2.5%;
+
+    --display-2-font-size: 5rem;
+    --display-2-font-weight: 400;
+    --display-2-line-height: 0.9;
+    --display-2-letter-spacing: 2%;
+
+    --h1-font-size: 3rem;
+    --h1-font-weight: 400;
+    --h1-line-height: 1;
+    --h1-letter-spacing: 2%;
+
+    --h2-font-size: 2.625rem;
+    --h2-font-weight: 400;
+    --h2-line-height: 1.15;
+    --h2-letter-spacing: 2%;
+
+    --h3-font-size: 2.125rem;
+    --h3-font-weight: 400;
+    --h3-line-height: 1.05;
+    --h3-letter-spacing: 3%;
+
+    --h4-font-size: 2rem;
+    --h4-font-weight: 900;
+    --h4-line-height: 1.1;
+    --h4-letter-spacing: 0.5px;
+
+    --h5-font-size: 1.5rem;
+    --h5-font-weight: 900;
+    --h5-line-height: 1.35;
+    --h5-letter-spacing: 0.5px;
+
+    --h6-font-size: 1.25rem;
+    --h6-font-weight: 900;
+    --h6-line-height: 1.2;
+    --h6-letter-spacing: 0px;
+
+    --lead-font-size: 1.25rem;
+    --lead-font-weight: 900;
+    --lead-line-height: 1.2;
+    --lead-letter-spacing: -1px;
+
+    --body-font-size: 1rem;
+    --body-line-height: 1.5;
+
+    --small-font-size: 0.875rem;
+    --small-font-weight: 400;
+    --small-line-height: 1.45;
+    --small-letter-spacing: inherit;
+
+    --label-font-size: 24px;
+    --label-font-weight: 900;
+    --label-line-height: 28px;
+    --label-letter-spacing: inherit;
+}
+
+html {
+    font-size: var(--root-font-size);
+}
+
+$type-scale: (
+    display-1: (sel: ".display-1",    group: title, scale: display),
+    display-2: (sel: ".display-2",    group: title, scale: display),
+    h1:        (sel: "h1, .h1",       group: title, scale: heading),
+    h2:        (sel: "h2, .h2",       group: title, scale: heading),
+    h3:        (sel: "h3, .h3",       group: title, scale: heading),
+    h4:        (sel: "h4, .h4",       group: caps,  scale: heading),
+    h5:        (sel: "h5, .h5",       group: caps,  scale: heading),
+    h6:        (sel: "h6, .h6",       group: caps,  scale: heading),
+    lead:      (sel: ".lead",         group: caps,  scale: none),
+    small:     (sel: "small, .small", group: plain, scale: none),
+    label:     (sel: ".label",        group: caps,  scale: none),
+);
+
+@media (min-width: $screen-md-min) {
+    :root {
+        --display-scale: 1;
+        --heading-scale: 1;
+    }
+
+    .mobile {
+        --display-scale: #{$display-scale-mobile};
+        --heading-scale: #{$heading-scale-mobile};
+    }
+}
+
+body {
+    font-family: var(--body-font-family);
+    font-weight: var(--body-font-weight);
+    color: var(--body-text-color);
+    font-size: var(--body-font-size);
+    line-height: var(--body-line-height);
+}
+
+.mobile {
+    font-size: var(--body-font-size);
+    line-height: var(--body-line-height);
+}
+
+@each $token, $spec in $type-scale {
+    $group: map.get($spec, group);
+    $scale: map.get($spec, scale);
+
+    #{map.get($spec, sel)} {
+        @if $group == title {
+            font-family: var(--title-font-family);
+            color: var(--title-text-color);
+            text-transform: var(--title-text-transform);
+        } @else {
+            font-family: var(--body-font-family);
+        }
+
+        @if $group == caps {
+            text-transform: var(--body-text-transform);
+        }
+
+        @if $scale == none {
+            font-size: var(--#{$token}-font-size);
+        } @else {
+            font-size: calc(var(--#{$token}-font-size) * var(--#{$scale}-scale));
+        }
+
+        font-weight: var(--#{$token}-font-weight);
+        line-height: var(--#{$token}-line-height);
+        letter-spacing: var(--#{$token}-letter-spacing);
+    }
+}

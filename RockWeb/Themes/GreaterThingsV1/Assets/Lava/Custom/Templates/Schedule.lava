@@ -1,0 +1,137 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/Schedule.lava', content:scheduleContent, settings:scheduleSettings %}
+    Description: A day by day schedule. Each day is a tab holding a list of sessions, one row per
+                 session: the time, what it is, and an optional topic pill. A single day renders its
+                 sessions with no tab strip, since there is nothing to switch between.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro - Optional lead content above the schedule. Passed to IntroContent.lava -- see that
+                    file for its keys. Omit it to render the schedule only.
+
+            days  - Array of day dictionaries, in the order they should appear. Keys:
+                date     - The date, shown large on the tab, e.g. Dec 23. (Optional, Text)
+                day      - The weekday, shown under the date, e.g. Friday. (Optional, Text)
+
+                sessions - Array of session dictionaries. A day with no sessions is skipped. Keys:
+                    time        - Shown at the start of the row, e.g. 8 AM. (Optional, Text)
+                    description - What the session is. (Optional, Text)
+                    label       - Topic pill at the end of the row. Omit for no pill. (Optional, Text)
+                    labelcolor  - Color of that pill, exposed as --schedule-label-color. (Optional, Text)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of the intro, the tabs and the session rows. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to medium)
+
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+{{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/Schedule.js' | AddScriptLink:true }}
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+
+{% assign scheduleSpacingClass = '' %}
+{% if content.intro != blank %}
+    {% assign scheduleSpacingClass = 'mt-5' %}
+{% endif %}
+
+//- MARK: Content Logic
+{% assign scheduleDays = '' %}
+{% for day in content.days %}
+    {% if day.sessions != blank %}
+        {% assign scheduleDays = scheduleDays | AddToArray:day %}
+    {% endif %}
+{% endfor %}
+
+{% assign dayCount = scheduleDays | Size %}
+{% assign schedulePrefix = '' | UniqueIdentifier | Prepend:'schedule-' %}
+
+//- MARK: Markup
+{% if scheduleDays != empty or content.intro != blank %}
+    <section class="schedule-template template template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        <div class="container">
+            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+
+            {% if scheduleDays != empty %}
+                <div class="schedule js-schedule {{ scheduleSpacingClass }}">
+
+                    {% if dayCount > 1 %}
+                        <div class="schedule-tabs js-schedule-tabs" role="tablist">
+                            {% for day in scheduleDays %}
+                                <button type="button"
+                                        class="schedule-tab js-schedule-tab{% if forloop.first %} active{% endif %}"
+                                        role="tab"
+                                        id="{{ schedulePrefix }}-tab-{{ forloop.index0 }}"
+                                        aria-controls="{{ schedulePrefix }}-panel-{{ forloop.index0 }}"
+                                        aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                                        tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+                                        data-date="{{ day.date | Escape }}"
+                                        data-day="{{ day.day | Escape }}">
+                                    {% if day.date != blank %}
+                                        <span class="schedule-tab-date">{{ day.date }}</span>
+                                    {% endif %}
+
+                                    {% if day.day != blank %}
+                                        <span class="schedule-tab-day">{{ day.day }}</span>
+                                    {% endif %}
+                                </button>
+                            {% endfor %}
+                        </div>
+
+                        <div class="schedule-select">
+                            <select class="schedule-select-native js-schedule-select" aria-label="Choose a day">
+                                {% for day in scheduleDays %}
+                                    <option value="{{ forloop.index0 }}">{{ day.date }}{% if day.date != blank and day.day != blank %}, {% endif %}{{ day.day }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <div class="schedule-select-display" aria-hidden="true">
+                                <span class="schedule-select-date js-schedule-select-date"></span>
+                                <i class="ti ti-chevron-down schedule-select-chevron"></i>
+                                <span class="schedule-select-day js-schedule-select-day"></span>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="schedule-panels">
+                    {% for day in scheduleDays %}
+                        <div class="schedule-day js-schedule-day{% if forloop.first %} active{% endif %}"
+                             {% if dayCount > 1 %}role="tabpanel" aria-labelledby="{{ schedulePrefix }}-tab-{{ forloop.index0 }}"{% endif %}
+                             id="{{ schedulePrefix }}-panel-{{ forloop.index0 }}">
+                            <ol class="schedule-sessions list-unstyled m-0">
+                                {% for session in day.sessions %}
+                                    {% capture sessionStyles %}{% if session.labelcolor != blank %}--schedule-label-color: {{ session.labelcolor }};{% endif %}{% endcapture %}
+                                    <li class="schedule-session" style="{{ sessionStyles }}">
+                                        {% if session.time != blank %}
+                                            <span class="schedule-session-time">{{ session.time }}</span>
+                                        {% endif %}
+
+                                        {% if session.description != blank %}
+                                            <p class="schedule-session-description m-0">{{ session.description }}</p>
+                                        {% endif %}
+
+                                        {% if session.label != blank %}
+                                            <span class="schedule-session-label">{{ session.label }}</span>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}

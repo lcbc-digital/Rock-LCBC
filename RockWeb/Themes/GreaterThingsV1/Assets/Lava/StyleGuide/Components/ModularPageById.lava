@@ -1,0 +1,24 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Modular Page By Id', description:'Render a full Modular Page V2 anywhere by referencing its content channel item id. Use it to reuse an entire modular page inside another page, an HTML block, or an email.' %}
+
+
+{% capture example %}
+{% raw %}
+{[ modularpagebycontentchannelitemid itemid:'1234' ]}
+{% endraw %}
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'example', title:'Example', demo:example %}
+
+
+<h3 class="styleguide-example-title mt-5" tt-cascade-item>Parameters</h3>
+<div class="table-responsive" tt-cascade-item>
+    <table class="table styleguide-settings">
+        <thead>
+            <tr><th>Parameter</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><th>itemid</th><td>The content channel item id of the Modular Page V2 to render.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<p class="styleguide-note mt-4" tt-cascade-item><strong>Note:</strong> The item must be a Modular Page V2 (content channel type id 69). Anything else is rejected with a warning message.</p>

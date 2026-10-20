@@ -1,0 +1,149 @@
+/-
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/Global/NotificationBanner.lava' %}
+
+    Full-width promo banner below the header. Reads the "Website - Notification Banner"
+    channel (Id 160) and shows only the highest-ordered promotion whose start/expire window
+    is currently open. The title links to DestinationUrl and a live countdown to
+    ExpireDateTime shows when DisplayCountdown is set. A close button dismisses the banner
+    for the session.
+-/
+
+//- MARK: Settings
+{% assign channelId = "160" %}
+
+{% cache key:'notification-banner' duration:'7200' %}
+
+{% contentchannelitem where:'ContentChannelId == {{ channelId }}' sort:'Order' securityenabled:'false' prefetchattributes:'DestinationUrl,DisplayCountdown' iterator:'promotions' %}{% endcontentchannelitem %}
+
+//- MARK: Markup
+{% if promotions and promotions != empty %}
+    <div class="notification-banner bg-neutral-2 text-neutral-1 js-notification-banner" hidden>
+        <div class="container">
+            <div class="notification-banner-inner">
+                <div class="notification-banner-slides">
+                    {% for promo in promotions %}
+                        {% assign destinationUrl = promo | Attribute:'DestinationUrl','RawValue' %}
+                        {% assign displayCountdown = promo | Attribute:'DisplayCountdown','RawValue' %}
+                        {% assign expireIso = promo.ExpireDateTime | Date:'yyyy-MM-ddTHH:mm:sszzz' %}
+
+                        <div class="notification-banner-slide js-notification-banner-slide"
+                             hidden
+                             data-start="{{ promo.StartDateTime | Date:'yyyy-MM-ddTHH:mm:sszzz' }}"
+                             data-expire="{{ promo.ExpireDateTime | Date:'yyyy-MM-ddTHH:mm:sszzz' }}"
+                             data-url="{{ destinationUrl }}">
+                            <a href="{{ destinationUrl }}" target="_blank" rel="noopener noreferrer" class="notification-banner-title text-neutral-1">{{ promo.Title }}</a>
+                            {% if displayCountdown == 'True' and promo.ExpireDateTime %}
+                                {[ countdown time:'{{ expireIso }}' display:'digital' showdays:'true' showhours:'true' showminutes:'true' showseconds:'true' leadingzeroes:'true' display:'short' class:'live-countdown' ]}
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="button" class="notification-banner-close js-notification-banner-close" aria-label="Dismiss banner">
+                    <i class="ti ti-x"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        var banner = document.querySelector('.js-notification-banner');
+        if (!banner) return;
+
+        if (sessionStorage.getItem('notification-banner-dismissed') === '1') {
+            banner.remove();
+            return;
+        }
+
+        function update() {
+            var now = Date.now();
+            var slides = Array.prototype.slice.call(banner.querySelectorAll('.js-notification-banner-slide'));
+            var active = null;
+            var nextChange = Infinity;
+
+            slides.forEach(function (slide) {
+                var start = new Date(slide.dataset.start).getTime();
+                var expire = slide.dataset.expire ? new Date(slide.dataset.expire).getTime() : Infinity;
+
+                if (now >= expire) {
+                    slide.remove();
+                    return;
+                }
+
+                if (now < start) {
+                    slide.hidden = true;
+                    if (start < nextChange) nextChange = start;
+                    return;
+                }
+
+                if (!active) {
+                    active = slide;
+                    if (expire < nextChange) nextChange = expire;
+                } else {
+                    slide.hidden = true;
+                }
+            });
+
+            if (active) {
+                active.hidden = false;
+                banner.hidden = false;
+            } else if (nextChange === Infinity) {
+                banner.remove();
+                return;
+            } else {
+                banner.hidden = true;
+            }
+
+            if (nextChange !== Infinity) {
+                setTimeout(update, Math.min(nextChange - now + 1000, 2147483647));
+            }
+        }
+
+        update();
+
+        if (!document.body.contains(banner)) return;
+
+        banner.querySelector('.js-notification-banner-close').addEventListener('click', function () {
+            sessionStorage.setItem('notification-banner-dismissed', '1');
+
+            if (typeof gsap === 'undefined') {
+                banner.remove();
+                return;
+            }
+
+            banner.style.pointerEvents = 'none';
+            banner.style.overflow = 'hidden';
+            gsap.to(banner, {
+                height: 0,
+                duration: 0.35,
+                ease: 'power2.in',
+                onComplete: function () { banner.remove(); }
+            });
+        });
+
+        function initShine() {
+            if (typeof gsap === 'undefined') return;
+            gsap.fromTo(banner,
+                { backgroundPositionX: '200%' },
+                { backgroundPositionX: '-150%', duration: 3, ease: 'power1.inOut', repeat: -1, repeatDelay: 8 }
+            );
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initShine, { once: true });
+        } else {
+            initShine();
+        }
+
+        banner.addEventListener('click', function (e) {
+            if (e.target.closest('.js-notification-banner-close') || e.target.closest('a')) return;
+            var slide = banner.querySelector('.js-notification-banner-slide:not([hidden])');
+            if (slide && slide.dataset.url) {
+                window.open(slide.dataset.url, '_blank', 'noopener,noreferrer');
+            }
+        });
+    })();
+    </script>
+{% endif %}
+{% endcache %}

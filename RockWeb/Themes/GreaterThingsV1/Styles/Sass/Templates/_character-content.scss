@@ -1,0 +1,142 @@
+@use "../Utils/variables" as *;
+
+//- Component breakpoint: where the figure and copy stop stacking. No global step sits here.
+$character-content-wrap: 560px;
+
+//- MARK: Theme Specific Styles
+.character-content-template {
+    position: relative;
+    isolation: isolate;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-repeat: no-repeat;
+        background-position: 40%;
+        background-size: cover;
+    }
+
+    &::before {
+        z-index: -1;
+        background-image: var(--character-content-background);
+        filter: grayscale(1);
+        opacity: 0.2;
+
+        @media (min-width: $screen-md-min) {
+            filter: grayscale(1) blur(8px);
+        }
+
+        @media (min-width: $screen-lg-min) {
+            filter: grayscale(1) blur(0px);
+        }
+    }
+
+    &::after {
+        z-index: 1;
+        background-image: var(--character-content-image);
+        pointer-events: none;
+
+        @media (min-width: $screen-md-min) {
+            transform: translateX(15%);
+        }
+
+        @media (min-width: $screen-lg-min) {
+            transform: none;
+        }
+    }
+
+    &.character-content-template-mobile {
+        overflow: hidden;
+
+        &::before {
+            inset: -16px;
+            filter: grayscale(1) blur(8px);
+        }
+
+        .mobile-texture {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20%;
+            z-index: -1;
+            background-image: var(--character-texture);
+            background-repeat: no-repeat;
+            background-position: bottom left;
+            background-size: cover;
+        }
+
+        .title {
+            display: block;
+
+            margin-bottom: -24px;
+
+            @media (min-width: $character-content-wrap) {
+                margin-bottom: -264px;
+            }
+        }
+
+        .mobile-person {
+            float: right;
+            width: 50%;
+            max-width: 250px;
+            height: auto;
+            margin-right: -5%;
+            shape-outside: var(--character-shape);
+            shape-image-threshold: 0.5;
+            shape-margin: 10px;
+
+            @media (min-width: $character-content-wrap) {
+                margin-right: 0;
+            }
+        }
+
+        p {
+            max-width: 600px;
+            margin-top: 40px;
+
+            @media (min-width: $character-content-wrap) {
+                margin-top: 280px;
+            }
+        }
+
+    }
+
+    .character-texture {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 35%;
+        height: 40%;
+        z-index: 0;
+        background-image: var(--character-texture);
+        background-repeat: no-repeat;
+        background-position: bottom right;
+        background-size: cover;
+
+        @media (min-width: $screen-lg-min) {
+            width: 50%;
+        }
+    }
+
+    @media (min-width: $screen-md-min) {
+        padding-top: 90px;
+        padding-bottom: 160px;
+    }
+
+    .title {
+        //- Fluid so the title can never outgrow the gap left of the character cutout,
+        //- whose horizontal position shifts with the viewport aspect ratio.
+        font-size: clamp(64px, 8vw, 120px);
+        text-transform: uppercase;
+        color: var(--neutral-1);
+        line-height: 0.9;
+        font-family: 'Bigger Display','DM Sans',system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+
+        .highlighted-text {
+            font-size: clamp(95px, 14.5vw, 220px);
+        }
+    }
+}

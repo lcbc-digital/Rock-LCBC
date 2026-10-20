@@ -1,0 +1,136 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.panel-group[id^="accordion-"] {
+    --accordion-title-font-family: "Bigger Display";
+    --accordion-title-size:        1.75rem;
+    --accordion-title-color:       var(--neutral-2);
+    --accordion-title-offset:      6px;
+
+    --accordion-body-font-family:  inherit;
+    --accordion-body-size:         1rem;
+    --accordion-body-color:        var(--neutral-2);
+
+    --accordion-border-width:      4px;
+    --accordion-border-color:      var(--neutral-2);
+    --accordion-border-radius:     0px;
+
+    --accordion-icon-size:              1.25rem;
+    --accordion-icon-left-border-width: 4px;
+    --accordion-icon-left-border-color: var(--neutral-2);
+}
+
+//- MARK: Generic Styles
+.panel-group[id^="accordion-"] {
+    display: flex;
+    flex-direction: column;
+    gap: var(--accordion-gap, 0.75rem);
+
+    .panel {
+        background-color: transparent;
+        box-shadow: none;
+        margin: 0;
+        border: var(--accordion-border-width, 1px) solid var(--accordion-border-color, var(--ui-soft));
+        border-radius: var(--accordion-border-radius, 8px);
+        overflow: hidden;
+    }
+
+    .panel-heading,
+    .panel-body,
+    .panel-footer {
+        background-color: transparent;
+        border: none !important;
+    }
+
+    .panel:has(.panel-collapse.in) .panel-heading,
+    .panel:has(.panel-collapse.collapsing) .panel-heading {
+        border-bottom: var(--accordion-border-width, 1px) solid var(--accordion-border-color, var(--ui-soft)) !important;
+    }
+
+    .panel-heading {
+        padding: 0;
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: stretch;
+
+        h4.panel-title {
+            grid-column: 1;
+            margin: 0;
+            border-right: var(--accordion-icon-left-border-width, 1px) solid var(--accordion-icon-left-border-color, var(--ui-soft));
+
+            a {
+                display: flex;
+                align-items: center;
+                padding: var(--accordion-title-padding, 1rem);
+                width: 100%;
+                font-family: var(--accordion-title-font-family, inherit);
+                font-size: var(--accordion-title-size, 1.25rem);
+                color: var(--accordion-title-color, var(--ui-strong)) !important;
+                text-decoration: none;
+                border: none;
+                line-height: 1;
+                margin-top: var(--accordion-title-offset, 0);
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    z-index: 1;
+                }
+
+                &:focus-visible {
+                    outline: 2px solid var(--accordion-icon-left-border-color, var(--ui-soft));
+                    outline-offset: -2px;
+                }
+            }
+        }
+
+        &::before,
+        &::after {
+            grid-column: 2;
+            grid-row: 1;
+            //- Tabler is the theme's only icon set now. Its face renders at a single weight, so
+            //- the 600 Font Awesome was drawn at would just synthesise a faux bold.
+            font-family: "tabler-icons";
+            font-weight: normal;
+            font-size: var(--accordion-icon-size, 1rem);
+            color: var(--accordion-icon-left-border-color, var(--ui-soft));
+            padding: 0 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        //- ti-plus
+        &::before {
+            content: "\eb0b";
+            opacity: 1;
+            transform: rotate(0deg);
+        }
+
+        //- ti-minus
+        &::after {
+            content: "\eaf2";
+            opacity: 0;
+            transform: rotate(-90deg);
+        }
+
+        &:has([aria-expanded="true"]) {
+            &::before { opacity: 0; transform: rotate(90deg); }
+            &::after  { opacity: 1; transform: rotate(0deg); }
+        }
+    }
+
+    .panel-body {
+        font-family: var(--accordion-body-font-family, inherit);
+        font-size: var(--accordion-body-size, 1rem);
+        color: var(--accordion-body-color, var(--ui-strong));
+
+        p:last-child {
+            margin-bottom: 0;
+        }
+    }
+}

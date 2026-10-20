@@ -1,0 +1,36 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Buttons', description:'The button styles used throughout the site. Pick a variant, a size, and add an icon if you need one.' %}
+
+
+//- MARK: Markup
+{% capture variants %}
+<button class="btn btn-primary">Primary</button>
+<button class="btn btn-default">Default</button>
+<button class="btn btn-link">Link</button>
+<button class="btn btn-ghost">Ghost</button>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'variants', title:'Variants', demo:variants %}
+
+{% capture sizes %}
+<button class="btn btn-primary btn-lg">Large</button>
+<button class="btn btn-primary">Default</button>
+<button class="btn btn-primary btn-sm">Small</button>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'sizes', title:'Sizes', demo:sizes %}
+
+{% capture icons %}
+<button class="btn btn-primary"><i class="ti ti-plus"></i> <span>Leading Icon</span></button>
+<button class="btn btn-default"><span>Trailing Icon</span> <i class="ti ti-chevron-right"></i></button>
+<button class="btn btn-link"><i class="ti ti-mail"></i> <span>Link Button</span> <i class="ti ti-chevron-right"></i></button>
+<button class="btn btn-ghost"><i class="ti ti-pencil"></i> <span>Ghost</span></button>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'icons', title:'With Icons', demo:icons %}
+
+<p class="styleguide-note mt-4 mb-5" tt-cascade-item><strong>Note:</strong> When you use an icon inside a button, wrap the label text in a <code>&lt;span&gt;</code>. This keeps the hover underline on the text only, not on the icon.</p>
+<hr tt-cascade-item>
+
+{% capture iconsonly %}
+<button class="btn btn-primary btn-icon" aria-label="Add"><i class="ti ti-plus"></i></button>
+<button class="btn btn-default btn-icon" aria-label="Edit"><i class="ti ti-pencil"></i></button>
+<button class="btn btn-ghost btn-icon" aria-label="Close"><i class="ti ti-x"></i></button>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'icon-only', title:'Icon Only', demo:iconsonly %}

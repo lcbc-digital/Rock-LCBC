@@ -1,0 +1,51 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/Common/PageMetadata.lava' %}
+    Description: Outputs OpenGraph and Twitter Card meta tags directly into <head>.
+                 Title and description come from Rock page settings (BrowserTitle / Description).
+                 Share image comes from the ShareImage page attribute.
+-/
+
+//- MARK: Settings Logic
+{% assign siteRoot = 'Global' | Attribute:'PublicApplicationRoot' | ReplaceLast:'/','' %}
+{% assign orgName = 'Global' | Attribute:'OrganizationName' %}
+{% assign currentPath = 'Global' | Page:'Path' %}
+{% assign canonical = siteRoot | Append:currentPath %}
+
+{% assign pageTitle = CurrentPage.BrowserTitle | Default:CurrentPage.PageTitle %}
+{% assign pageDescription = CurrentPage.Description %}
+{% assign shareImageGuid = CurrentPage | Attribute:'ShareImage','RawValue' %}
+
+//- MARK: Markup
+<link rel="canonical" href="{{ canonical | Escape }}" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{{ canonical | Escape }}" />
+<meta property="og:site_name" content="{{ orgName | Escape }}" />
+<meta property="og:locale" content="en_US" />
+
+{% if pageTitle != blank %}
+    <meta property="og:title" content="{{ pageTitle | Escape }}" />
+    <meta name="twitter:title" content="{{ pageTitle | Escape }}" />
+{% endif %}
+
+{% if pageDescription != blank %}
+    <meta property="og:description" content="{{ pageDescription | Escape }}" />
+    <meta name="twitter:description" content="{{ pageDescription | Escape }}" />
+{% endif %}
+
+{% if shareImageGuid != blank %}
+    {% assign shareImageUrl = shareImageGuid | ImageUrl %}
+    {% capture ogImage %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:shareImageUrl, cdnParams:'width=1200&height=630' %}{% endcapture %}
+    {% assign ogImage = ogImage | Trim %}
+
+    //- Scrapers need an absolute url, and the helper leaves the path relative when CdnAppRoot is blank.
+    {% assign ogImageFirst = ogImage | Slice:0,1 %}
+    {% if ogImageFirst == '/' %}
+        {% assign ogImage = siteRoot | Append:ogImage %}
+    {% endif %}
+    <meta property="og:image" content="{{ ogImage }}" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:image" content="{{ ogImage }}" />
+{% endif %}
+
+<meta name="twitter:card" content="summary_large_image" />

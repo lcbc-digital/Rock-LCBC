@@ -1,0 +1,43 @@
+
+// Last-resort overrides against the Rock V2 framework. Loaded last, so these win without !important.
+
+// styles-v2 sets p to --color-interface-strong, which on this theme's ramp is $ui-strong (#a89787),
+// the lightest of the three strong steps. It is the only element in that framework's typography that
+// sets a colour at all, so every paragraph on the site was a step lighter than the body colour the
+// theme asks for while everything around it was not. Headings are untouched by this and already take
+// --title-text-color.
+p {
+    color: var(--body-text-color);
+}
+
+.container {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
+// -------------------------
+// Force light theme always.
+// Re-points every dark-mode token remap back to the light (base) values.
+// :root:not([theme]) covers OS dark mode with no theme attribute set,
+// matching the specificity of the framework's prefers-color-scheme block.
+// -------------------------
+[theme="dark"],
+[theme="system"],
+:root:not([theme]) {
+    --color-interface-strongest: var(--base-interface-strongest);
+    --color-interface-stronger: var(--base-interface-stronger);
+    --color-interface-strong: var(--base-interface-strong);
+    --color-interface-medium: var(--base-interface-medium);
+    --color-interface-soft: var(--base-interface-soft);
+    --color-interface-softer: var(--base-interface-softer);
+    --color-interface-softest: var(--base-interface-softest);
+    --color-info-strong: var(--base-info);
+    --color-danger-strong: var(--base-danger);
+    --color-success-strong: var(--base-success);
+    --color-warning-strong: var(--base-warning);
+    --color-critical-strong: var(--base-critical);
+    --box-shadow: rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
+    --box-shadow-strong: rgba(145, 158, 171, 0.2) 0px 20px 25px -5px, rgba(145, 158, 171, 0.12) 0px 10px 10px -5px;
+    --popup-box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175);
+}

@@ -1,0 +1,20 @@
+/-
+    Page-level header for style guide component pages.
+
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Buttons', description:'Variants, sizes, and states.' %}
+
+    title       - component name                    (required)
+    description - one-line description of the page  (optional)
+-/
+
+<div class="panel panel-default mb-4" tt-cascade-item>
+    <div class="panel-body">
+        <h3 class="mt-0 mb-0">{{ title }}</h3>
+        {% if description and description != empty %}
+            <p class="lead mb-0">{{ description }}</p>
+        {% endif %}
+    </div>
+</div>
+
+{% assign title = '' %}
+{% assign description = '' %}

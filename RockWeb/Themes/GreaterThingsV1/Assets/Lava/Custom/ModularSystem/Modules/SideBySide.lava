@@ -1,0 +1,43 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/SideBySide.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - Side By Side channel. Adds the channel's media and layout
+                 attributes to the dictionaries built by Modules/Base.lava, then renders the template.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: Media
+{% assign videoElement = module | Attribute:'Video','Object' %}
+{% assign video = videoElement | Property:'Id' %}
+{% assign videoThumbnail = videoElement | Property:'DefaultThumbnailUrl' %}
+
+{% assign imageGuid = module | Attribute:'Image','RawValue' %}
+{% assign imageUrl = '' %}
+{% if imageGuid != blank %}
+    {% assign imageUrl = imageGuid | ImageUrl %}
+{% endif %}
+{% if imageUrl == blank and videoThumbnail != blank %}
+    {% assign imageUrl = videoThumbnail %}
+{% endif %}
+{% capture imageUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:imageUrl, cdnParams:'' %}{% endcapture %}
+{% assign imageUrl = imageUrl | Trim %}
+
+{% assign content = content
+    | AddToDictionary:'image',imageUrl
+    | AddToDictionary:'video',video
+%}
+
+//- MARK: Layout Settings
+{% assign sideBySideType = module | Attribute:'SideBySideType','RawValue' %}
+{% assign isReversed = module | Attribute:'Reverse' | AsBoolean %}
+
+{% assign settings = settings
+    | AddToDictionary:'sidebysidetype',sideBySideType
+    | AddToDictionary:'reverse',isReversed
+%}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/SideBySide.lava', content:content, settings:settings %}

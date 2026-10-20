@@ -1,0 +1,106 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/TimedShowcase.lava', content:timedShowcaseContent, settings:timedShowcaseSettings %}
+    Description: A single image beside a stack of CTA rows. Each row has a title, description, link
+                 and a circular timer. The rows auto rotate on the configured interval, and swap the
+                 image beside them each time. Clicking a row activates it and restarts the timer.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro - Optional lead content above the carousel. Passed to IntroContent.lava -- see that
+                    file for its keys. Omit it to render the carousel only.
+
+            items - Array of item dictionaries. Keys:
+                image       - Image shown beside this item when it is active. (Required, Image Url)
+                title       - Row title. (Optional, Text)
+                description - Row body copy. (Optional, Text)
+                linktext    - Text of the link at the bottom of the row. (Optional, Text)
+                linkurl     - Where the link points. (Optional, Url)
+                opennewtab  - Open the link in a new tab. (Optional, Boolean. Defaults to false)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of the intro heading and description. (Optional, Text)
+            colors.card            - Background color of the carousel card itself. (Optional, Text)
+            colors.timer           - Ring / accent color for the active row's timer. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to medium)
+            duration               - Milliseconds each row stays active before rotating. (Optional, Number.
+                                     Defaults to 6000)
+
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+{{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/TimedShowcase.js' | AddScriptLink:true }}
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.colors.card != blank %}--timed-showcase-background: {{ settings.colors.card }};{% endif %}
+    {% if settings.colors.timer != blank %}--timed-showcase-timer-color: {{ settings.colors.timer }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+{% assign duration = settings.duration | Default:6000 %}
+
+{% assign carouselSpacingClass = '' %}
+{% if content.intro != blank %}
+    {% assign carouselSpacingClass = 'mt-5' %}
+{% endif %}
+
+//- MARK: Markup
+{% if content.items != blank or content.intro != blank %}
+    <section class="timed-showcase-template template template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        <div class="container">
+            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+
+            {% if content.items != blank %}
+                <div class="timed-showcase js-timed-showcase {{ carouselSpacingClass }}" data-duration="{{ duration }}">
+                    <div class="timed-showcase-inner">
+                        <div class="timed-showcase-image-frame">
+                            {% for item in content.items %}
+                                <img class="timed-showcase-image js-timed-showcase-image{% if forloop.first %} active{% endif %}"
+                                    {% if item.image != blank %}src="{{ item.image }}"{% endif %}
+                                    alt="{{ item.title | Default:'' }}"
+                                    data-index="{{ forloop.index0 }}"
+                                    loading="lazy">
+                            {% endfor %}
+                        </div>
+
+                        <ul class="timed-showcase-items js-timed-showcase-items">
+                            {% for item in content.items %}
+                                <li class="timed-showcase-item js-timed-showcase-item{% if forloop.first %} active{% endif %}"
+                                    data-index="{{ forloop.index0 }}"
+                                    tabindex="0"
+                                    role="button"
+                                    aria-pressed="{% if forloop.first %}true{% else %}false{% endif %}">
+
+                                    <div class="timed-showcase-item-body">
+                                        {% if item.title != blank %}
+                                            <h3 class="timed-showcase-item-title h5 text-pretty m-0">{{ item.title }}</h3>
+                                        {% endif %}
+
+                                        {% if item.description != blank %}
+                                            <p class="timed-showcase-item-description text-pretty m-0">{{ item.description }}</p>
+                                        {% endif %}
+
+                                        {% if item.linktext != blank and item.linkurl != blank %}
+                                            <a class="timed-showcase-item-link" href="{{ item.linkurl }}"{% if item.opennewtab %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ item.linktext }}</a>
+                                        {% endif %}
+                                    </div>
+
+                                    <svg class="timed-showcase-timer" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+                                        <circle class="timed-showcase-timer-track" cx="50" cy="50" r="45"></circle>
+                                        <circle class="timed-showcase-timer-progress js-timed-showcase-progress" cx="50" cy="50" r="45"></circle>
+                                    </svg>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}

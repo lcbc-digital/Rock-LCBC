@@ -1,0 +1,7 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+//- Inherits to the buttons, so the base .btn rule picks it up without out-specifying its id-level guard.
+.social-links {
+    --button-border-width: 1px;
+}

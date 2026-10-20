@@ -1,0 +1,190 @@
+/-
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Navigation.lava', nav:nav, page:page, default:'Introduction' %}
+
+    nav         - The nav manifest from Base.lava. (Required, Array)
+    page        - The slug being viewed. (Required, Text)
+    default     - The slug the back link returns to. (Optional, Text)
+    orientation - side - the full sidebar, every group listed.  (Default)
+                  top  - a bar for full width pages: a way back, the current group as a select, and
+                         steps through it. The whole sidebar laid out horizontally would be thirty
+                         links across, so the group becomes a native select the way the schedule
+                         strip does at narrow widths.
+                  (Optional, side | top. Defaults to side)
+-/
+
+{% assign orientation = orientation | Default:'side' %}
+
+{% if orientation == 'top' %}
+
+    //- MARK: Current Group
+    {% assign groupItems = '' %}
+    {% assign groupLabel = '' %}
+    {% for group in nav %}
+        {% if group.Items contains page %}
+            {% assign groupItems = group.Items %}
+            {% assign groupLabel = group.Group %}
+        {% endif %}
+    {% endfor %}
+
+    {% assign lastIndex = groupItems | Size | Minus:1 %}
+
+    {% assign currentIndex = 0 %}
+    {% for slug in groupItems %}
+        {% if slug == page %}
+            {% assign currentIndex = forloop.index0 %}
+        {% endif %}
+    {% endfor %}
+
+    //- Wraps at both ends, so stepping never lands on a dead control.
+    {% assign previousIndex = currentIndex | Minus:1 %}
+    {% if previousIndex < 0 %}
+        {% assign previousIndex = lastIndex %}
+    {% endif %}
+
+    {% assign nextIndex = currentIndex | Plus:1 %}
+    {% if nextIndex > lastIndex %}
+        {% assign nextIndex = 0 %}
+    {% endif %}
+
+    //- Resolved by walking the array rather than indexing into it, since a variable subscript is not
+    //- something Lava can be relied on to take.
+    {% assign previousSlug = '' %}
+    {% assign nextSlug = '' %}
+    {% for slug in groupItems %}
+        {% if forloop.index0 == previousIndex %}
+            {% assign previousSlug = slug %}
+        {% endif %}
+        {% if forloop.index0 == nextIndex %}
+            {% assign nextSlug = slug %}
+        {% endif %}
+    {% endfor %}
+
+    //- MARK: Bar
+    <div class="styleguide-topbar">
+        {% assign devSuffix = '' %}
+        {% if isDeveloper %}{% assign devSuffix = '&developer=true' %}{% endif %}
+
+        <a class="btn btn-default btn-sm" href="?component={{ default | Default:'Introduction' }}{{ devSuffix }}">
+            <i class="ti ti-arrow-narrow-left" aria-hidden="true"></i>
+            Style Guide
+        </a>
+
+        //- Count how many full-width groups have items, to decide whether to use optgroups.
+        {% assign fullWidthGroupCount = 0 %}
+        {% for group in nav %}
+            {% if group.FullWidth and group.Items != empty %}
+                {% assign fullWidthGroupCount = fullWidthGroupCount | Plus:1 %}
+            {% endif %}
+        {% endfor %}
+
+        <select class="form-control input-sm styleguide-topbar-select"
+                aria-label="{{ groupLabel | Default:'Section' }}"
+                onchange="location.search = '?component=' + this.value + '{{ devSuffix }}'">
+            {% if fullWidthGroupCount > 1 %}
+                {% for group in nav %}
+                    {% if group.FullWidth and group.Items != empty %}
+                        <optgroup label="{{ group.Group }}">
+                            {% for slug in group.Items %}
+                                {% assign label = slug | RegExReplace:'([a-z0-9])([A-Z])','$1 $2' %}
+                                <option value="{{ slug }}"{% if slug == page %} selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                {% for slug in groupItems %}
+                    {% assign label = slug | RegExReplace:'([a-z0-9])([A-Z])','$1 $2' %}
+                    <option value="{{ slug }}"{% if slug == page %} selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            {% endif %}
+        </select>
+
+        //- The section's own examples. Only drawn when it declares more than one, so a section with
+        //- a single demo does not get a select with nothing to switch to.
+        {% if variants != empty and variants != blank %}
+            {% assign variantCount = variants | Size %}
+            {% if variantCount > 1 %}
+                {% assign hasDevVariants = false %}
+                {% for option in variants %}
+                    {% if option.DevOnly %}{% assign hasDevVariants = true %}{% endif %}
+                {% endfor %}
+
+                <select class="form-control input-sm styleguide-topbar-select"
+                        aria-label="Example"
+                        onchange="location.search = '?component={{ page }}&variant=' + this.value + '{{ devSuffix }}'">
+                    {% if hasDevVariants %}
+                        <optgroup label="Examples">
+                            {% for option in variants %}
+                                {% unless option.DevOnly %}
+                                    <option value="{{ option.Slug }}"{% if option.Slug == variant %} selected{% endif %}>{{ option.Label }}</option>
+                                {% endunless %}
+                            {% endfor %}
+                        </optgroup>
+                        <optgroup label="Developer">
+                            {% for option in variants %}
+                                {% if option.DevOnly %}
+                                    <option value="{{ option.Slug }}"{% if option.Slug == variant %} selected{% endif %}>{{ option.Label }}</option>
+                                {% endif %}
+                            {% endfor %}
+                        </optgroup>
+                    {% else %}
+                        {% for option in variants %}
+                            <option value="{{ option.Slug }}"{% if option.Slug == variant %} selected{% endif %}>{{ option.Label }}</option>
+                        {% endfor %}
+                    {% endif %}
+                </select>
+            {% endif %}
+        {% endif %}
+
+        {% if lastIndex > 0 %}
+            <div class="styleguide-topbar-steps">
+                <a class="btn btn-default btn-sm" href="?component={{ previousSlug }}{{ devSuffix }}" aria-label="Previous">
+                    <i class="ti ti-chevron-left" aria-hidden="true"></i>
+                </a>
+                <a class="btn btn-default btn-sm" href="?component={{ nextSlug }}{{ devSuffix }}" aria-label="Next">
+                    <i class="ti ti-chevron-right" aria-hidden="true"></i>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+{% else %}
+
+    {% for group in nav %}
+        {% if group.Items != empty %}
+            <nav class="styleguide-nav-group">
+                <ul class="nav nav-stacked">
+                    {% if group.Group != empty %}
+                        <li class="styleguide-nav-heading">{{ group.Group }}</li>
+                    {% endif %}
+                    {% for slug in group.Items %}
+                        {% if slug != empty %}
+                            //- Split the PascalCase slug into words for display:
+                            //- "SideBySide" -> "Side By Side", "TimedShowcase" -> "Timed Showcase".
+                            {% assign label = slug | RegExReplace:'([a-z0-9])([A-Z])','$1 $2' %}
+                            {% assign baseUrl = group.BaseUrl | Default:'' %}
+                            {% if baseUrl != '' %}
+                                {% assign kebab = slug | RegExReplace:'([a-z0-9])([A-Z])','$1-$2' | Downcase %}
+                                {% assign href = baseUrl | Append:'/' | Append:kebab %}
+                            {% else %}
+                                {% assign href = '?component=' | Append:slug %}
+                            {% endif %}
+                            <li class="nav-item{% if slug == page %} active{% endif %}">
+                                <a class="nav-link" href="{{ href }}"{% if baseUrl != '' %} target="_blank"{% endif %}>{{ label }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </nav>
+        {% endif %}
+    {% endfor %}
+
+{% endif %}
+
+//- Include params share the page's scope and outlive the include, so the optional ones are cleared.
+{% assign orientation = '' %}
+{% assign default = '' %}
+{% assign variants = '' %}
+{% assign variant = '' %}
+{% assign isDeveloper = '' %}
+{% assign devSuffix = '' %}

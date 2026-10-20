@@ -1,0 +1,132 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Cards', description:'A card is a boxed piece of content. Use them to highlight a link, a resource, or a next step. Add an image, a title, a short description, and a button.' %}
+
+
+//- MARK: Markup
+{% capture basic %}
+<div class="card" style="max-width: 320px;">
+    <div class="card-body">
+        <h5 class="card-title">Card Title</h5>
+        <p class="card-subtitle">Card subtitle</p>
+        <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+        <a href="#" class="btn btn-primary btn-sm">Go somewhere</a>
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'basic', title:'Basic Card', demo:basic %}
+
+{% capture imagetop %}
+<div class="card" style="max-width: 320px;">
+    <img class="card-img-top" src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" alt="">
+    <div class="card-body">
+        <h5 class="card-title">Card with Image</h5>
+        <p class="card-text">Add an image to the top of the card for a stronger visual anchor.</p>
+        <a href="#" class="btn btn-primary btn-sm">Learn More</a>
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'image-top', title:'Card with Image', demo:imagetop %}
+
+{% capture overlay %}
+<div class="card" style="max-width: 320px;">
+    <img class="card-img" src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" alt="">
+    <div class="card-img-overlay" style="display: flex; flex-direction: column; justify-content: flex-end;">
+        <h5 class="card-title text-white">Card Title</h5>
+        <p class="card-text text-white small">Overlay content sits on top of the image.</p>
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'overlay', title:'Image with Overlay Text', demo:overlay %}
+
+{% capture stretchedlink %}
+<div class="card card-link card-shadow" style="max-width: 320px;">
+    <img class="card-img-top" src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" alt="">
+    <div class="card-body">
+        <h5 class="card-title">Clickable Card</h5>
+        <p class="card-text">The entire card becomes clickable. Great for lists of resources or events.</p>
+        <a href="#" class="stretched-link">Read More</a>
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'stretched-link', title:'Clickable Card', demo:stretchedlink %}
+
+{% capture deck %}
+<div class="card-deck">
+    <div class="card">
+        <img class="card-img-top" src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" alt="">
+        <div class="card-body">
+            <h5 class="card-title">First Card</h5>
+            <p class="card-text">Cards in a row automatically match each other in width and height.</p>
+        </div>
+        <div class="card-footer"><a href="#" class="btn btn-link btn-sm w-100">Read More</a></div>
+    </div>
+    <div class="card">
+        <img class="card-img-top" src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" alt="">
+        <div class="card-body">
+            <h5 class="card-title">Second Card</h5>
+            <p class="card-text">A longer body here shows that the buttons stay lined up at the bottom no matter how much content each card has.</p>
+        </div>
+        <div class="card-footer"><a href="#" class="btn btn-link btn-sm w-100">Read More</a></div>
+    </div>
+    <div class="card">
+        <img class="card-img-top" src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" alt="">
+        <div class="card-body">
+            <h5 class="card-title">Third Card</h5>
+            <p class="card-text">Short body.</p>
+        </div>
+        <div class="card-footer"><a href="#" class="btn btn-link btn-sm w-100">Read More</a></div>
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'deck', title:'Row of Cards', demo:deck %}
+
+/- The three card types the Cards template can render. All of their styling is scoped under
+   .cards-template in Components/_cards.scss, so the wrapper is part of each example rather than
+   decoration -- drop it and the variant classes do nothing. -/
+
+{% capture typestandard %}
+<div class="cards-template">
+    <div class="card" style="max-width: 320px;">
+        <img class="card-img-top" src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" alt="">
+        <div class="card-body">
+            <h3 class="card-title">Sunday Experience</h3>
+            <p class="card-text">Join us every weekend for worship, practical teaching, and genuine community.</p>
+            <div class="button-group">
+                <a href="#" class="btn btn-primary btn-sm">Learn More</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'type-standard', title:'Card Type: Standard', demo:typestandard %}
+
+{% capture typefullbleed %}
+<div class="cards-template">
+    <div class="card card-full-bleed" style="max-width: 320px;">
+        <img class="card-img-top" src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" alt="">
+        <div class="card-body">
+            <h3 class="card-title">Life Groups</h3>
+            <p class="card-text">Smaller gatherings built around real relationships and real growth.</p>
+            <div class="button-group">
+                <a href="#" class="btn btn-default btn-sm">Learn More</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'type-full-bleed', title:'Card Type: Full Bleed', demo:typefullbleed %}
+
+{% capture typeposter %}
+<div class="cards-template">
+    <div class="card card-poster" style="max-width: 320px;">
+        <img class="card-img" src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" alt="">
+        <div class="card-img-overlay d-flex flex-column justify-content-end">
+            <h3 class="card-title">Serve</h3>
+            <p class="card-text">Use your gifts to make a difference on our teams and in your neighborhood.</p>
+            <div class="button-group">
+                <a href="#" class="btn btn-primary btn-sm">Learn More</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'type-poster', title:'Card Type: Poster', demo:typeposter %}

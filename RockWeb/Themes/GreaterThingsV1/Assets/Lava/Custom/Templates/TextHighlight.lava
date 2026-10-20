@@ -1,0 +1,53 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/TextHighlight.lava', content:textHighlightData, settings:textHighlightSettings %}
+    Description: Large pull-quote text with optional highlighted terms and up to two optional buttons.
+                 Quotation marks are not added -- include them in the text if you want them.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            text                   - Text to be displayed in the center of the section. (Required, Text)
+
+            buttons                - Up to two buttons. See ButtonGroup.lava for the shape. (Optional, Array)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - The text color of the section. (Optional, Text)
+            colors.highlightedtext - The highlighted text color. (Optional, Text)
+            backgroundimage        - Background image for the section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to medium)
+-/
+
+//- MARK: Settings Logic
+
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.colors.highlightedtext != blank %}--highlight-color: {{ settings.colors.highlightedtext }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+
+//- MARK: Content Logic
+
+{% assign markerPattern = '[*][*](.+?)[*][*]' %}
+{% assign highlightedText = content.text | RegExReplace:markerPattern,'<span class="highlighted-text">$1</span>' %}
+
+//- MARK: Markup
+{% if content.text != blank %}
+    <section class="text-highlight-template template template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        <div class="container-fluid">
+            <div class="d-flex flex-column align-items-center gap-3">
+
+                <p class="h1 text text-center text-balance m-0 gsap-fade">{{ highlightedText }}</p>
+
+                {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:content.buttons %}
+
+            </div>
+        </div>
+    </section>
+
+    {{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/TextHighlight.js' | AddScriptLink:true }}
+{% endif %}

@@ -1,0 +1,114 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/SideBySide.lava', content:sideBySideData, settings:sideBySideSettings %}
+    Description: Media and lead content side by side. The media is either a still image or a still with a
+                 centered play button that opens the video in a modal.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro - The lead content. Passed to IntroContent.lava -- see that file for its keys.
+                    Required; a side by side with no content renders nothing.
+
+            image                  - The still image. When video is set this is the poster frame, and the module
+                                     layer falls back to the media element's own thumbnail if this is empty.
+                                     (Required unless video is set, Image Url)
+            video                  - A Rock media element Id, played in a modal. Setting it switches the media
+                                     column to video mode and adds a centered play button. (Optional, Number)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of the heading and description. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to medium)
+
+            sidebysidetype         - How the media sits in the section. (Optional, standard | full-bleed.
+                                     Defaults to standard)
+                                     standard   - Both columns stay inside the container.
+                                     full-bleed - The media runs to the viewport edge on its side.
+            reverse                - Put the media on the left and the content on the right. (Optional, Boolean)
+
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+{% assign sideBySideType = settings.sidebysidetype | Default:'standard' %}
+{% assign isReversed = settings.reverse | AsBoolean %}
+
+{% assign containerClass = 'container' %}
+{% if sideBySideType == 'full-bleed' %}
+    {% assign containerClass = 'container-fluid px-0' %}
+{% endif %}
+
+{% assign rowDirectionClass = '' %}
+{% if isReversed %}
+    {% assign rowDirectionClass = 'flex-md-row-reverse' %}
+{% endif %}
+
+{% assign videoModalId = '' | UniqueIdentifier | Prepend:'video-modal-' %}
+
+//- MARK: Markup
+{% if content.intro != blank %}
+    <section class="side-by-side-template template template-padding-{{ verticalPadding }} side-by-side-{{ sideBySideType }}" style="{{ templateStyles }}">
+        <div class="{{ containerClass }}">
+            <div class="row align-items-center {{ rowDirectionClass }}">
+
+                <div class="col-xs-12 col-md-6 side-by-side-content">
+                    {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+                </div>
+
+                <div class="col-xs-12 col-md-6 side-by-side-media">
+                    <img class="media-image img-fallback-horizontal"{% if content.image != blank %} src="{{ content.image }}"{% endif %} alt="Section image">
+
+                        {% if content.video != blank %}
+                            <button class="play-button" type="button" data-toggle="modal" data-target="#{{ videoModalId }}" aria-label="Play video">
+                                <i class="ti ti-player-play-filled" aria-hidden="true"></i>
+                            </button>
+                        {% endif %}
+                </div>
+
+            </div>
+        </div>
+
+        {% if content.video != blank %}
+            <div class="modal fade video-modal" id="{{ videoModalId }}" tabindex="-1" role="dialog" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <div class="video-frame">
+                                {[ mediaplayer media:'{{ content.video }}' ]}{[ endmediaplayer ]}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+    /- Bound once per page via delegation, so any number of instances share it. Bootstrap 3 fires its
+       modal events through jQuery, which Rock already loads. Pausing on close matters because
+       Bootstrap only hides the modal -- the player would otherwise keep going behind the overlay. -/
+    <script>
+        (function ($) {
+            if (window.sideBySideVideoModalBound) { return; }
+            window.sideBySideVideoModalBound = true;
+
+            $(document).on('shown.bs.modal', '.video-modal', function () {
+                var media = $(this).find('video, audio')[0];
+                if (media) { var played = media.play(); if (played && played.catch) { played.catch(function () {}); } }
+            });
+
+            $(document).on('hidden.bs.modal', '.video-modal', function () {
+                $(this).find('video, audio').each(function () { this.pause(); });
+            });
+        })(jQuery);
+    </script>
+{% endif %}

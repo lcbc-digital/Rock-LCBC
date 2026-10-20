@@ -1,0 +1,157 @@
+/-
+    Pricing template variants. Covers the basic layout and the sold-out state.
+
+    Parameters:
+        variant - Which example to draw. Already validated by Base.lava. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign button1 = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','Register Now' %}
+{% assign buttons1 = '' | AddToArray:button1 %}
+
+{% assign price1 = ''
+    | AddToDictionary:'title','Early Bird'
+    | AddToDictionary:'price','$49'
+    | AddToDictionary:'description','Lock in the lowest rate before spots fill. Available through March 31.'
+    | AddToDictionary:'buttons',buttons1
+%}
+{% assign price2 = ''
+    | AddToDictionary:'title','General'
+    | AddToDictionary:'price','$79'
+    | AddToDictionary:'description','Standard registration. Open to all attendees through the week of the event.'
+    | AddToDictionary:'feature','Best Value'
+    | AddToDictionary:'buttons',buttons1
+%}
+{% assign price3 = ''
+    | AddToDictionary:'title','At the Door'
+    | AddToDictionary:'price','$99'
+    | AddToDictionary:'description','Walk-up registration on the day of the event, subject to availability.'
+    | AddToDictionary:'buttons',buttons1
+%}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','Register Today'
+    | AddToDictionary:'heading','Pick the Option **That Works for You**'
+    | AddToDictionary:'description','All tiers include full access to sessions, meals, and materials.'
+%}
+
+//- MARK: Settings
+{% case variant %}
+
+    {% when 'sold-out' %}
+        {% assign soldPrice1 = price1 | AddToDictionary:'soldout',true %}
+        {% assign soldPrice3 = price3 | AddToDictionary:'soldout',true %}
+        {% assign prices = '' | AddToArray:soldPrice1 | AddToArray:price2 | AddToArray:soldPrice3 %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'prices',prices %}
+        {% assign introSettings = '' | AddToDictionary:'contentalignment','center' %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-single' %}
+        {% assign prices = '' | AddToArray:price2 %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'prices',prices %}
+        {% assign introSettings = '' | AddToDictionary:'contentalignment','center' %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-five' %}
+        {% assign price4 = ''
+            | AddToDictionary:'title','Group'
+            | AddToDictionary:'price','$59'
+            | AddToDictionary:'description','Groups of 5 or more. Contact the office to register your group.'
+            | AddToDictionary:'buttons',buttons1
+        %}
+        {% assign price5 = ''
+            | AddToDictionary:'title','Student'
+            | AddToDictionary:'price','$29'
+            | AddToDictionary:'description','Full-time students with valid ID. Limited spots available.'
+            | AddToDictionary:'buttons',buttons1
+        %}
+        {% assign prices = '' | AddToArray:price1 | AddToArray:price4 | AddToArray:price2 | AddToArray:price5 | AddToArray:price3 %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'prices',prices %}
+        {% assign introSettings = '' | AddToDictionary:'contentalignment','center' %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-mixed-length' %}
+        {% assign shortPrice = ''
+            | AddToDictionary:'title','Early Bird'
+            | AddToDictionary:'price','$49'
+            | AddToDictionary:'buttons',buttons1
+        %}
+        {% assign longPrice = ''
+            | AddToDictionary:'title','General'
+            | AddToDictionary:'price','$79'
+            | AddToDictionary:'description','Standard registration. Open to all attendees through the week of the event. Includes full access to all sessions, meals on Saturday, and the resource packet.'
+            | AddToDictionary:'feature','Best Value'
+            | AddToDictionary:'buttons',buttons1
+        %}
+        {% assign noDescriptionPrice = ''
+            | AddToDictionary:'price','$99'
+            | AddToDictionary:'buttons',buttons1
+        %}
+        {% assign prices = '' | AddToArray:shortPrice | AddToArray:longPrice | AddToArray:noDescriptionPrice %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'prices',prices %}
+        {% assign introSettings = '' | AddToDictionary:'contentalignment','center' %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-long-ribbon' %}
+        {% assign longRibbonPrice = ''
+            | AddToDictionary:'title','General'
+            | AddToDictionary:'price','$79'
+            | AddToDictionary:'description','Standard registration. Open to all attendees through the week of the event.'
+            | AddToDictionary:'feature','Most Popular Choice'
+            | AddToDictionary:'buttons',buttons1
+        %}
+        {% assign prices = '' | AddToArray:price1 | AddToArray:longRibbonPrice | AddToArray:price3 %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'prices',prices %}
+        {% assign introSettings = '' | AddToDictionary:'contentalignment','center' %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% else %}
+        {% assign prices = '' | AddToArray:price1 | AddToArray:price2 | AddToArray:price3 %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'prices',prices %}
+        {% assign introSettings = '' | AddToDictionary:'contentalignment','center' %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Pricing', description:'A row of price cards with an optional featured tier and sold-out state.' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Cards</th>
+        <td>{{ content.prices | Size }}</td>
+    </tr>
+    <tr>
+        <th scope="row">Featured</th>
+        <td>{% assign featuredCount = 0 %}{% for p in content.prices %}{% if p.feature != blank %}{% assign featuredCount = featuredCount | Plus:1 %}{% endif %}{% endfor %}{% if featuredCount > 0 %}{{ featuredCount }} card via <code>feature</code> ribbon text{% else %}none{% endif %}</td>
+    </tr>
+    {% if variant == 'sold-out' %}
+        <tr>
+            <th scope="row">Sold out</th>
+            <td>{% assign soldCount = 0 %}{% for p in content.prices %}{% if p.soldout %}{% assign soldCount = soldCount | Plus:1 %}{% endif %}{% endfor %}{{ soldCount }} of {{ content.prices | Size }} &middot; dims card, disables buttons</td>
+        </tr>
+    {% endif %}
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/Pricing.lava', content:content, settings:settings %}

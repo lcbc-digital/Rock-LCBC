@@ -1,0 +1,111 @@
+/-
+    Path: {% capture commitUrl %}{% include '~~/Assets/Lava/Custom/Common/TrackedUrl.lava', trackedUrl:'/commit', trackedLabel:'Commit', trackedContext:'hero' %}{% endcapture %}
+          {% assign commitUrl = commitUrl | Trim %}
+
+    Description: Takes a url and gives it back tagged, so a press of the link shows up in Button
+                 Interactions on the dashboard. The single implementation of that tagging, called by
+                 ButtonGroup.lava and by hand written anchors alike.
+
+                 Rock reads utm_ parameters when the page they point at renders and writes them onto
+                 that page view, so the tag is the whole of the tracking. Nothing counts a press at the
+                 near end and no script has to survive the click.
+
+                    utm_medium  - Always 'internal', so Traffic Sources ignores it.
+                    utm_source  - Id of the page the link is on.
+                    utm_content - The label, slugged.
+                    utm_term    - Where on that page the link lives.
+
+                 utm_term is what tells two buttons of the same name apart, and labels repeat
+                 constantly here. Inside a module it takes the best name that module has, in order:
+                 ItemGlobalKey, then Title, then type and id. Setting either of the first two improves
+                 the dashboard with no code change.
+
+                 Emits the url and nothing else, because a Lava include cannot hand a value back: an
+                 assign inside an include does not come back out. Hence capture, and the Trim is not
+                 optional.
+
+                 Tagged only when the url stays on this site, since a page elsewhere never renders to
+                 read the tag. A bare host with no scheme reads as relative and would be tagged wrongly,
+                 so pass root relative or absolute with scheme. ButtonGroup resolves that first.
+
+    Parameters:
+        trackedUrl     - Where the link points. (Required, Text. e.g. /commit, /give?fund=2)
+        trackedLabel   - The link's text, which becomes the button in the dashboard. (Required, Text)
+        trackedContext - Where the link lives, for links outside a module. (Required, Text. Pass ''
+                         inside one, where the module names itself. e.g. header, footer, hero)
+
+                         Pass all three on every call. Lava includes share scope going in, so one left
+                         off keeps whatever the previous call set it to.
+-/
+
+//- MARK: Settings
+//- Must match dashboardInternalMedium in Features/Dashboard/Base.lava.
+{% assign trackedMedium = 'internal' %}
+
+//- MARK: Context
+{% assign trackedSourcePageId = 'Global' | Page:'Id' %}
+
+{% assign trackedPlace = trackedContext | Downcase | Replace:' ','-' %}
+
+{% if trackedPlace == blank and module.Id != blank %}
+    {% if module.ItemGlobalKey != blank %}
+        {% assign trackedPlace = module.ItemGlobalKey %}
+    {% elseif module.Title != blank %}
+        {% assign trackedPlace = module.Title | Downcase | Replace:' ','-' %}
+    {% else %}
+        {% capture trackedPlace %}{{ moduleTypeName | Default:'module' | Downcase | Replace:' ','-' }}-{{ module.Id }}{% endcapture %}
+    {% endif %}
+{% endif %}
+
+{% capture trackedPlaceTag %}{{ trackedPlace | Truncate:50,'' | EscapeDataString }}{% endcapture %}
+
+//- MARK: Split
+//- A fragment has to stay after the query string, or the browser reads the tags as part of it.
+{% assign trackedHash = '' %}
+{% assign trackedBase = trackedUrl %}
+
+{% if trackedUrl contains '#' %}
+    {% assign trackedUrlParts = trackedUrl | Split:'#' %}
+    {% assign trackedBase = trackedUrlParts | First %}
+    {% capture trackedHash %}#{{ trackedUrlParts | Last }}{% endcapture %}
+{% endif %}
+
+//- MARK: Internal
+/- No scheme is relative, so internal. An absolute url is internal when its host is this host, which
+    matters because a Global Attribute holds the whole url: the header and footer CTAs arrive as
+    https://thissite/... and would otherwise read as somebody else's site. www is ignored on both
+    sides; a port is dropped with the path.
+-/
+{% assign trackedIsInternal = false %}
+
+{% if trackedBase != blank and trackedLabel != blank %}
+    {% unless trackedUrl contains ':' %}
+        {% assign trackedIsInternal = true %}
+    {% endunless %}
+
+    {% if trackedUrl contains '://' %}
+        {% assign trackedCurrentHost = 'Global' | Page:'Url' | Split:'//' | Last | Split:'/' | First | Split:':' | First | Downcase | Replace:'www.','' %}
+        {% assign trackedLinkHost = trackedBase | Split:'//' | Last | Split:'/' | First | Split:'?' | First | Split:':' | First | Downcase | Replace:'www.','' %}
+
+        {% if trackedCurrentHost != blank and trackedLinkHost == trackedCurrentHost %}
+            {% assign trackedIsInternal = true %}
+        {% endif %}
+    {% endif %}
+{% endif %}
+
+//- MARK: Tag
+{% assign trackedResult = trackedUrl %}
+
+{% if trackedIsInternal %}
+    {% assign trackedJoiner = '?' %}
+    {% if trackedBase contains '?' %}
+        {% assign trackedJoiner = '&' %}
+    {% endif %}
+
+    {% capture trackedLabelTag %}{{ trackedLabel | Downcase | Replace:' ','-' | Truncate:50,'' | EscapeDataString }}{% endcapture %}
+
+    {% capture trackedResult %}{{ trackedBase }}{{ trackedJoiner }}utm_medium={{ trackedMedium }}&utm_source={{ trackedSourcePageId }}&utm_content={{ trackedLabelTag }}{% if trackedPlaceTag != blank %}&utm_term={{ trackedPlaceTag }}{% endif %}{{ trackedHash }}{% endcapture %}
+{% endif %}
+
+//- MARK: Markup
+{{ trackedResult }}

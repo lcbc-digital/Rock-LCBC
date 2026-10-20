@@ -1,0 +1,115 @@
+/-
+    Timed Showcase variant. Three items that auto-rotate with a circular timer.
+
+    Parameters:
+        variant        - Which example to draw. Already validated by Base.lava. (Required, Text)
+        sampleImage169 - 16:9 fallback image URL. Passed in from Base.lava setup variables. (Required, Image Url)
+-/
+
+//- MARK: Sample Content
+{% assign item1 = ''
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'title','Sunday Experience'
+    | AddToDictionary:'description','Our Sunday gatherings are welcoming, energetic, and grounded in Scripture. Whether it is your first time or your hundredth, there is a place for you.'
+    | AddToDictionary:'linktext','Plan Your Visit'
+    | AddToDictionary:'linkurl','#'
+%}
+
+{% assign item2 = ''
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'title','Find Your People'
+    | AddToDictionary:'description','Small groups are where community gets real. Find a group meeting near you and take your next step toward belonging.'
+    | AddToDictionary:'linktext','Find a Group'
+    | AddToDictionary:'linkurl','#'
+%}
+
+{% assign item3 = ''
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'title','Use Your Gifts'
+    | AddToDictionary:'description','Everyone has something to offer. Serving is one of the best ways to grow and to help the people around you do the same.'
+    | AddToDictionary:'linktext','Start Serving'
+    | AddToDictionary:'linkurl','#'
+%}
+
+{% assign items = '' | AddToArray:item1 | AddToArray:item2 | AddToArray:item3 %}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','Get Involved'
+    | AddToDictionary:'heading','There Is a Place for You Here'
+%}
+
+//- MARK: Settings
+{% case variant %}
+
+    {% when 'dev-one' %}
+        {% assign items = '' | AddToArray:item1 %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'items',items
+        %}
+        {% assign settings = '' | AddToDictionary:'verticalpadding','small' %}
+
+    {% when 'dev-four' %}
+        {% assign item4 = ''
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'title','Give Generously'
+            | AddToDictionary:'description','Generosity is a spiritual practice. When you give, you are investing in the mission of this church and the people it reaches.'
+            | AddToDictionary:'linktext','Give Now'
+            | AddToDictionary:'linkurl','#'
+        %}
+        {% assign items = '' | AddToArray:item1 | AddToArray:item2 | AddToArray:item3 | AddToArray:item4 %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'items',items
+        %}
+        {% assign settings = '' | AddToDictionary:'verticalpadding','small' %}
+
+    {% when 'dev-mixed' %}
+        {% assign noDescription = ''
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'title','Sunday Experience'
+            | AddToDictionary:'linktext','Plan Your Visit'
+            | AddToDictionary:'linkurl','#'
+        %}
+        {% assign noLink = ''
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'title','Find Your People'
+            | AddToDictionary:'description','Small groups are where community gets real. Find a group meeting near you and take your next step toward belonging.'
+        %}
+        {% assign longContent = ''
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'title','Discover What It Means to Truly Use the Gifts and Talents You Have Been Given to Serve the People Around You'
+            | AddToDictionary:'description','Everyone has something to offer. Serving is one of the most transformative things you can do -- not just for the people you are helping, but for yourself. When you step into a role that fits who God made you to be, everything changes. You grow. Your faith deepens. And the community around you becomes something you are building, not just attending. We have dozens of serving teams across every campus and every service time, and there is a place for you on one of them.'
+            | AddToDictionary:'linktext','Start Serving'
+            | AddToDictionary:'linkurl','#'
+        %}
+        {% assign items = '' | AddToArray:noDescription | AddToArray:noLink | AddToArray:longContent | AddToArray:item1 %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'items',items
+        %}
+        {% assign settings = '' | AddToDictionary:'verticalpadding','small' %}
+
+    {% else %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'items',items
+        %}
+        {% assign settings = '' | AddToDictionary:'verticalpadding','small' %}
+
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Timed Showcase', description:'An image paired with a rotating stack of CTA rows. Each row has a circular timer; clicking a row activates it and restarts the timer.' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Items</th>
+        <td>{{ items | Size }}</td>
+    </tr>
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/TimedShowcase.lava', content:content, settings:settings %}

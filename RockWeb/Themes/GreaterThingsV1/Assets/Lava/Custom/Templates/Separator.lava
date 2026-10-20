@@ -1,0 +1,70 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/Separator.lava', settings:separatorSettings %}
+    Description: The join between two sections. A separator is decoration rather than content, so it
+                 takes no height of its own: it is a zero height line sitting on the boundary, with the
+                 shape centered on it so half falls in the section above and half in the one below.
+                 Adding one never moves anything on the page.
+
+                 Because it paints over both neighbors, the colors it is given have to be the
+                 colors of those two sections. Nothing here can read them.
+
+    Parameters:
+        settings - Dictionary of the template settings. Keys:
+            separator.type      - Which transition to draw. (Optional, ripped | gradient | fade.
+                                  Defaults to ripped)
+                                  ripped   - A torn paper edge. The section below appears to tear into
+                                             the one above.
+                                  gradient - A vertical fade from one section's color into the other's.
+                                  fade     - One color at full strength on the join, falling away to
+                                             nothing in both directions. Use it to haze a single color
+                                             across a boundary without naming either section's color.
+
+            separator.color     - ripped and fade: the single color. For ripped that is the tear, which
+                                  is normally the background of the section below; for fade it is the
+                                  color that peaks on the join. (Optional, Text. Defaults to the
+                                  theme's pale interface color for ripped, and to transparent -- that
+                                  is, nothing drawn -- for fade)
+
+            separator.fromcolor - gradient only: the color at the top, normally the background of the
+                                  section above. Leave it blank, or pass transparent, for a fade that
+                                  rises out of whatever is already there -- useful over an image, or
+                                  when only one of the two sections has a color worth naming.
+                                  (Optional, Text. Defaults to transparent)
+            separator.tocolor   - gradient only: the color at the bottom, normally the background of
+                                  the section below. Blank or transparent behaves as above.
+                                  (Optional, Text. Defaults to transparent)
+            separator.height    - gradient and fade: how tall the fade is. Half of it falls either side
+                                  of the join. (Optional, CSS length. Defaults to 120px)
+-/
+
+//- MARK: Settings Logic
+{% assign separatorType = settings.separator.type | Default:'ripped' %}
+
+{% assign fromColor = settings.separator.fromcolor | Default:'transparent' %}
+{% assign toColor = settings.separator.tocolor | Default:'transparent' %}
+{% assign fadeClass = '' %}
+{% if separatorType == 'gradient' %}
+    {% if fromColor != 'transparent' and toColor == 'transparent' %}
+        {% assign fadeClass = ' fade-out' %}
+    {% elsif fromColor == 'transparent' and toColor != 'transparent' %}
+        {% assign fadeClass = ' fade-in' %}
+    {% endif %}
+{% endif %}
+
+{% capture separatorStyles %}
+    {% if settings.separator.color != blank %}--separator-color: {{ settings.separator.color }};{% endif %}
+    {% if settings.separator.fromcolor != blank %}--separator-from-color: {{ settings.separator.fromcolor }};{% endif %}
+    {% if settings.separator.tocolor != blank %}--separator-to-color: {{ settings.separator.tocolor }};{% endif %}
+    {% if settings.separator.height != blank %}--separator-height: {{ settings.separator.height }};{% endif %}
+{% endcapture %}
+{% assign separatorStyles = separatorStyles | Trim %}
+
+//- MARK: Markup
+<div class="separator-template separator-{{ separatorType }}{{ fadeClass }}" style="{{ separatorStyles }}" aria-hidden="true">
+    <div class="separator-inner">
+        {% if separatorType == 'ripped' %}
+            {% include '~/Themes/GreaterThingsV1/Assets/Images/Textures/RippedSeperator.lava', fill:settings.separator.color %}
+        {% endif %}
+        //- gradient and fade are the element itself. Nothing to draw.
+    </div>
+</div>

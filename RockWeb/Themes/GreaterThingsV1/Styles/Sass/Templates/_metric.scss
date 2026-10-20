@@ -1,0 +1,533 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.metric-template {
+    --metric-card-background: color-mix(in srgb, var(--neutral-2) 80%, transparent);
+
+    .display-2, .h2 {
+        transform: translateY(3px);
+    }
+
+    .metric-goal-label {
+        text-transform: uppercase;
+    }
+
+    .metric-title {
+        text-transform: uppercase;
+    }
+
+    //- No position: relative on purpose: .metrics-card .metric already has a backdrop-filter, which is
+    //- itself a containing block and a stacking context.
+    .metrics-card .metric-featured::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+
+        background-color: var(--primary);
+        background-image: url("#{$cdn-theme-root}/Assets/Images/Textures/TextureThree.jpg?optimizer=image");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        background-blend-mode: luminosity;
+
+        opacity: 0.4;
+        pointer-events: none;
+    }
+
+    //- MARK: Bar
+    .metrics-bar {
+        --metric-featured-border-width: 4px;
+
+        .metric-bar-track {
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(30px);
+
+            //- An outline so the stroke sits over the fill instead of insetting the track's content box.
+            outline: 4px solid rgba(255, 255, 255, 0.2);
+            outline-offset: -4px;
+        }
+
+        .metric-bar-fill {
+            isolation: isolate;
+            overflow: hidden;
+
+            //- Sized to the track, not the fill, so the texture stays put as --metric-percent animates:
+            //- the fill is percent% of the track, so 10000%/percent of the fill is exactly the track width.
+            &::after {
+                content: '';
+                display: block;
+                width: calc(10000% / max(var(--metric-percent, 0), 1));
+                height: 100%;
+                background-image: url("#{$cdn-theme-root}/Assets/Images/Textures/TextureFive.jpg?optimizer=image");
+                background-position: left bottom;
+                background-size: cover;
+                mix-blend-mode: overlay;
+                opacity: 0.2;
+                pointer-events: none;
+            }
+        }
+
+        //- z-index lifts the icon back over the track, which the backdrop-filter above made a stacking context.
+        .metric-bar-content .metric-icon {
+            z-index: 1;
+            border-color: transparent;
+            background-color: var(--metric-icon-background, var(--neutral-2));
+            color: var(--metric-icon-color, var(--ui-softest));
+        }
+    }
+
+    //- MARK: Gauge rings
+    //- The strokes paint themselves: the track off a gradient in Metric.lava's defs, the fill off
+    //- stroke-dashoffset. The vector rasterizer antialiases both, where the conic gradient this
+    //- replaces had coincident stops and no antialiasing. Only the texture stays in CSS.
+    .metrics-circle,
+    .metrics-semicircle {
+        .metric-gauge-track {
+            stroke: url(#metric-gauge-track-gradient);
+        }
+
+        .metric-gauge-track-from { stop-color: rgba(255, 255, 255, 0.6); }
+        .metric-gauge-track-to   { stop-color: rgba(153, 146, 139, 0.4); }
+
+        .metric-gauge-body {
+            z-index: 1;
+        }
+
+        .metric-gauge-frame {
+            isolation: isolate;
+
+            &::after {
+                content: '';
+                grid-area: 1 / 1;
+                pointer-events: none;
+
+                background-image: url("#{$cdn-theme-root}/Assets/Images/Textures/TextureFive.jpg?optimizer=image");
+                background-position: center;
+                background-size: cover;
+                mix-blend-mode: overlay;
+                opacity: 0.2;
+
+                -webkit-mask-size: 100% 100%;
+                mask-size: 100% 100%;
+                -webkit-mask-repeat: no-repeat;
+                mask-repeat: no-repeat;
+            }
+        }
+    }
+
+    .metrics-circle {
+        //- Stops where the stroke begins: 8 of the 60 unit radius. They have to agree or the semi
+        //- transparent track shows the disc through its inner edge.
+        --metric-ring-thickness: 13.333%;
+
+        //- A circle stroke starts at three o'clock; the design fills from twelve.
+        .metric-gauge-fill {
+            transform: rotate(-90deg);
+            transform-origin: center;
+        }
+
+        .metric-gauge-frame {
+            background-image: radial-gradient(
+                circle closest-side at center,
+                var(--metric-circle-disc, var(--neutral-2)) 0 calc(100% - var(--metric-ring-thickness)),
+                transparent calc(100% - var(--metric-ring-thickness))
+            );
+
+            //- Matches the stroke it sits over: r 56 under an 8 unit stroke in a 120 unit box.
+            &::after {
+                -webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" fill="none" stroke="%23000" stroke-width="8"/></svg>');
+                mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><circle cx="60" cy="60" r="56" fill="none" stroke="%23000" stroke-width="8"/></svg>');
+            }
+        }
+    }
+
+    .metrics-semicircle {
+        .metric-gauge-frame {
+            //- The arc path from Metric.lava, full 120x62 box.
+            &::after {
+                -webkit-mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 62"><path d="M 6 58 A 54 54 0 0 1 114 58" fill="none" stroke="%23000" stroke-width="8"/></svg>');
+                mask-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 62"><path d="M 6 58 A 54 54 0 0 1 114 58" fill="none" stroke="%23000" stroke-width="8"/></svg>');
+            }
+        }
+    }
+}
+
+//- MARK: Generic Styles
+.metric-template {
+
+    .metrics {
+        display: flex;
+        margin: 0;
+        padding: 0;
+    }
+
+    .metrics-bar,
+    .metrics-semicircle {
+        flex-direction: column;
+        gap: var(--metric-gap, 80px);
+    }
+
+    .metrics-circle,
+    .metrics-card {
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: center;
+        gap: var(--metric-gap, 40px);
+    }
+
+    .metric {
+        color: var(--template-foreground-color, inherit);
+    }
+
+    .metric-title {
+        text-wrap: pretty;
+    }
+
+    .metric-value,
+    .metric-percent,
+    .metric-scale-start,
+    .metric-scale-end,
+    .metric-title {
+        color: inherit;
+    }
+
+    .metric-goal {
+        color: var(--metric-goal-color, inherit);
+    }
+
+    .metric-goal-label,
+    .metric-goal-value {
+        color: inherit;
+    }
+
+    .metric-icon {
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+
+        width: var(--metric-icon-size, 52px);
+        height: var(--metric-icon-size, 52px);
+        border: 3px solid var(--metric-icon-border-color, var(--primary));
+        border-radius: 50%;
+
+        background-color: var(--metric-icon-background, var(--template-background-color, transparent));
+        color: var(--metric-icon-color, inherit);
+        font-size: calc(var(--metric-icon-size, 52px) * 0.5);
+    }
+
+    //- MARK: Bar
+    .metrics-bar {
+        @media (max-width: $screen-xs-max) {
+            --metric-gap: 48px;
+        }
+    }
+
+    .metrics-bar .metric {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .metric-bar-header {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 16px;
+    }
+
+    .metrics-bar .metric-goal {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        text-align: right;
+    }
+
+    .metric-bar {
+        display: grid;
+    }
+
+    .metric-bar-track,
+    .metric-bar-marker,
+    .metric-bar-content {
+        grid-area: 1 / 1;
+    }
+
+    .metric-bar-track {
+        min-height: var(--metric-bar-height, 72px);
+        border-radius: var(--metric-bar-radius, 0);
+        background-color: var(--metric-track-color, var(--ui-softest));
+        overflow: hidden;
+    }
+
+    .metric-bar-fill {
+        width: calc(var(--metric-percent, 0) * 1%);
+        height: 100%;
+        background-color: var(--metric-fill-color, var(--primary));
+    }
+
+    .metric-bar-marker {
+        justify-self: start;
+        width: var(--metric-bar-marker-width, 4px);
+        margin-left: calc(var(--metric-percent, 0) * 1%);
+        margin-block: calc(var(--metric-bar-marker-overhang, 10px) * -1);
+        background-color: var(--metric-bar-marker-color, currentColor);
+        opacity: 60%;
+    }
+
+    .metric-bar-content {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 24px 16px;
+        color: var(--ui-softest);
+        transition: color 0.2s ease;
+
+        .metric-icon {
+            color: var(--ui-softest);
+            border-color: var(--ui-softest);
+            transition: color 0.2s ease, border-color 0.2s ease;
+        }
+    }
+
+    .metric.is-bar-low .metric-bar-content {
+        color: var(--metric-bar-low-color, var(--template-foreground-color, currentColor));
+
+        .metric-icon {
+            color: inherit;
+            border-color: currentColor;
+        }
+    }
+
+    //- MARK: Gauges
+    .metric-gauge-frame {
+        display: grid;
+        width: 100%;
+        max-width: var(--metric-gauge-width, 650px);
+        margin-inline: auto;
+    }
+
+    .metric-gauge,
+    .metric-gauge-body {
+        grid-area: 1 / 1;
+    }
+
+    .metric-gauge {
+        display: block;
+        width: 100%;
+        height: auto;
+
+        overflow: visible;
+    }
+
+    .metric-gauge-track,
+    .metric-gauge-fill {
+        fill: none;
+        stroke-width: var(--metric-gauge-thickness, 8);
+    }
+
+    .metric-gauge-track {
+        stroke: var(--metric-track-color, var(--ui-softest));
+    }
+
+    .metric-gauge-fill {
+        stroke: var(--metric-fill-color, var(--primary));
+        stroke-dasharray: 100;
+        //- px, not a bare number: Firefox drops a unitless calc() here. In SVG 1px is one user unit,
+        //- so this stays on pathLength's 0-100 scale.
+        stroke-dashoffset: calc((100 - var(--metric-percent, 0)) * 1px);
+    }
+
+    .metric-gauge-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--metric-gauge-body-gap, 20px);
+        text-align: center;
+        margin-top: 5%;
+    }
+
+    .metric-percent {
+        font-weight: 600;
+
+        .metric-percent-number {
+            opacity: 1;
+            font-weight: 900;
+        }
+
+        .metric-percent-label {
+            opacity: 0.8;
+        }
+    }
+
+    //- MARK: Semicircle
+    .metrics-semicircle {
+        --metric-icon-size: clamp(32px, 8vw, 52px);
+        --metric-gauge-body-gap: clamp(4px, 2vw, 20px);
+    }
+
+    .metrics-semicircle .metric {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .metric-scale {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        max-width: var(--metric-gauge-width, 650px);
+    }
+
+    //- MARK: Circle
+    .metrics-circle {
+        --metric-gauge-width: 100%;
+    }
+
+    .metrics-circle .metric {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 32px;
+
+        max-width: var(--metric-circle-max-width, 360px);
+
+        flex: 1 1 100%;
+
+        @media (min-width: $screen-sm-min) {
+            flex-basis: 0;
+            min-width: var(--metric-circle-width, 200px);
+        }
+    }
+
+    .metrics-circle .metric-gauge-body {
+        margin-top: 0;
+        margin-bottom: 2%;
+    }
+
+    .metrics-circle .metric-gauge {
+        transform: rotate(-90deg);
+    }
+
+    .metric-caption {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        text-align: center;
+    }
+
+    .metrics-circle .metric-goal {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+
+        width: 100%;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+    }
+
+    .metrics-circle .metric-caption {
+        .metric-goal-label {
+            font-weight: 600;
+            color: var(--metric-featured-color, var(--primary));
+        }
+    }
+
+    //- MARK: Card
+    .metrics-card {
+        --metric-gap: 0;
+
+        --metric-card-width: 340px;
+
+        --metric-icon-background: transparent;
+
+        --metric-icon-size: clamp(56px, 10vw, 80px);
+
+        align-items: center;
+
+        flex-direction: column;
+
+        @media (min-width: $screen-lg-min) {
+            flex-direction: row;
+        }
+    }
+
+    .metrics-card .metric {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+
+        flex: 0 0 auto;
+        width: 100%;
+        max-width: var(--metric-card-width);
+        padding: var(--metric-card-padding, 56px 32px);
+        background-color: var(--metric-card-background, color-mix(in srgb, var(--ui-strongest) 10%, transparent));
+        backdrop-filter: blur(var(--metric-card-blur, 3px));
+        text-align: center;
+    }
+
+    .metrics-card .metric-icon {
+        margin-bottom: var(--metric-card-icon-gap, 20px);
+    }
+
+    //- MARK: Featured
+    //- Mobile keeps every bar the same size; only the outline marks the featured one there.
+    @media (min-width: $screen-sm-min) {
+        .metrics-bar .metric-featured {
+            --metric-icon-size: var(--metric-featured-icon-size, 56px);
+        }
+
+        .metrics-bar:has(.metric-featured) .metric:not(.metric-featured) {
+            margin-inline: var(--metric-bar-inset, 5%);
+        }
+    }
+
+    .metrics-bar .metric-featured .metric-bar-track {
+        outline: var(--metric-featured-border-width, 2px) solid var(--metric-featured-color, var(--primary));
+        outline-offset: calc(var(--metric-featured-border-width, 2px) * -1);
+    }
+
+    .metrics-circle .metric-featured {
+
+        flex-grow: var(--metric-featured-scale, 1.15);
+        max-width: calc(var(--metric-circle-max-width, 360px) * var(--metric-featured-scale, 1.15));
+        transform: translateY(-5%);
+
+        order: -1;
+
+        @media (min-width: $screen-sm-min) {
+            order: 0;
+        }
+    }
+
+    .metrics-circle .metric-featured .metric-value,
+    .metrics-semicircle .metric-featured .metric-value {
+        color: var(--metric-featured-color, var(--primary));
+    }
+
+    .metrics-card .metric-featured {
+        --metric-card-padding: var(--metric-featured-card-padding, 88px 64px);
+
+        order: -1;
+
+        max-width: var(--metric-featured-card-width, 400px);
+
+        @media (min-width: $screen-lg-min) {
+            order: 0;
+            max-width: var(--metric-card-width);
+        }
+
+        background-color: var(--metric-featured-background, color-mix(in srgb, var(--primary) 25%, transparent));
+        outline: var(--metric-featured-border-width, 2px) solid var(--metric-featured-color, var(--primary));
+        outline-offset: calc(var(--metric-featured-border-width, 2px) * -1);
+    }
+
+    .metrics-semicircle .metric-featured {
+        --metric-gauge-width: 750px;
+    }
+}

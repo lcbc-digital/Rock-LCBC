@@ -1,0 +1,30 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/VideoModal.lava', video:video, modalid:modalId %}
+    Description: The modal player for one video. Rendered outside any swiper or card, because a fixed
+                 position element positions against a transformed ancestor rather than the viewport,
+                 and the swiper transforms its slides.
+
+    Parameters:
+        video   - Dictionary describing one video. Only the video key is used here. (Required, Dictionary)
+        modalid - Must match the id used by the matching VideoCard.lava. (Required, Text)
+-/
+
+//- MARK: Markup
+{% assign videoId = video.video %}
+
+{% if videoId != blank %}
+    <div class="modal fade video-modal" id="{{ modalid }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-body">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <div class="video-frame">
+                        <template class="js-mediaplayer-template">
+                            {[ mediaplayer media:'{{ videoId }}' ]}{[ endmediaplayer ]}
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}

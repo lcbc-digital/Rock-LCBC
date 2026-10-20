@@ -1,0 +1,68 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Generic Styles
+.modal.video-modal {
+    //- The modal is a full width strip only as tall as the player, so a click beside the player
+    //- lands on it rather than the backdrop and never dismisses. Let those clicks fall through.
+    pointer-events: none;
+
+    .modal-dialog {
+        pointer-events: auto;
+    }
+
+    @media (max-width: $screen-sm-max) {
+        &,
+        &.fade.in {
+            top: 50% !important;
+            right: auto;
+            bottom: auto;
+            left: 50%;
+            width: 85% !important;
+            margin-left: 0;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    .modal-content {
+        background-color: var(--video-modal-background, var(--black));
+        overflow: hidden;
+    }
+
+    .modal-body,
+    .modal-body:first-child,
+    .modal-body:last-child {
+        position: relative;
+        padding: 0;
+    }
+
+    .video-frame {
+        aspect-ratio: var(--video-frame-aspect-ratio, 16 / 9);
+        width: 100%;
+
+        video,
+        iframe {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+    }
+
+    .close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+        z-index: 1;
+        opacity: 0.85;
+        font-size: 2rem;
+        line-height: 1;
+        color: var(--ui-softest);
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+
+        &:hover,
+        &:focus-visible {
+            opacity: 1;
+            color: var(--ui-softest);
+        }
+    }
+}

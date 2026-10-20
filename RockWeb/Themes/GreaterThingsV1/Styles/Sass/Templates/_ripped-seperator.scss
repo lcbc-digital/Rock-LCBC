@@ -1,0 +1,8 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.ripped-seperator {
+    margin-top: -2.5%;
+    margin-bottom: -1%;
+    z-index: 99;
+}

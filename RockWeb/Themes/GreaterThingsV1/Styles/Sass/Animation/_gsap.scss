@@ -1,0 +1,16 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Generic Styles
+[data-gsap],
+[tt-cascade] [tt-cascade-item],
+.gsap-fade {
+    opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-gsap],
+    [tt-cascade] [tt-cascade-item],
+    .gsap-fade {
+        opacity: 1;
+    }
+}

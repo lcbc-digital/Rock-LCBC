@@ -1,0 +1,39 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Accordions', description:'Bootstrap collapse panels with a left-border icon accent. All visual properties are controlled by CSS custom properties on the wrapper element.' %}
+
+
+//- MARK: Markup
+{% capture demo %}
+<div class="panel-group" id="accordion-sg-default">
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab">
+            <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" href="#collapse-sg-1" aria-expanded="true" aria-controls="collapse-sg-1">What are your service times?</a>
+            </h4>
+        </div>
+        <div id="collapse-sg-1" class="panel-collapse collapse in" role="tabpanel">
+            <div class="panel-body">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.</div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab">
+            <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" href="#collapse-sg-2" aria-expanded="false" aria-controls="collapse-sg-2">Where are you located?</a>
+            </h4>
+        </div>
+        <div id="collapse-sg-2" class="panel-collapse collapse" role="tabpanel">
+            <div class="panel-body">Quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse.</div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading" role="tab">
+            <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" href="#collapse-sg-3" aria-expanded="false" aria-controls="collapse-sg-3">How do I get connected?</a>
+            </h4>
+        </div>
+        <div id="collapse-sg-3" class="panel-collapse collapse" role="tabpanel">
+            <div class="panel-body">Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit.</div>
+        </div>
+    </div>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'default', title:'Default', demo:demo %}

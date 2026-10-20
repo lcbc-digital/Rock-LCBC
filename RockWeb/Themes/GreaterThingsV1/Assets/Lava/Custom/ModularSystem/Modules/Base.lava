@@ -1,0 +1,248 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Base.lava', module:module %}
+    Description: Shared adapter for every V2 module. Reads the attributes declared on the Module V2
+                 content channel type, assembles the content and settings dictionaries the templates
+                 expect, then dispatches to the per-module file for this channel. Nothing here is
+                 specific to one module type, and it renders no markup of its own.
+
+    Parameters:
+        module - A content channel item from any Module V2 channel (type 70). (Required, ContentChannelItem)
+-/
+
+//- MARK: Display Window
+{% assign now = 'Now' | Date:'yyyy-MM-ddTHH:mm:sszzz' %}
+{% assign startDateTime = module.StartDateTime | Date:'yyyy-MM-ddTHH:mm:sszzz' %}
+{% assign expireDateTime = module.ExpireDateTime | Date:'yyyy-MM-ddTHH:mm:sszzz' %}
+
+{% assign showModule = true %}
+{% if startDateTime != blank and startDateTime > now %}
+    {% assign showModule = false %}
+{% endif %}
+{% if expireDateTime != blank and expireDateTime <= now %}
+    {% assign showModule = false %}
+{% endif %}
+
+//- MARK: Personalization
+{% assign segmentVisibility = module | Attribute:'SegmentVisibility','RawValue' %}
+
+{% if segmentVisibility != blank %}
+    {% assign moduleCollection = '' | Split:',' | AddToArray:module %}
+    {% assign moduleWithSegments = moduleCollection | AppendSegments | First %}
+
+    {% if segmentVisibility == 'One' %}
+        {% unless moduleWithSegments.IsInSegment %}
+            {% assign showModule = false %}
+        {% endunless %}
+    {% else %}
+        {% if moduleWithSegments.IsInSegment %}
+            {% assign showModule = false %}
+        {% endif %}
+    {% endif %}
+{% endif %}
+
+{% if showModule %}
+
+    //- MARK: Cache
+    //- Cache audience is Admin or User (not person id) so only the edit pencil differs by viewer.
+    //- Version stamp is ModifiedDateTime so saves invalidate immediately.
+    {% assign isRockAdmin = CurrentPerson | IsInSecurityRole:2 %}
+    {% assign moduleVersion = module.ModifiedDateTime | Date:'yyyyMMddHHmmss' %}
+
+    {% assign cacheAudience = 'User' %}
+    {% if isRockAdmin %}
+        {% assign cacheAudience = 'Admin' %}
+    {% endif %}
+
+    {% if module.ContentChannelId == 161 or module.ContentChannelId == 164 or module.ContentChannelId == 169 %}
+        {{ '~/Scripts/Rock/plyr.js' | AddScriptLink:true }}
+        {{ '~/Scripts/Rock/UI/mediaplayer/mediaplayer.js' | AddScriptLink:true }}
+    {% endif %}
+
+    {% if module.ContentChannelId == 168 %}
+        {{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/TextHighlight.js' | AddScriptLink:true }}
+    {% endif %}
+
+    {% if module.ContentChannelId == 171 %}
+        {{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/PosterAccordion.js' | AddScriptLink:true }}
+    {% endif %}
+
+    {% if module.ContentChannelId == 172 %}
+        {{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/Schedule.js' | AddScriptLink:true }}
+    {% endif %}
+
+    {% if module.ContentChannelId == 173 %}
+        {{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/TimedShowcase.js' | AddScriptLink:true }}
+    {% endif %}
+
+    {% if module.ContentChannelId == 176 %}
+        {{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/Metric.js' | AddScriptLink:true }}
+    {% endif %}
+
+    {% cache key:'module-{{ module.Id }}-{{ moduleVersion }}-{{ cacheAudience }}' duration:'86400' %}
+
+    //- MARK: Section Attributes
+    {% assign backgroundColor = module | Attribute:'BackgroundColor' %}
+    {% assign foregroundColor = module | Attribute:'ForegroundColor' %}
+    {% assign backgroundImage = module | Attribute:'BackgroundImage','RawValue' %}
+
+    {% assign verticalPadding = module | Attribute:'Padding' | Downcase %}
+
+    {% assign moduleSlug = '' %}
+    {% case module.ContentChannelId %}
+        {% when 161 %}{% assign moduleSlug = 'module-billboard' %}{% assign moduleTypeName = 'Billboard' %}
+        {% when 162 %}{% assign moduleSlug = 'module-cards' %}{% assign moduleTypeName = 'Cards' %}
+        {% when 163 %}{% assign moduleSlug = 'module-accordion' %}{% assign moduleTypeName = 'Accordion' %}
+        {% when 164 %}{% assign moduleSlug = 'module-side-by-side' %}{% assign moduleTypeName = 'Side By Side' %}
+        {% when 166 %}{% assign moduleSlug = 'module-html' %}{% assign moduleTypeName = 'HTML' %}
+        {% when 168 %}{% assign moduleSlug = 'module-text-highlight' %}{% assign moduleTypeName = 'Text Highlight' %}
+        {% when 169 %}{% assign moduleSlug = 'module-videos' %}{% assign moduleTypeName = 'Videos' %}
+        {% when 170 %}{% assign moduleSlug = 'module-pricing' %}{% assign moduleTypeName = 'Pricing' %}
+        {% when 171 %}{% assign moduleSlug = 'module-poster-accordion' %}{% assign moduleTypeName = 'Poster Accordion' %}
+        {% when 172 %}{% assign moduleSlug = 'module-schedule' %}{% assign moduleTypeName = 'Schedule' %}
+        {% when 173 %}{% assign moduleSlug = 'module-timed-showcase' %}{% assign moduleTypeName = 'Timed Showcase' %}
+        {% when 174 %}{% assign moduleSlug = 'module-roster' %}{% assign moduleTypeName = 'Roster' %}
+        {% when 176 %}{% assign moduleSlug = 'module-metric' %}{% assign moduleTypeName = 'Metric' %}
+        {% when 178 %}{% assign moduleSlug = 'module-banner-marquee' %}{% assign moduleTypeName = 'Banner Marquee' %}
+    {% endcase %}
+
+    {% assign moduleKey = module.ItemGlobalKey %}
+
+    //- MARK: Intro Attributes
+    {% assign introMatrix = module | Attribute:'IntroductoryContent','Object' %}
+    {% assign introRow = introMatrix.AttributeMatrixItems | First %}
+
+    {% assign kicker = introRow | Attribute:'Kicker' %}
+    {% assign heading = introRow | Attribute:'Heading' %}
+    {% assign description = introRow | Attribute:'Description' %}
+
+    {% assign introButtons = introRow | Attribute:'Buttons','Object' | ToJSON | FromJSON %}
+
+    {% assign headingSize = introRow | Attribute:'HeadingSize','RawValue' %}
+    {% assign contentAlignment = introRow | Attribute:'ContentAlignment','RawValue' %}
+
+    //- MARK: Advanced Attributes
+    {% assign sectionId = module | Attribute:'ModuleId' %}
+    {% assign sectionClasses = module | Attribute:'ModuleClasses' %}
+
+    //- MARK: Separator Attributes
+    /- Drawn below the module, on the join with whatever follows it. Living here rather than in a
+       sibling module is what lets the gradient's top color be this section's own background:
+       Templates/Separator.lava cannot read its neighbors, but this file already knows one of them.
+       Namespaced with a module prefix because Lava includes share scope: the per module template
+       runs between where these are built and where they are read, and a bare separatorType would
+       be fair game for it to reuse. -/
+    {% assign moduleSeparatorMatrix = module | Attribute:'Separator','Object' %}
+    {% assign moduleSeparatorRow = moduleSeparatorMatrix.AttributeMatrixItems | First %}
+
+    {% assign moduleSeparatorType = moduleSeparatorRow | Attribute:'SeparatorType','RawValue' %}
+    {% assign moduleSeparatorColor = moduleSeparatorRow | Attribute:'SeparatorColor' %}
+
+    {% assign moduleSeparatorHeight = moduleSeparatorRow | Attribute:'SeparatorHeight' %}
+    {% if moduleSeparatorHeight != blank %}
+        {% assign moduleSeparatorHeight = moduleSeparatorHeight | Append:'px' %}
+    {% endif %}
+
+    //- MARK: Derived Values
+    {% assign backgroundImageUrl = '' %}
+    {% if backgroundImage != blank %}
+        {% assign backgroundImageUrl = backgroundImage | ImageUrl %}
+        {% capture backgroundImageUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:backgroundImageUrl, cdnParams:'' %}{% endcapture %}
+        {% assign backgroundImageUrl = backgroundImageUrl | Trim %}
+    {% endif %}
+
+    //- MARK: Content
+    {% assign intro = ''
+        | AddToDictionary:'kicker',kicker
+        | AddToDictionary:'heading',heading
+        | AddToDictionary:'description',description
+        | AddToDictionary:'buttons',introButtons
+    %}
+
+    {% assign content = '' | AddToDictionary:'intro',intro %}
+
+    //- MARK: Separator Settings
+    /- One color field covers all three types. Ripped and fade take it directly; gradient reads it
+       as the color to fade TO and starts from this module's own background, which is blank when the
+       section uses an image -- the template already treats that as a one sided fade. -/
+    {% assign moduleSeparatorValues = ''
+        | AddToDictionary:'type',moduleSeparatorType
+        | AddToDictionary:'color',moduleSeparatorColor
+        | AddToDictionary:'height',moduleSeparatorHeight
+    %}
+
+    {% if moduleSeparatorType == 'gradient' %}
+        {% assign moduleSeparatorValues = moduleSeparatorValues
+            | AddToDictionary:'fromcolor',backgroundColor
+            | AddToDictionary:'tocolor',moduleSeparatorColor
+        %}
+    {% endif %}
+
+    {% assign moduleSeparatorSettings = '' | AddToDictionary:'separator',moduleSeparatorValues %}
+
+    //- MARK: Settings
+    {% assign colors = ''
+        | AddToDictionary:'background',backgroundColor
+        | AddToDictionary:'foreground',foregroundColor
+    %}
+
+    {% assign introSettings = ''
+        | AddToDictionary:'headingsize',headingSize
+        | AddToDictionary:'contentalignment',contentAlignment
+    %}
+
+    {% assign settings = ''
+        | AddToDictionary:'colors',colors
+        | AddToDictionary:'backgroundimage',backgroundImageUrl
+        | AddToDictionary:'verticalpadding',verticalPadding
+        | AddToDictionary:'intro',introSettings
+    %}
+
+    //- MARK: Markup
+    <div class="module {{ moduleSlug }}{% if sectionClasses != blank %} {{ sectionClasses }}{% endif %}"{% if moduleKey != blank %} data-module="{{ moduleKey }}"{% endif %}{% if sectionId != blank %} id="{{ sectionId }}"{% endif %}>
+        {% if isRockAdmin %}
+            <a href="/admin/cms/content-channels/items/{{ module.Id }}" target="_blank" rel="noopener" class="module-admin-edit" title="Edit: {{ module.Title }}">
+                <i class="ti ti-pencil" aria-hidden="true"></i>
+                <span>{{ moduleTypeName }}</span>
+            </a>
+        {% endif %}
+
+        {% case moduleSlug %}
+            {% when 'module-billboard' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Billboard.lava', module:module, content:content, settings:settings %}
+            {% when 'module-cards' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Cards.lava', module:module, content:content, settings:settings %}
+            {% when 'module-accordion' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Accordion.lava', module:module, content:content, settings:settings %}
+            {% when 'module-side-by-side' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/SideBySide.lava', module:module, content:content, settings:settings %}
+            {% when 'module-html' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Html.lava', module:module, content:content, settings:settings %}
+            {% when 'module-text-highlight' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/TextHighlight.lava', module:module, content:content, settings:settings %}
+            {% when 'module-banner-marquee' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/BannerMarquee.lava', module:module, content:content, settings:settings %}
+            {% when 'module-videos' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Videos.lava', module:module, content:content, settings:settings %}
+            {% when 'module-pricing' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Pricing.lava', module:module, content:content, settings:settings %}
+            {% when 'module-poster-accordion' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/PosterAccordion.lava', module:module, content:content, settings:settings %}
+            {% when 'module-schedule' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Schedule.lava', module:module, content:content, settings:settings %}
+            {% when 'module-timed-showcase' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/TimedShowcase.lava', module:module, content:content, settings:settings %}
+            {% when 'module-roster' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Roster.lava', module:module, content:content, settings:settings %}
+            {% when 'module-metric' %}
+                {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Metric.lava', module:module, content:content, settings:settings %}
+        {% endcase %}
+    </div>
+
+    /- Outside the module div on purpose. The separator is a zero height element whose shape hangs
+       half above the join, and .module is positioned, so drawing it inside would clip the overhang
+       and trap it in the module's stacking context. -/
+    {% if moduleSeparatorType != blank %}
+        {% include '~~/Assets/Lava/Custom/Templates/Separator.lava', settings:moduleSeparatorSettings %}
+    {% endif %}
+    {% endcache %}
+{% endif %}

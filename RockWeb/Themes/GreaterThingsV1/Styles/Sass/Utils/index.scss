@@ -1,0 +1,8 @@
+//- This file is used for styling utilities, mixins, etc.
+//- _variables and _mixins emit no CSS, so partials elsewhere can @use them
+//- directly without duplicating output.
+
+@forward "variables";
+@forward "mixins";
+@forward "print";
+@forward "utilities";

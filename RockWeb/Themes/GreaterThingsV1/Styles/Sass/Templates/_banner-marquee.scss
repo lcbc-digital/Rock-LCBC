@@ -1,0 +1,84 @@
+@use "../Utils/variables" as *;
+
+//- The strips are 130% wide and tilted, so their vertical spread is pageWidth * tan(rotation)
+//- and grows with the viewport. A fixed ceiling clips them, badly once zoomed out. The vw term is
+//- that spread with a little headroom over the default -3deg; raise it if the rotation steepens.
+$marquee-height: max(80px, calc(60px + 6vw));
+
+//- MARK: Theme Specific Styles
+.banner-marquee-template {
+    --marquee-rotation: -2deg;
+    --marquee-speed: 30s;
+    --marquee-offset: 0px;
+    --marquee-primary-background: var(--primary);
+    --marquee-light-background: var(--white);
+    --marquee-separator-color: var(--secondary);
+}
+
+//- MARK: Generic Styles
+@keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+//- The strips bleed sideways past the marquee, so the clip has to stay on the page width section.
+.template:has(.banner-marquee-template) {
+    --marquee-height: #{$marquee-height};
+
+    position: relative;
+    z-index: 10;
+    margin-top: calc(var(--marquee-height) * -0.5);
+    margin-bottom: calc(var(--marquee-height) * -0.5);
+}
+
+.banner-marquee-template {
+    position: relative;
+    height: var(--marquee-height, #{$marquee-height});
+
+    .marquee-strip {
+        position: absolute;
+        left: -15%;
+        width: 130%;
+        padding: 10px 0;
+        overflow: hidden;
+
+        &.strip-primary {
+            background-color: var(--marquee-primary-background, var(--primary));
+            top: calc(50% - var(--marquee-offset, 0px));
+            transform: translateY(-50%) rotate(var(--marquee-rotation, 0deg));
+            z-index: 2;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        &.strip-light {
+            background-color: var(--marquee-light-background, var(--white));
+            top: calc(50% + var(--marquee-offset, 0px));
+            transform: translateY(-50%) rotate(calc(-1 * var(--marquee-rotation, 0deg)));
+            z-index: 1;
+        }
+    }
+
+    .marquee-track {
+        display: flex;
+        width: max-content;
+        animation: marquee-scroll var(--marquee-speed, 30s) linear infinite;
+
+        &.reverse { animation-direction: reverse; }
+    }
+
+    .marquee-item {
+        white-space: nowrap;
+        margin-top: 0;
+        margin-bottom: -8px;
+
+        &::after {
+            content: '\2022';
+            color: var(--marquee-separator-color, currentColor);
+            margin-left: 8px;
+            margin-right: 8px;
+        }
+    }
+
+    .strip-primary .marquee-item { color: var(--white); }
+    .strip-light   .marquee-item { color: var(--black); }
+}
