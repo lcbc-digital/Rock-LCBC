@@ -1,0 +1,227 @@
+/-
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/Global/Header.lava' %}
+
+    Nothing here is defaulted except the home link. Anything the caller leaves out is left out of the
+    markup rather than rendered pointing at nothing, matching Global/Footer.lava.
+
+    Parameters:
+        logoalttext - Alternative text for the logo. (Optional, Text. Defaults to the organization name)
+
+    The logo links to the GreaterThingsHeaderLogoUrl global attribute, or / when it is blank.
+-/
+//- MARK: Settings
+{% assign siteLogoUrl = CurrentPage.Layout.Site.SiteLogoBinaryFileId | ImageUrl %}
+{% capture siteLogoUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:siteLogoUrl, cdnParams:'' %}{% endcapture %}
+{% assign siteLogoUrl = siteLogoUrl | Trim %}
+{% assign currentPagePath = 'Global' | Page:'Path' %}
+
+{% assign organizationName = 'Global' | Attribute:'OrganizationName' %}
+{% assign logoAltText = logoalttext | Default:organizationName %}
+{% assign homeLinkUrl = 'Global' | Attribute:'GreaterThingsHeaderLogoUrl','RawValue' | Default:'/' %}
+
+{% assign ctaText = 'Global' | Attribute:'GreaterThingsHeaderText' %}
+{% assign ctaUrl = 'Global' | Attribute:'GreaterThingsHeaderButtonUrl','RawValue' %}
+
+/- The CTA renders through ButtonGroup in all three places below, so it is built here once into the
+   shape that partial takes. ButtonGroup does the tracking, which is why context is set: outside a
+   module there is nothing for it to read a place from, and the button would report nameless.
+
+   Only the CTA is tracked. Tagging the navigation links too would file every visit through the menu
+   as a button press. -/
+{% assign ctaButtons = '' %}
+{% if ctaUrl != blank and ctaText != blank %}
+    {% assign ctaButton = ''
+        | AddToDictionary:'Key',ctaUrl
+        | AddToDictionary:'Value',ctaText
+    %}
+    {% assign ctaButtons = '' | AddToArray:ctaButton %}
+{% endif %}
+{% assign navLinkClass = 'btn btn-ghost btn-sm text-uppercase' %}
+{% assign drawerMedia = '(max-width: 1199px)' %}
+{% assign drawerCascadeDuration = 620 %}
+{% assign drawerCascadeStagger = 100 %}
+{% assign drawerCascadeDistance = 12 %}
+
+//- MARK: Markup
+<header id="SiteHeader">
+    <div class="container container-lg">
+
+        //- DESKTOP
+        <div class="desktop-header d-none d-lg-flex" tt-cascade="fade-down" tt-cascade-stagger="90" tt-cascade-duration="500" tt-cascade-duration-increment="0" tt-cascade-distance="30" tt-cascade-media="(min-width: 1200px)">
+            <a href="{{ homeLinkUrl }}" class="btn btn-ghost btn-sm no-grow site-logo-link" tt-cascade-item>
+                <img src="{{ siteLogoUrl }}" alt="{{ logoAltText }}" class="site-logo-image">
+            </a>
+
+            <ul class="nav nav-pills">
+                {% for childPage in Page.Pages %}
+                    {% assign grandChildCount = childPage.Pages | Size %}
+                    {% assign itemClass = '' %}
+
+                    {% if childPage.DisplayChildPages and grandChildCount > 0 %}
+                        {% if childPage.Current or childPage.IsParentOfCurrent %}
+                            {% assign itemClass = 'dropdown active' %}
+                        {% else %}
+                            {% assign itemClass = 'dropdown' %}
+                        {% endif %}
+
+                        <li class="{{ itemClass }}" tt-cascade-item>
+                            <a href="{{ childPage.Url }}" class="{{ navLinkClass }} dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ childPage.Title }}</a>
+
+                            <ul class="dropdown-menu nav nav-pills nav-stacked">
+                                {% for grandChildPage in childPage.Pages %}
+                                    {% if grandChildPage.Current %}
+                                        {% assign grandChildClass = 'active' %}
+                                    {% else %}
+                                        {% assign grandChildClass = '' %}
+                                    {% endif %}
+
+                                    <li class="{{ grandChildClass }}">
+                                        <a href="{{ grandChildPage.Url }}" class="text-uppercase">{{ grandChildPage.Title }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    {% else %}
+                        {% if childPage.Current %}
+                            {% assign itemClass = 'active' %}
+                        {% endif %}
+
+                        <li class="{{ itemClass }}" tt-cascade-item>
+                            <a href="{{ childPage.Url }}" class="{{ navLinkClass }}">{{ childPage.Title }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                {% for includedPage in IncludePageList %}
+                    {% assign includedPageParts = includedPage | PropertyToKeyValue %}
+
+                    {% if currentPagePath == includedPageParts.Value %}
+                        {% assign itemClass = 'active' %}
+                    {% else %}
+                        {% assign itemClass = '' %}
+                    {% endif %}
+
+                    <li class="{{ itemClass }}" tt-cascade-item>
+                        <a href="{{ includedPageParts.Value }}" class="{{ navLinkClass }}">{{ includedPageParts.Key }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+
+            {% if ctaButtons != empty %}
+                {% include '~~/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:ctaButtons, styles:'btn-primary text-uppercase header-cta', direction:'row', context:'header', wrapperattributes:'tt-cascade-item' %}
+            {% else %}
+                <div class="header-cta" aria-hidden="true"></div>
+            {% endif %}
+        </div>
+
+        //- MOBILE
+        <div class="mobile-header d-flex d-lg-none" tt-cascade="fade-down" tt-cascade-stagger="90" tt-cascade-duration="500" tt-cascade-duration-increment="0" tt-cascade-distance="30" tt-cascade-media="(max-width: 1199px)">
+            <a href="{{ homeLinkUrl }}" class="btn btn-ghost btn-sm no-grow site-logo-link" tt-cascade-item>
+                <img src="{{ siteLogoUrl }}" alt="{{ logoAltText }}" class="site-logo-image">
+            </a>
+
+            <div class="d-flex flex-row gap-2">
+                {% if ctaButtons != empty %}
+                    {% include '~~/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:ctaButtons, styles:'btn-primary btn-sm text-uppercase header-cta', direction:'row', context:'header', wrapperattributes:'tt-cascade-item' %}
+                {% else %}
+                    <div class="header-cta" aria-hidden="true"></div>
+                {% endif %}
+                <button type="button" class="btn btn-ghost btn-icon js-site-header-toggle" tt-cascade-item aria-expanded="false" aria-controls="site-header-drawer" aria-label="Open menu">
+                    <span class="site-header-toggle-icons">
+                        <i class="ti ti-menu" aria-hidden="true"></i>
+                        <i class="ti ti-x" aria-hidden="true"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    //- MOBILE DRAWER
+    <div id="site-header-drawer" class="site-header-drawer" hidden>
+        <div class="site-header-drawer-scroll">
+        <div class="site-header-drawer-panel js-site-header-drawer-panel is-active" id="drawer-panel-main">
+            <ul class="site-header-drawer-links nav nav-stacked" tt-cascade="fade-up" tt-cascade-manual tt-cascade-stagger="{{ drawerCascadeStagger }}" tt-cascade-duration="{{ drawerCascadeDuration }}" tt-cascade-duration-increment="0" tt-cascade-distance="{{ drawerCascadeDistance }}" tt-cascade-media="{{ drawerMedia }}">
+                {% for childPage in Page.Pages %}
+                    {% assign grandChildCount = childPage.Pages | Size %}
+
+                    {% if childPage.Current or childPage.IsParentOfCurrent %}
+                        {% assign itemClass = 'active' %}
+                    {% else %}
+                        {% assign itemClass = '' %}
+                    {% endif %}
+
+                    <li class="{{ itemClass }}" tt-cascade-item>
+                        {% if childPage.DisplayChildPages and grandChildCount > 0 %}
+                            <button type="button" class="js-sub-trigger" data-target="drawer-panel-{{ forloop.index }}">
+                                <span>{{ childPage.Title }}</span>
+                                <i class="ti ti-arrow-narrow-right" aria-hidden="true"></i>
+                            </button>
+                        {% else %}
+                            <a href="{{ childPage.Url }}">
+                                <span>{{ childPage.Title }}</span>
+                            </a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+
+                {% for includedPage in IncludePageList %}
+                    {% assign includedPageParts = includedPage | PropertyToKeyValue %}
+
+                    {% if currentPagePath == includedPageParts.Value %}
+                        {% assign itemClass = 'active' %}
+                    {% else %}
+                        {% assign itemClass = '' %}
+                    {% endif %}
+
+                    <li class="{{ itemClass }}" tt-cascade-item>
+                        <a href="{{ includedPageParts.Value }}">
+                            <span>{{ includedPageParts.Key }}</span>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        {% for childPage in Page.Pages %}
+            {% assign grandChildCount = childPage.Pages | Size %}
+
+            {% if childPage.DisplayChildPages and grandChildCount > 0 %}
+                <div class="site-header-drawer-panel js-site-header-drawer-panel" id="drawer-panel-{{ forloop.index }}">
+                    <div class="site-header-drawer-back">
+                        <button type="button" class="site-header-drawer-back-btn js-site-header-drawer-back-btn">
+                            <i class="ti ti-arrow-narrow-left" aria-hidden="true"></i>
+                            <span>Back</span>
+                        </button>
+                    </div>
+
+                    <p class="site-header-drawer-sub-heading">{{ childPage.Title }}</p>
+
+                    <ul class="site-header-drawer-links nav nav-stacked" tt-cascade="fade-up" tt-cascade-manual tt-cascade-stagger="{{ drawerCascadeStagger }}" tt-cascade-duration="{{ drawerCascadeDuration }}" tt-cascade-duration-increment="0" tt-cascade-distance="{{ drawerCascadeDistance }}" tt-cascade-media="{{ drawerMedia }}">
+                        {% for grandChildPage in childPage.Pages %}
+                            {% if grandChildPage.Current %}
+                                {% assign grandChildClass = 'active' %}
+                            {% else %}
+                                {% assign grandChildClass = '' %}
+                            {% endif %}
+
+                            <li class="{{ grandChildClass }}" tt-cascade-item>
+                                <a href="{{ grandChildPage.Url }}">
+                                    <span>{{ grandChildPage.Title }}</span>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+
+        <div class="site-header-drawer-actions">
+            {% if ctaButtons != empty %}
+                {% include '~~/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:ctaButtons, styles:'btn-primary text-uppercase header-cta', direction:'row', context:'header', wrapperattributes:'' %}
+            {% else %}
+                <div class="header-cta" aria-hidden="true"></div>
+            {% endif %}
+        </div>
+    </div>
+</header>

@@ -1,0 +1,168 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+#SiteFooter {
+    display: flex;
+    flex-direction: column;
+
+    .footer-marquee {
+        display: none;
+
+        @media (min-width: $screen-md-min) {
+            display: block;
+            overflow: hidden;
+            padding-top: 48px;
+            padding-bottom: 32px;
+        }
+
+        .marquee-track {
+            display: flex;
+            width: 320%;
+            animation: marquee-scroll var(--footer-marquee-speed, 96s) linear infinite;
+
+            @media (prefers-reduced-motion: reduce) {
+                animation: none;
+                width: 100%;
+            }
+        }
+
+        .large-text-image {
+            box-sizing: border-box;
+            flex: 0 0 25%;
+            width: 25%;
+            height: auto;
+            margin-bottom: 0;
+            padding-right: 64px;
+
+            @media (prefers-reduced-motion: reduce) {
+                flex-basis: 100%;
+                width: 100%;
+                padding-right: 0;
+
+                & ~ .large-text-image { display: none; }
+            }
+        }
+    }
+
+    .footer-marquee + .container-fluid {
+        @media (min-width: $screen-md-min) {
+            padding-top: 0;
+        }
+    }
+
+    .large-text {
+        display: block;
+
+        .large-text-image {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin-bottom: 32px;
+        }
+
+        .mobile {
+            max-width: 420px;
+            margin-left: auto;
+            margin-right: auto;
+
+            @media (min-width: $screen-md-min) {
+                display: none;
+            }
+        }
+    }
+
+    .footer-action-items {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 32px;
+
+        @media (min-width: $screen-md-min) {
+            flex-direction: row-reverse;
+            justify-content: space-between;
+            gap: 0;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+
+            @media (min-width: $screen-md-min) {
+                flex-direction: row;
+            }
+
+            .site-icon-link {
+                max-width: 120px;
+                max-height: 60px;
+                padding: 2px;
+                --button-ghost-background-color: transparent;
+                --button-ghost-background-color-active: transparent;
+                --button-ghost-outline-color: transparent;
+                --button-ghost-outline-color-active: transparent;
+
+                @media (min-width: $screen-md-min) {
+                    max-width: 140px;
+                    max-height: 70px;
+                }
+
+                img {
+                    width: 100%;
+                    content: var(--logo-image);
+                }
+            }
+
+            .footer-social-links {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: center;
+                gap: 12px;
+
+                //- SocialLinks.lava carries gap-2 on its own row, which would tighten these to
+                //- 8px now that it sits inside this one.
+                .social-links {
+                    gap: 12px;
+                }
+
+                .btn-primary {
+                    --button-icon-border-radius: 0px;
+                    --button-primary-text-color: var(--secondary);
+                    --button-primary-text-color-active: var(--secondary);
+                    --button-primary-background-color: var(--ui-softest);
+                    --button-primary-background-color-active: color-mix(in srgb, var(--neutral-2) 15%, var(--ui-softest) 85%);
+                }
+            }
+        }
+    }
+
+    .footer-legal-links {
+        margin-top: 36px;
+
+        @media (min-width: $screen-md-min) {
+            margin-top: 64px;
+        }
+
+        p {
+            color: var(--ui-softest);
+            text-align: center;
+
+            @media (min-width: $screen-md-min) {
+                text-align: left;
+            }
+        }
+
+        a {
+            color: var(--primary);
+            text-decoration: underline;
+
+            &:hover, &:focus {
+                color: var(--color-primary-shade);
+            }
+        }
+    }
+
+}

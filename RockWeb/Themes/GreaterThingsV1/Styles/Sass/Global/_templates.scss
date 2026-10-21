@@ -1,0 +1,74 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Generic Styles
+.template {
+    background-color: var(--template-background-color, transparent);
+    background-image:
+        var(--gradient-top-overlay, none),
+        var(--gradient-bottom-overlay, none),
+        linear-gradient(var(--template-background-wash, transparent), var(--template-background-wash, transparent)),
+        var(--template-background-image, none);
+    background-repeat: var(--template-background-repeat, no-repeat);
+    background-position: var(--template-background-position, center);
+    background-size: var(--template-background-size, cover);
+
+    padding-top: var(--template-padding-y, 0px);
+    padding-bottom: var(--template-padding-y, 0px);
+
+    overflow: hidden;
+}
+
+$gradient-color-tokens:
+    'white', 'black',
+    'neutral-1', 'neutral-2',
+    'ui-softest', 'ui-softer', 'ui-soft', 'ui-medium', 'ui-strong', 'ui-stronger', 'ui-strongest',
+    'primary', 'primary-soft', 'primary-softer', 'primary-softest',
+    'secondary', 'secondary-soft', 'secondary-softer', 'secondary-softest';
+
+@each $token in $gradient-color-tokens {
+    .gradient-#{$token} { --gradient-color: var(--#{$token}); }
+}
+
+$gradient-heights: (sm: 80px, md: 200px, lg: 400px, xl: 600px);
+
+@each $name, $size in $gradient-heights {
+    .gradient-#{$name} { --gradient-height: #{$size}; }
+}
+
+.gradient-top .template,
+.gradient-top.template {
+    --gradient-top-overlay: linear-gradient(
+        to bottom,
+        var(--gradient-color, transparent) 0%,
+        transparent var(--gradient-height, 200px)
+    );
+}
+
+.gradient-bottom .template,
+.gradient-bottom.template {
+    --gradient-bottom-overlay: linear-gradient(
+        to top,
+        var(--gradient-color, transparent) 0%,
+        transparent var(--gradient-height, 200px)
+    );
+}
+
+//- MARK: Theme Specific Styles
+.gradient-top,
+.gradient-bottom {
+    --gradient-color: var(--neutral-2);
+    --gradient-height: 400px;
+}
+
+$template-padding-mobile: (none: 0px, small: 32px, medium: 64px, large: 96px);
+$template-padding-desktop: (none: 0px, small: 64px, medium: 128px, large: 160px);
+
+@each $name, $size in $template-padding-mobile {
+    .template-padding-#{$name} { --template-padding-y: #{$size}; }
+}
+
+@media (min-width: $screen-md-min) {
+    @each $name, $size in $template-padding-desktop {
+        .template-padding-#{$name} { --template-padding-y: #{$size}; }
+    }
+}

@@ -1,0 +1,12 @@
+﻿{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Full Width', description:'Not documented yet.' %}
+
+
+/-
+    Add an example by capturing the markup and handing it to the Example
+    partial -- it renders the demo and the escaped source for you.
+
+    {% capture demo %}
+    <div class="example">...</div>
+    {% endcapture %}
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'default', title:'Default', demo:demo %}
+-/

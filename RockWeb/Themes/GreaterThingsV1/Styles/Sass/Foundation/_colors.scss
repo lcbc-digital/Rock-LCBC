@@ -1,0 +1,227 @@
+@use "sass:map";
+@use "sass:math";
+@use "sass:color";
+
+$white: #ffffff;
+$black: #000000;
+
+$primary-strongest: #1a0e02;
+$primary-stronger:  #663606;
+$primary-strong:    #b35e0b;
+$primary:           #ff8610;
+$primary-soft:      #ffaa57;
+$primary-softer:    #ffcf9f;
+$primary-softest:   #fff3e7;
+
+$secondary-strongest: #090200;
+$secondary-stronger:  #250a01;
+$secondary-strong:    #411102;
+$secondary:           #5c1803;
+$secondary-soft:      #8d5d4e;
+$secondary-softer:    #bea39a;
+$secondary-softest:   #eee7e5;
+
+$ui-strongest: #332414;
+$ui-stronger:  #736150;
+$ui-strong:    #a89787;
+$ui-medium:    #cdbfb1;
+$ui-soft:      #f2e6da;
+$ui-softer:    #faf7f5;
+$ui-softest:   #ffffff;
+
+$info:            #008cd0;
+$info-softest:    #edf7fc;
+$success:         #689f38;
+$success-softest: #fafbee;
+$warning:         #ffaa57;
+$warning-softest: #fff6ee;
+$danger:          #8d4e4e;
+$danger-softest:  #f3eded;
+
+$sunfire:     #ff8610;
+$calgar-blue: #008cd0;
+$pale-ocean:  #3d5560;
+$lime:        #b3cc0d;
+$dusk-sea:    #395345;
+$neutral-1:   #f0efe4;
+$neutral-2:   #141314;
+
+$link:     $calgar-blue;
+$critical: $danger;
+
+$brand: (
+    "sunfire":     $sunfire,
+    "calgar-blue": $calgar-blue,
+    "pale-ocean":  $pale-ocean,
+    "lime":        $lime,
+    "dusk-sea":    $dusk-sea,
+    "neutral-1":   $neutral-1,
+    "neutral-2":   $neutral-2,
+);
+
+$ramps: (
+    primary: (
+        strongest: $primary-strongest,
+        stronger:  $primary-stronger,
+        strong:    $primary-strong,
+        base:      $primary,
+        soft:      $primary-soft,
+        softer:    $primary-softer,
+        softest:   $primary-softest,
+    ),
+    secondary: (
+        strongest: $secondary-strongest,
+        stronger:  $secondary-stronger,
+        strong:    $secondary-strong,
+        base:      $secondary,
+        soft:      $secondary-soft,
+        softer:    $secondary-softer,
+        softest:   $secondary-softest,
+    ),
+    ui: (
+        strongest: $ui-strongest,
+        stronger:  $ui-stronger,
+        strong:    $ui-strong,
+        medium:    $ui-medium,
+        soft:      $ui-soft,
+        softer:    $ui-softer,
+        softest:   $ui-softest,
+    ),
+);
+
+$system: (
+    info:            $info,
+    info-softest:    $info-softest,
+    success:         $success,
+    success-softest: $success-softest,
+    warning:         $warning,
+    warning-softest: $warning-softest,
+    danger:          $danger,
+    danger-softest:  $danger-softest,
+);
+
+$base-tokens: (
+    primary:             $primary,
+    secondary:           $secondary,
+    link:                $link,
+    critical:            $critical,
+    danger:              $danger,
+    info:                $info,
+    success:             $success,
+    warning:             $warning,
+    interface-strongest: $ui-strongest,
+    interface-stronger:  $ui-stronger,
+    interface-strong:    $ui-strong,
+    interface-medium:    $ui-medium,
+    interface-soft:      $ui-soft,
+    interface-softer:    $ui-softer,
+    interface-softest:   $ui-softest,
+);
+
+@function -channel-luminance($value) {
+    $v: math.div($value, 255);
+
+    @if $v <= 0.03928 {
+        @return math.div($v, 12.92);
+    }
+
+    @return math.pow(math.div($v + 0.055, 1.055), 2.4);
+}
+
+@function luminance($color) {
+    $r: -channel-luminance(color.channel($color, "red", $space: rgb));
+    $g: -channel-luminance(color.channel($color, "green", $space: rgb));
+    $b: -channel-luminance(color.channel($color, "blue", $space: rgb));
+
+    @return 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
+}
+
+@function on-color($color) {
+    @if luminance($color) > 0.18 {
+        @return $ui-strongest;
+    }
+
+    @return $ui-softest;
+}
+
+@function -token($name, $step) {
+    @if $step == base {
+        @return $name;
+    }
+
+    @return "#{$name}-#{$step}";
+}
+
+@mixin color-utilities($name, $color) {
+    .text-#{$name} {
+        color: $color !important;
+    }
+
+    .bg-#{$name} {
+        background-color: $color !important;
+        color: on-color($color);
+    }
+
+    .border-#{$name} {
+        border-color: $color !important;
+    }
+}
+
+:root {
+    --white: #{$white};
+    --black: #{$black};
+
+    @each $name, $color in $base-tokens {
+        --base-#{$name}: #{$color};
+    }
+
+    @each $name, $steps in $ramps {
+        @each $step, $color in $steps {
+            --#{-token($name, $step)}: #{$color};
+        }
+    }
+
+    @each $name, $color in $system {
+        --#{$name}: #{$color};
+    }
+
+    @each $name, $color in $brand {
+        --#{$name}: #{$color};
+    }
+
+    --color-info-soft:       #{$info-softest};
+    --color-info-softest:    #{$info-softest};
+    --color-success-soft:    #{$success-softest};
+    --color-success-softest: #{$success-softest};
+    --color-warning-soft:    #{$warning-softest};
+    --color-warning-softest: #{$warning-softest};
+    --color-danger-soft:     #{$danger-softest};
+    --color-danger-softest:  #{$danger-softest};
+}
+
+@each $name, $steps in $ramps {
+    @each $step, $color in $steps {
+        @include color-utilities(-token($name, $step), $color);
+    }
+}
+
+@each $name, $color in $system {
+    @include color-utilities($name, $color);
+}
+
+@each $name, $color in $brand {
+    @include color-utilities($name, $color);
+}
+
+.text-color-inherit {
+    color: inherit !important;
+}
+
+.bg-transparent {
+    background-color: transparent !important;
+    color: inherit;
+}
+
+.border-transparent {
+    border-color: transparent !important;
+}

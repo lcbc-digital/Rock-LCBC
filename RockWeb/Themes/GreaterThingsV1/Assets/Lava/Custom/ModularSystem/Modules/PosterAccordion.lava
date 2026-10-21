@@ -1,0 +1,46 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/PosterAccordion.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - Poster Accordion channel. Turns the Posters attribute matrix
+                 into the array of poster dictionaries the template expects, then renders the template.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: Posters
+{% assign posterRows = module | Attribute:'Posters','Object' | Property:'AttributeMatrixItems' | OrderBy:'Order' %}
+
+{% assign posterList = '' %}
+{% for row in posterRows %}
+    {% assign rowImage = row | Attribute:'Image','Url' %}
+    {% capture rowImage %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:rowImage, cdnParams:'' %}{% endcapture %}
+    {% assign rowImage = rowImage | Trim %}
+
+    {% if rowImage != blank %}
+        {% assign rowTitle = row | Attribute:'Title' %}
+        {% assign rowSubtitle = row | Attribute:'Subtitle' %}
+        {% assign rowActiveTitle = row | Attribute:'ActiveTitle' %}
+        {% assign rowActiveContent = row | Attribute:'ActiveContent' %}
+
+        //- See ButtonGroup.lava for why the JSON round trip is required on a key value list.
+        {% assign rowButtons = row | Attribute:'Buttons','Object' | ToJSON | FromJSON %}
+
+        {% assign poster = ''
+            | AddToDictionary:'image',rowImage
+            | AddToDictionary:'title',rowTitle
+            | AddToDictionary:'subtitle',rowSubtitle
+            | AddToDictionary:'activetitle',rowActiveTitle
+            | AddToDictionary:'activecontent',rowActiveContent
+            | AddToDictionary:'buttons',rowButtons
+        %}
+
+        {% assign posterList = posterList | AddToArray:poster %}
+    {% endif %}
+{% endfor %}
+
+{% assign content = content | AddToDictionary:'posters',posterList %}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/PosterAccordion.lava', content:content, settings:settings %}

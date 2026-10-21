@@ -1,0 +1,89 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Generic Styles
+.notification-banner {
+    cursor: pointer;
+    background-image: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.06) 50%, transparent 60%);
+    background-size: 250% 100%;
+    background-repeat: no-repeat;
+    background-position-x: 200%;
+
+    .notification-banner-inner {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .notification-banner-slides {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .notification-banner-slide {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        column-gap: 0.75rem;
+        row-gap: 0.25rem;
+        padding: 0.5rem 0;
+
+        &[hidden] {
+            display: none !important;
+        }
+
+        .services-text span {
+            color: var(--ui-medium);
+        }
+    }
+
+    .notification-banner-title {
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    .live-countdown {
+        font-size: 1rem;
+    }
+
+    .notification-banner-close {
+        padding: 4px;
+        background: none;
+        border: none;
+        color: inherit;
+        line-height: 1;
+        transition: background-color 150ms ease;
+        flex-shrink: 0;
+
+        &:hover,
+        &:focus-visible {
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+    }
+
+    @media (max-width: $screen-xs-max) {
+        position: relative;
+
+        .container {
+            padding-right: 24px;
+        }
+
+        .notification-banner-slide {
+            justify-content: center;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+
+        .live-countdown {
+            font-size: 0.875rem;
+        }
+
+        .notification-banner-close {
+            position: absolute;
+            top: 6px;
+            right: 4px;
+            font-size: 0.875rem;
+        }
+    }
+}

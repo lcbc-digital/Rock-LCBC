@@ -1,0 +1,32 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Base.lava', item:pageItem %}
+    Description: Renders a Modular Page V2 item by walking its child module associations in order and
+                 handing each one to the module base. Holds no presentation of its own.
+
+    Parameters:
+        item - A content channel item from a Modular Page V2 channel (type 69). (Required, ContentChannelItem)
+-/
+
+//- MARK: Modules
+{% if item != blank %}
+    {% assign pageModuleItems = item.ChildItems | OrderBy:'Order' %}
+    {% assign pageModuleIds = pageModuleItems | Select:'ChildContentChannelItemId' | Join:',' %}
+
+    //- MARK: Markup
+    <div class="modular-page">
+        {% if pageModuleIds != empty %}
+            {% contentchannelitem ids:'{{ pageModuleIds }}' iterator:'Modules' securityenabled:'false' status:'all' disableattributeprefetch:'false' %}
+                //- The entity command returns its own order, so the render loop walks the
+                //- associations and looks each module up by id to keep the order an editor set.
+                {% for pageModuleItem in pageModuleItems %}
+                    {% assign pageModuleId = pageModuleItem.ChildContentChannelItemId %}
+                    {% assign module = Modules | Where:'Id',pageModuleId | First %}
+
+                    {% if module != blank %}
+                        {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Base.lava', module:module %}
+                    {% endif %}
+                {% endfor %}
+            {% endcontentchannelitem %}
+        {% endif %}
+    </div>
+{% endif %}

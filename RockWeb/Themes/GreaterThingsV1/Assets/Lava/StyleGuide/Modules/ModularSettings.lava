@@ -1,0 +1,289 @@
+/-
+    Settings shared by every module: intro content, colors, background image, and vertical
+    padding. These come through the base module adapter and apply regardless of which module
+    type is rendering.
+
+    Parameters:
+        variant - Which example to draw. Already validated by Base.lava. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign button1 = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','Get Started' %}
+{% assign button2 = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','Learn More' %}
+{% assign buttons = '' | AddToArray:button1 | AddToArray:button2 %}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','Are You Ready?'
+    | AddToDictionary:'heading','Make Your **Commitment** Today'
+    | AddToDictionary:'description','The local church is the hope of the world. These settings shape how every module presents its introductory content and its section.'
+    | AddToDictionary:'buttons',buttons
+%}
+
+{% assign content = '' | AddToDictionary:'intro',intro %}
+
+//- MARK: Settings
+{% case variant %}
+    {% when 'center' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'contentalignment','center'
+            | AddToDictionary:'headingsize','display-1'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'verticalpadding','medium'
+        %}
+
+    {% when 'end' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'contentalignment','end'
+            | AddToDictionary:'headingsize','h1'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'verticalpadding','medium'
+        %}
+
+    {% when 'split' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'contentalignment','split'
+            | AddToDictionary:'headingsize','h2'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'verticalpadding','medium'
+        %}
+
+    {% when 'colors' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'contentalignment','center'
+            | AddToDictionary:'headingsize','display-1'
+        %}
+        {% assign colors = ''
+            | AddToDictionary:'background','#141314'
+            | AddToDictionary:'foreground','#f0efe4'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'verticalpadding','medium'
+        %}
+
+    {% when 'background' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'contentalignment','center'
+            | AddToDictionary:'headingsize','display-1'
+        %}
+        {% assign colors = ''
+            | AddToDictionary:'background','#141314'
+            | AddToDictionary:'foreground','#f0efe4'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'backgroundimage',sampleImage169
+            | AddToDictionary:'verticalpadding','large'
+        %}
+
+    {% when 'padding' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'contentalignment','center'
+            | AddToDictionary:'headingsize','h2'
+        %}
+        {% assign settings = '' | AddToDictionary:'intro',introSettings %}
+
+    {% when 'separator' %}
+        {% assign introSettings = ''
+            | AddToDictionary:'contentalignment','center'
+            | AddToDictionary:'headingsize','h2'
+        %}
+        {% assign settings = '' | AddToDictionary:'intro',introSettings %}
+
+    {% else %}
+        {% assign introSettings = ''
+            | AddToDictionary:'contentalignment','start'
+            | AddToDictionary:'headingsize','h2'
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'verticalpadding','medium'
+        %}
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Modular Settings', description:'Settings shared by every module — intro content, colors, background image, and vertical padding.' %}
+</div>
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% capture sectionStyles %}
+    {{ templateStyles }}
+    {% if settings.backgroundimage != blank %}background-image: url('{{ settings.backgroundimage }}'); background-size: cover; background-position: center;{% endif %}
+{% endcapture %}
+{% assign sectionStyles = sectionStyles | Trim %}
+
+{% if variant == 'padding' %}
+
+    {% capture rows %}
+        <tr>
+            <th scope="row">Vertical padding</th>
+            <td>none, small, medium, large &middot; shown stacked below with context sections</td>
+        </tr>
+    {% endcapture %}
+    {% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+    {% assign paddingSizes = 'none,small,medium,large' | Split:',' %}
+    {% for size in paddingSizes %}
+        {% assign paddingIntro = ''
+            | AddToDictionary:'kicker',size
+            | AddToDictionary:'heading','Make Your **Commitment** Today'
+            | AddToDictionary:'description','The local church is the hope of the world. These settings shape how every module presents its introductory content and its section.'
+            | AddToDictionary:'buttons',buttons
+        %}
+        {% assign paddingContent = '' | AddToDictionary:'intro',paddingIntro %}
+        <div style="background: var(--color-interface-soft); height: 80px;"></div>
+        <section class="template template-padding-{{ size }}">
+            <div class="container">
+                {% include '~~/Assets/Lava/Custom/Common/IntroContent.lava', content:paddingContent, settings:settings.intro %}
+            </div>
+        </section>
+        <div style="background: var(--color-interface-soft); height: 80px;"></div>
+    {% endfor %}
+
+{% elsif variant == 'separator' %}
+
+    {% capture rows %}
+        <tr>
+            <th scope="row">Type</th>
+            <td>ripped, gradient, fade &middot; each shown below straddling a dark to pale join</td>
+        </tr>
+        <tr>
+            <th scope="row">Color</th>
+            <td>ripped and fade &middot; the color of the tear, or the color that peaks on the join</td>
+        </tr>
+        <tr>
+            <th scope="row">From / to color</th>
+            <td>gradient only &middot; the background of the section above, then of the one below</td>
+        </tr>
+        <tr>
+            <th scope="row">Height</th>
+            <td>gradient and fade &middot; how tall the fade is, half either side of the join &middot; defaults to 120px</td>
+        </tr>
+    {% endcapture %}
+    {% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+    /-
+        A separator takes no height of its own and paints over both of its neighbors, so it only
+        reads as anything on a real boundary. Each type below therefore gets a pair of sections
+        with a genuine color change between them rather than a sample on its own.
+    -/
+    {% assign separatorAbove = '#141314' %}
+    {% assign separatorBelow = '#f0efe4' %}
+
+    {% assign separatorTypes = 'ripped,gradient,fade' | Split:',' %}
+    {% for separatorType in separatorTypes %}
+
+        {% assign separatorValues = '' | AddToDictionary:'type',separatorType %}
+
+        {% case separatorType %}
+            {% when 'ripped' %}
+                //- The tear is the section below showing through, so it takes that background.
+                {% assign separatorValues = separatorValues | AddToDictionary:'color',separatorBelow %}
+                {% assign separatorBlurb = 'A torn paper edge. The section below appears to tear into the one above.' %}
+
+            {% when 'gradient' %}
+                {% assign separatorValues = separatorValues
+                    | AddToDictionary:'fromcolor',separatorAbove
+                    | AddToDictionary:'tocolor',separatorBelow
+                %}
+                {% assign separatorBlurb = 'A vertical fade from one section&rsquo;s color into the other&rsquo;s.' %}
+
+            {% when 'fade' %}
+                //- Named neither neighbor: fade peaks on the join and falls away into both.
+                {% assign separatorValues = separatorValues | AddToDictionary:'color','var(--primary)' %}
+                {% assign separatorBlurb = 'One color at full strength on the join, falling away to nothing in both directions.' %}
+        {% endcase %}
+
+        {% assign separatorDemoSettings = '' | AddToDictionary:'separator',separatorValues %}
+
+        <section class="template template-padding-medium" style="--template-background-color: {{ separatorAbove }}; --template-foreground-color: {{ separatorBelow }};">
+            <div class="container">
+                <p class="label m-0" style="color: {{ separatorBelow }};">{{ separatorType }}</p>
+            </div>
+        </section>
+
+        {% include '~~/Assets/Lava/Custom/Templates/Separator.lava', settings:separatorDemoSettings %}
+
+        <section class="template template-padding-medium" style="--template-background-color: {{ separatorBelow }}; --template-foreground-color: {{ separatorAbove }};">
+            <div class="container">
+                <p class="m-0" style="color: {{ separatorAbove }};">{{ separatorBlurb }}</p>
+            </div>
+        </section>
+
+    {% endfor %}
+
+{% else %}
+
+    {% capture rows %}
+        <tr>
+            <th scope="row">Kicker</th>
+            <td>{{ content.intro.kicker }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Heading</th>
+            <td>{{ content.intro.heading }} &middot; wrap terms in <code>**double asterisks**</code> for accent color</td>
+        </tr>
+        <tr>
+            <th scope="row">Description</th>
+            <td>{{ content.intro.description }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Buttons</th>
+            <td>{{ content.intro.buttons | Size }} &middot; up to 2, each needs a label and URL</td>
+        </tr>
+        <tr>
+            <th scope="row">Content alignment</th>
+            <td>{{ settings.intro.contentalignment | Default:'start' }} &middot; start, center, end, split</td>
+        </tr>
+        <tr>
+            <th scope="row">Heading size</th>
+            <td>{{ settings.intro.headingsize | Default:'h2' }} &middot; h1&ndash;h6, display-1, display-2</td>
+        </tr>
+        <tr>
+            <th scope="row">Vertical padding</th>
+            <td>{{ settings.verticalpadding | Default:'medium' }} &middot; none, small, medium, large</td>
+        </tr>
+        {% if settings.colors.background != blank %}
+            <tr>
+                <th scope="row">Background color</th>
+                <td>{{ settings.colors.background }}</td>
+            </tr>
+        {% endif %}
+        {% if settings.colors.foreground != blank %}
+            <tr>
+                <th scope="row">Foreground color</th>
+                <td>{{ settings.colors.foreground }}</td>
+            </tr>
+        {% endif %}
+        {% if settings.backgroundimage != blank %}
+            <tr>
+                <th scope="row">Background image</th>
+                <td>set</td>
+            </tr>
+        {% endif %}
+    {% endcapture %}
+    {% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+    <section class="template template-padding-{{ verticalPadding }}" style="{{ sectionStyles }}">
+        <div class="container">
+            {% include '~~/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+        </div>
+    </section>
+
+{% endif %}

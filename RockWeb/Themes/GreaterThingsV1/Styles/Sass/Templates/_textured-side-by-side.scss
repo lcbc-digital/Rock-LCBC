@@ -1,0 +1,67 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.textured-side-by-side-template {
+    position: relative;
+    padding-top: 32px;
+    padding-bottom: 160px;
+
+    .title {
+        color: var(--white);
+    }
+
+    @media (min-width: $screen-md-min) {
+        padding-top: 80px;
+        padding-bottom: 160px;
+    }
+
+    @media (min-width: $screen-lg-min) {
+        padding-top: 120px;
+        padding-bottom: 160px;
+    }
+
+    *:not(.texture) {
+        z-index: 1;
+    }
+
+    .texture {
+        position: absolute;
+        z-index: 0;
+    }
+
+    .main-texture {
+        left: 0;
+        top: 17%;
+        width: 100%;
+        max-width: 950px;
+
+        @media (min-width: $screen-md-min) {
+            top: 33%;
+            max-width: min(50%, 950px);
+        }
+    }
+
+    .complimentary-texture {
+        right: 0;
+        top: 0;
+        width: 33%;
+        max-height: 220px;
+    }
+
+    .texture-arrow {
+        left: -80px;
+        bottom: 4%;
+        width: min(100%, 300px);
+        transform: rotate(90deg);
+
+        -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 100%);
+        mask-image: linear-gradient(90deg, transparent 0%, #000 100%);
+
+        @media (min-width: $screen-md-min) {
+            left: unset;
+            right: -5%;
+            bottom: 30%;
+            width: 30%;
+        }
+    }
+}

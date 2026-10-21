@@ -1,0 +1,168 @@
+/-
+    Written for whoever is sharing the link, not for a developer. Everything here is something to copy
+    and paste onto the end of a url.
+
+    The values must match Features/Dashboard/Base.lava. Change a bucket there and change it here.
+-/
+
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Link Tracking', description:'Add a tag to the end of a link and the dashboard will tell you what that link did.' %}
+
+//- MARK: The Short Version
+<div class="panel panel-default mb-4" tt-cascade-item>
+    <div class="panel-heading"><h4 class="panel-title">Start here</h4></div>
+    <div class="panel-body">
+
+        <p class="lead">Paste one of these on the end of any Greater Things link before you share it.</p>
+
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 35%">If you are&hellip;</th>
+                        <th>Add this to the end of the link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Posting on social</strong><br><small>Instagram, Facebook, anywhere</small></td>
+                        <td><code>?utm_medium=social&amp;utm_source=instagram</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Asking people to share</strong><br><small>Text, email forward, invite card</small></td>
+                        <td><code>?utm_medium=share&amp;utm_source=text-message</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Using it at a service</strong><br><small>Screen, QR code, bulletin</small></td>
+                        <td><code>?utm_source=service</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+//- MARK: Worked Example
+<div class="panel panel-default mb-4" tt-cascade-item>
+    <div class="panel-heading"><h4 class="panel-title">What it looks like</h4></div>
+    <div class="panel-body">
+
+        <p class="mb-1">The link you were going to post:</p>
+        <p><code>https://greaterthings.lcbcchurch.com/commit</code></p>
+
+        <p class="mb-1">The link you post instead, for Instagram:</p>
+        <p class="mb-0"><code>https://greaterthings.lcbcchurch.com/commit?utm_medium=social&amp;utm_source=instagram</code></p>
+
+    </div>
+</div>
+
+//- MARK: Rules
+<div class="panel panel-default mb-4" tt-cascade-item>
+    <div class="panel-heading"><h4 class="panel-title">Three rules, then you are done</h4></div>
+    <div class="panel-body">
+
+        <ol class="mb-0">
+            <li class="mb-3">
+                <strong>Start with <code>?</code> unless the link already has one.</strong><br>
+                If you can already see a <code>?</code> anywhere in the link, start with <code>&amp;</code> instead.
+            </li>
+            <li class="mb-3">
+                <strong>Lowercase, and hyphens instead of spaces.</strong><br>
+                <code>text-message</code>, not <code>Text Message</code>.
+            </li>
+            <li>
+                <strong>Keep the name the same every time.</strong><br>
+                <code>instagram</code> and <code>insta</code> will count as two different things on the dashboard.
+            </li>
+        </ol>
+
+    </div>
+</div>
+
+//- MARK: Source Names
+<div class="panel panel-default mb-4" tt-cascade-item>
+    <div class="panel-heading"><h4 class="panel-title">Change the source to whatever fits</h4></div>
+    <div class="panel-body">
+
+        <p><code>utm_source</code> is the name you will see on the dashboard, so write what you would want to read there. The <code>utm_medium</code> is what decides which card it counts towards, so leave that alone.</p>
+
+        <p class="mb-1">All of these are fine:</p>
+        <p class="mb-0">
+            <code>instagram</code>
+            <code>facebook</code>
+            <code>youtube</code>
+            <code>email-newsletter</code>
+            <code>text-message</code>
+            <code>postcard</code>
+            <code>lobby-screen</code>
+        </p>
+
+    </div>
+</div>
+
+//- MARK: Buttons
+<div class="panel panel-default mb-4" tt-cascade-item>
+    <div class="panel-heading"><h4 class="panel-title">Buttons on the site already track themselves</h4></div>
+    <div class="panel-body">
+
+        <p>Every button on a Greater Things page is counted automatically. You do not need to tag anything, and you should not add these tags to a button.</p>
+
+        <p class="mb-0">The dashboard shows them under <strong>Button Interactions</strong>, grouped by the page the button is on, with the module it sits in and where it led.</p>
+
+    </div>
+</div>
+
+//- MARK: Where It Shows Up
+<div class="panel panel-default mb-4" tt-cascade-item>
+    <div class="panel-heading"><h4 class="panel-title">Where your tag shows up</h4></div>
+    <div class="panel-body">
+
+        <div class="table-responsive">
+            <table class="table table-bordered mb-3">
+                <thead>
+                    <tr>
+                        <th style="width: 45%">What you tagged</th>
+                        <th>Where it lands on the dashboard</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>utm_medium=social</code></td>
+                        <td>The <strong>From Social Media</strong> card</td>
+                    </tr>
+                    <tr>
+                        <td><code>utm_medium=share</code></td>
+                        <td>The <strong>From Sharing</strong> card</td>
+                    </tr>
+                    <tr>
+                        <td><code>utm_source=service</code></td>
+                        <td>The <strong>From Service</strong> card</td>
+                    </tr>
+                    <tr>
+                        <td>Any tag at all</td>
+                        <td>A row in <strong>Traffic Sources</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="alert alert-info mb-0">
+            <strong>An untagged link is invisible.</strong> It still counts in Page Views, but nothing can say where it came from. If you want to know whether something worked, tag it before you send it.
+        </div>
+
+    </div>
+</div>
+
+//- MARK: Notes
+<div class="panel panel-default" tt-cascade-item>
+    <div class="panel-heading"><h4 class="panel-title">Worth knowing</h4></div>
+    <div class="panel-body">
+
+        <ul class="mb-0">
+            <li class="mb-2">The tag disappears from the address bar a moment after the page opens. That is deliberate, and it is already counted by then.</li>
+            <li class="mb-2">One visit is counted once, however many times that person reloads the page.</li>
+            <li>Tags only work on links pointing at the Greater Things site. Tagging a link to somewhere else does nothing.</li>
+        </ul>
+
+    </div>
+</div>

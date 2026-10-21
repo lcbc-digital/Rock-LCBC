@@ -1,0 +1,28 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/BannerMarquee.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - Banner Marquee channel. Splits the comma delimited phrase
+                 list into the array the template loops over, then renders it.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: Content
+{% assign rawItems = module | Attribute:'Items' | Split:',' %}
+
+{% assign items = '' | Split:',' %}
+{% for rawItem in rawItems %}
+    {% assign trimmedItem = rawItem | Trim %}
+    {% if trimmedItem != '' %}
+        {% assign items = items | AddToArray:trimmedItem %}
+    {% endif %}
+{% endfor %}
+
+{% assign data = ''
+    | AddToDictionary:'items',items
+%}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/BannerMarquee.lava', data:data %}

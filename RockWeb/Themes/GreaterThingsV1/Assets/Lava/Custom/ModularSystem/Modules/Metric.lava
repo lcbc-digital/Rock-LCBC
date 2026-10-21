@@ -1,0 +1,65 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Metric.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - Metric channel. Builds the array of metrics the template
+                 expects, adds the display setting, then renders the template.
+
+                 The metrics come from one of two places. Normally it is the Metrics attribute matrix,
+                 typed by hand. If the Metrics Dataset attribute points at a persisted dataset, that
+                 dataset supplies them instead and the matrix is ignored.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: Metrics
+/- Bridged through the entity command because the attribute stores the dataset's Guid while the
+   PersistedDataset filter takes only an access key. Reading the attribute as 'Object' is no help:
+   it returns a PersistedDatasetCache whose every property reads null in Lava, Id and Guid included. -/
+{% assign metricsDatasetGuid = module | Attribute:'MetricsDataset','RawValue' %}
+
+{% if metricsDatasetGuid != blank %}
+    {% persisteddataset where:'Guid == "{{ metricsDatasetGuid }}"' securityenabled:'false' %}
+        {% assign metricsDatasetRecord = persisteddatasetItems | First %}
+    {% endpersisteddataset %}
+
+    {% assign metricList = metricsDatasetRecord.AccessKey | PersistedDataset %}
+{% else %}
+    {% assign metricRows = module | Attribute:'Metrics','Object' | Property:'AttributeMatrixItems' | OrderBy:'Order' %}
+
+    {% assign metricList = '' %}
+    {% for row in metricRows %}
+        {% assign rowProgress = row | Attribute:'Progress','RawValue' %}
+
+        {% if rowProgress != blank %}
+            {% assign rowGoal = row | Attribute:'Goal','RawValue' %}
+            {% assign rowTitle = row | Attribute:'Title' %}
+            {% assign rowIcon = row | Attribute:'Icon' %}
+            {% assign rowFormat = row | Attribute:'Format','RawValue' %}
+            {% assign rowFeatured = row | Attribute:'Featured' | AsBoolean %}
+
+            {% assign metric = ''
+                | AddToDictionary:'title',rowTitle
+                | AddToDictionary:'progress',rowProgress
+                | AddToDictionary:'goal',rowGoal
+                | AddToDictionary:'icon',rowIcon
+                | AddToDictionary:'format',rowFormat
+                | AddToDictionary:'featured',rowFeatured
+            %}
+
+            {% assign metricList = metricList | AddToArray:metric %}
+        {% endif %}
+    {% endfor %}
+{% endif %}
+
+{% assign content = content | AddToDictionary:'metrics',metricList %}
+
+//- MARK: Display Settings
+{% assign displayType = module | Attribute:'DisplayType','RawValue' %}
+
+{% assign metricDisplay = '' | AddToDictionary:'displaytype',displayType %}
+{% assign settings = settings | AddToDictionary:'metric',metricDisplay %}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/Metric.lava', content:content, settings:settings %}

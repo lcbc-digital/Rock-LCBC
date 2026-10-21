@@ -1,0 +1,99 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.page-commit {
+    --commit-arrows-opacity: 0.3;
+    --commit-arrow-opacity: 0.4;
+    --commit-arrow-length: min(40vw, 500px);
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    overflow-x: hidden;
+
+    &::before {
+        top: 0;
+        left: 0;
+        width: min(52vw, 760px);
+        height: min(60vh, 640px);
+        background-image: url("#{$cdn-theme-root}/Assets/Images/Textures/Arrows.jpg?optimizer=image");
+        background-position: top left;
+        background-size: cover;
+        opacity: var(--commit-arrows-opacity);
+        mix-blend-mode: lighten;
+    }
+
+    &::after {
+        --commit-arrow-height: calc(var(--commit-arrow-length) * 696 / 836);
+
+        top: calc((var(--commit-arrow-length) - var(--commit-arrow-height)) / 2 + 24px);
+        right: -10%;
+        width: var(--commit-arrow-length);
+        height: var(--commit-arrow-height);
+        background-image: url("#{$cdn-theme-root}/Assets/Images/Textures/Arrow.png?optimizer=image");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        transform: rotate(90deg);
+        opacity: var(--commit-arrow-opacity);
+
+        -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 100%);
+        mask-image: linear-gradient(90deg, transparent 0%, #000 100%);
+
+        display: none;
+
+        @media (min-width: $screen-lg-min) {
+            display: block;
+        }
+    }
+
+    .container {
+        #zone-main {
+            padding-top: 36px;
+            padding-bottom: 72px;
+            .zone-content {
+                display: flex;
+                flex-direction: column;
+
+                @media (min-width: $screen-lg-min) {
+                    flex-direction: row;
+                }
+
+                .html-content {
+                    padding-bottom: 24px;
+
+                    @media (min-width: $screen-lg-min) {
+                        width: 45%;
+                        transform: translateY(-12vh);
+                        padding-bottom: 0;
+                    }
+
+                    .billboard-height-medium {
+                        min-height: max(20vh, 300px);
+                        padding-top: 12px;
+
+                        @media (min-width: $screen-lg-min) {
+                            min-height: max(60vh, 420px);
+                            padding-top: 0;
+                        }
+                    }
+                }
+
+                .workflow-entry {
+                    @media (min-width: $screen-lg-min) {
+                        width: 55%;
+                    }
+                }
+            }
+        }
+
+        @media (min-width: $screen-xxl-min) {
+            width: 1400px;
+        }
+    }
+}

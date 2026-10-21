@@ -1,0 +1,42 @@
+// =====================================================================
+// Compile-time variables. Emits NO CSS — safe to @use from any partial
+// without duplicating output.
+//
+// Color lives in Foundation/_colors.scss, not here. A partial that needs
+// a color at compile time (rgba($primary, .2), darken(...)) should
+// @use "../Foundation/colors" as *. For a plain reference use the custom
+// property instead: var(--primary), var(--ui-soft).
+//
+// The NextGen framework tokens (--base-*, --color-*, --spacing-*,
+// --rounded-*) resolve at runtime from theme.css and are NOT redeclared
+// here. Only add a $var when Sass needs the value at compile time.
+// =====================================================================
+
+// -------------------------
+// Breakpoints. Declared by value; the framework's own $screen-* are not
+// loaded. Never derive one from another with arithmetic — write the
+// -max values out literally.
+// -------------------------
+$screen-sm-min: 768px;
+$screen-md-min: 992px;
+$screen-lg-min: 1200px;
+$screen-xl-min: 1400px;
+$screen-xxl-min: 1600px;
+
+$screen-xs-min: 420px;
+
+$screen-xxs-max: 419px;
+$screen-xs-max: 767px;
+$screen-sm-max: 991px;
+$screen-md-max: 1199px;
+$screen-lg-max: 1399px;
+
+// -------------------------
+// Triumph Shield. CSS cannot read the CdnAppRoot global attribute, so the
+// host is restated here. Keep the two in step. Relative url()s would load
+// from whatever host the page is on, and not every host is behind Shield.
+//
+// Only for plain backgrounds: mask-image and shape-outside need a same-origin
+// or CORS image, and the CDN sends no CORS headers, so those stay relative.
+// -------------------------
+$cdn-theme-root: "https://cdn.lcbcchurch.com/Themes/GreaterThingsV1";

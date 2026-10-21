@@ -1,0 +1,210 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.cards-template .card-full-bleed {
+    --card-background: var(--neutral-2);
+    --card-text-color: var(--ui-softest);
+    --card-border-color: var(--ui-softest);
+    --card-border-width: 3px;
+
+    text-align: center;
+
+    .button-group {
+        align-items: center;
+    }
+
+    //- The base .btn rule is id-level via :not(#cms-admin-footer *); the guard is repeated to outrank it.
+    .button-group .btn.btn-default:not(#cms-admin-footer *) {
+        --button-font-weight: 400;
+
+        padding-left: 0;
+        padding-right: 0;
+        color: var(--card-text-color, var(--ui-softest));
+        background-color: transparent;
+        border-color: transparent;
+
+        &:hover,
+        &:focus {
+            color: var(--card-text-color, var(--ui-softest));
+            background-color: transparent;
+            border-color: transparent;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 4px;
+        }
+    }
+}
+
+//- MARK: Generic Styles
+.card {
+    --button-link-text-color: var(--card-text-color, var(--ui-strong));
+    background-color: var(--card-background, var(--ui-softest));
+    color: var(--card-text-color, var(--ui-strong));
+    border-color: var(--card-border-color, var(--ui-soft));
+    border-width: var(--card-border-width, 1px);
+    border-radius: var(--card-border-radius, 0px);
+    box-shadow: var(--card-shadow, none);
+    overflow: visible !important;
+
+    .card-title,
+    .card-subtitle,
+    .card-text {
+        color: var(--card-text-color, var(--ui-strong));
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: var(--card-ring-offset, -8px);
+        right: var(--card-ring-offset, -8px);
+        bottom: var(--card-ring-offset, -8px);
+        left: var(--card-ring-offset, -8px);
+        border: var(--card-ring-width, 1px) solid var(--card-ring-color, transparent);
+        border-radius: var(--card-ring-radius, var(--card-border-radius, 0px));
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .card-header,
+    .card-footer {
+        background-color: var(--card-background, var(--ui-softest));
+        border-color: var(--card-border-color, var(--ui-soft));
+    }
+
+    .card-img-top,
+    .card-img,
+    .card-img-bottom {
+        border-radius: var(--card-image-radius, 0px);
+        aspect-ratio: var(--card-image-aspect-ratio, 16 / 9);
+        object-fit: cover;
+        width: 100%;
+    }
+}
+
+.card-link {
+    transition: box-shadow 150ms ease, transform 150ms ease;
+
+    &:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+        transform: translateY(-2px);
+    }
+
+    &:active {
+        transform: scale(0.98);
+        box-shadow: var(--card-shadow, none);
+    }
+
+    &:focus-within {
+        outline: 3px solid var(--ui-strongest);
+        outline-offset: 3px;
+    }
+
+    .stretched-link:focus { outline: none; }
+}
+
+.cards-template {
+    .card {
+        --card-image-aspect-ratio: var(--cards-image-aspect-ratio, 16 / 9);
+        padding: var(--cards-card-padding, 0.5rem);
+
+        .card-img-top {
+            border-radius: var(--cards-image-radius, 4px);
+        }
+
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            padding: var(--cards-body-padding, 0.75rem 0 0);
+
+            .button-group { margin-top: auto; }
+        }
+    }
+
+    .card-full-bleed {
+        --card-image-aspect-ratio: var(--cards-image-aspect-ratio, 3 / 2);
+        padding: var(--cards-card-padding, 0);
+
+        .card-img-top { border-radius: var(--cards-image-radius, 0); }
+        .card-body    { padding: var(--cards-body-padding, 1.5rem 1.25rem); }
+    }
+
+    .card-poster {
+        --card-image-aspect-ratio: var(--cards-image-aspect-ratio, 2 / 3);
+        --card-text-color: var(--ui-softest);
+        padding: var(--cards-card-padding, 0);
+
+        .card-img { border-radius: var(--cards-image-radius, 0); }
+
+        .card-img-overlay {
+            padding: var(--cards-overlay-padding, 1.25rem);
+            background: var(--cards-poster-overlay, linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 60%));
+        }
+
+        .card-body .button-group { margin-top: unset; }
+    }
+
+    .swiper-slide { height: auto; }
+
+    //- MARK: Navigation
+    //- :has so a set that fits without scrolling reserves no space.
+    .cards-swiper:has(.swiper-button-next:not(.swiper-button-lock)) {
+        padding-top: calc(var(--cards-nav-size, 44px) + var(--cards-nav-offset, 32px));
+    }
+
+    .cards-swiper {
+
+        .swiper-button-prev,
+        .swiper-button-next {
+            top: 0;
+            left: auto;
+            margin-top: 0;
+
+            display: inline-grid;
+            place-items: center;
+            width: var(--cards-nav-size, 44px);
+            height: var(--cards-nav-size, 44px);
+
+            color: var(--cards-nav-color, var(--template-foreground-color, currentColor));
+            transition: opacity 0.2s ease;
+
+            &.swiper-button-disabled {
+                opacity: var(--cards-nav-disabled-opacity, 0.35);
+            }
+        }
+
+        .swiper-button-next {
+            right: 0;
+        }
+
+        .swiper-button-prev {
+            right: calc(var(--cards-nav-size, 44px) + var(--cards-nav-gap, 24px));
+        }
+    }
+
+    @media (max-width: $screen-xs-max) {
+
+        .cards-swiper:has(.swiper-button-next:not(.swiper-button-lock)) {
+            padding-top: 0;
+            padding-bottom: calc(var(--cards-nav-size, 44px) + var(--cards-nav-offset, 32px));
+        }
+
+        .cards-swiper {
+
+            .swiper-button-prev,
+            .swiper-button-next {
+                top: auto;
+                bottom: 0;
+            }
+
+            .swiper-button-next {
+                left: calc(50% + var(--cards-nav-gap, 24px) / 2);
+                right: auto;
+            }
+
+            .swiper-button-prev {
+                right: calc(50% + var(--cards-nav-gap, 24px) / 2);
+                left: auto;
+            }
+        }
+    }
+}

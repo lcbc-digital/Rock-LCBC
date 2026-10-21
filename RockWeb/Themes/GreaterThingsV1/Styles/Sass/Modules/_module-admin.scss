@@ -1,0 +1,48 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Generic Styles
+.module {
+    position: relative;
+}
+
+.module-admin-edit {
+    position: absolute;
+    top: var(--module-admin-offset, 8px);
+    right: var(--module-admin-offset, 8px);
+    z-index: 100;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    text-decoration: none;
+
+    color: var(--ui-softest);
+    background-color: color-mix(in srgb, var(--black) 65%, transparent);
+    opacity: 0.4;
+    transition: opacity 150ms ease, background-color 150ms ease;
+
+    &:hover,
+    &:focus-visible {
+        opacity: 1;
+        color: var(--ui-softest);
+        background-color: var(--primary);
+        text-decoration: none;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--ui-softest);
+        outline-offset: 2px;
+    }
+}
+
+
+@media print {
+    .module-admin-edit {
+        display: none;
+    }
+}

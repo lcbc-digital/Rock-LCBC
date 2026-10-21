@@ -1,0 +1,69 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Generic Styles
+.separator-template {
+    height: 0;
+    position: relative;
+    z-index: var(--separator-layer, 1);
+}
+
+.separator-inner {
+    transform: translateY(-50%);
+}
+
+//- MARK: Ripped
+.separator-ripped {
+    color: var(--separator-color, var(--ui-softest));
+
+    svg {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+}
+
+//- MARK: Fade
+//- Peaks on the join and falls away symmetrically, so one color hazes into both neighbors.
+.separator-fade {
+
+    .separator-inner {
+        height: var(--separator-height, 120px);
+        background: linear-gradient(
+            to bottom,
+            transparent 0%,
+            var(--separator-color, transparent) 50%,
+            transparent 100%
+        );
+    }
+}
+
+//- MARK: Gradient
+.separator-gradient {
+
+    .separator-inner {
+        height: var(--separator-height, 120px);
+        background: linear-gradient(
+            to bottom,
+            var(--separator-from-color, transparent),
+            var(--separator-to-color, transparent)
+        );
+    }
+
+    &.fade-out .separator-inner {
+        background: linear-gradient(
+            to bottom,
+            var(--separator-from-color, transparent) 0%,
+            var(--separator-from-color, transparent) 50%,
+            transparent 100%
+        );
+    }
+
+    &.fade-in .separator-inner {
+        background: linear-gradient(
+            to bottom,
+            transparent 0%,
+            var(--separator-to-color, transparent) 50%,
+            var(--separator-to-color, transparent) 100%
+        );
+    }
+}

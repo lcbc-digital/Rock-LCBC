@@ -1,0 +1,108 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/Pricing.lava', content:pricingContent, settings:pricingSettings %}
+    Description: A row of price cards that butt against each other. One card can be featured, which
+                 inverts its colors, lifts it out of the row and carries a corner ribbon.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro  - Optional lead content above the cards. Passed to IntroContent.lava -- see that
+                     file for its keys. Omit it to render cards only.
+
+            prices - Array of price dictionaries. Keys:
+                title       - Small label above the price, e.g. Early Bird. (Optional, Text)
+                price       - The price itself, rendered at display size. (Optional, Text)
+                description - Body copy under the price. (Optional, Text)
+                buttons     - Up to two buttons. See ButtonGroup.lava for the shape. (Optional, Array)
+                feature     - Ribbon text. Supplying it is what marks the card featured, so a card
+                              with no ribbon copy cannot be featured. (Optional, Text)
+                soldout     - Dims the card and disables all buttons. (Optional, Boolean)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of the heading and description. (Optional, Text)
+            colors.card            - Fills the featured card and outlines every card. Defaults to the
+                                     theme dark. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to medium)
+
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.colors.card != blank %}--pricing-featured-background: {{ settings.colors.card }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+
+{% assign cardsSpacingClass = '' %}
+{% if content.intro != blank %}
+    {% assign cardsSpacingClass = 'mt-5' %}
+{% endif %}
+
+//- MARK: Markup
+{% if content.prices != blank or content.intro != blank %}
+    <section class="pricing-template template template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        <div class="container">
+            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+
+            {% if content.prices != blank %}
+                <div class="pricing-cards {{ cardsSpacingClass }}">
+                    {% for price in content.prices %}
+                        {% assign isFeatured = false %}
+                        {% if price.feature != blank %}
+                            {% assign isFeatured = true %}
+                        {% endif %}
+
+                        {% assign isSoldOut = price.soldout | AsBoolean %}
+
+                        {% assign cardButtonStyles = 'btn-default' %}
+                        {% if isFeatured %}
+                            {% assign cardButtonStyles = 'btn-primary' %}
+                        {% endif %}
+
+                        <div class="pricing-card{% if isFeatured %} pricing-card-featured{% endif %}{% if isSoldOut %} pricing-card-sold-out{% endif %}">
+                            {% if isFeatured %}
+                                <svg class="pricing-card-ribbon" width="102" height="96" viewBox="0 0 102 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                                    <g>
+                                        <path d="M96 89H102V96H96V89Z" fill="currentColor" />
+                                        <path d="M96 89H102V96H96V89Z" fill="black" fill-opacity="0.6" />
+                                    </g>
+                                    <g>
+                                        <rect width="8" height="7" fill="currentColor" />
+                                        <rect width="8" height="7" fill="black" fill-opacity="0.6" />
+                                    </g>
+                                    <g>
+                                        <path d="M0 0H40L102 57V96L0 0Z" fill="currentColor" />
+                                        <text x="71" y="27" transform="rotate(43.2063 50 20)" text-anchor="middle" dominant-baseline="middle">{{ price.feature | Truncate:12 }}</text>
+                                    </g>
+                                </svg>
+                            {% endif %}
+
+                            <div class="pricing-card-body">
+                                {% if price.title != blank %}
+                                    <p class="pricing-card-title m-0">{{ price.title }}</p>
+                                {% endif %}
+
+                                {% if price.price != blank %}
+                                    <p class="pricing-card-price display-2 m-0">{{ price.price }}</p>
+                                {% endif %}
+
+                                {% if price.description != blank %}
+                                    <p class="pricing-card-description text-pretty m-0">{{ price.description }}</p>
+                                {% endif %}
+                            </div>
+
+                            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:price.buttons, styles:cardButtonStyles, direction:'column' %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}

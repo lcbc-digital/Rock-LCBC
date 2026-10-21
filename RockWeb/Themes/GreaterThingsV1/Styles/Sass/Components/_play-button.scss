@@ -1,0 +1,54 @@
+@use "../Utils/variables" as *;
+
+//- Compile-time so the three places that read it cannot drift. 5rem is the ceiling.
+$play-button-size: clamp(3rem, 9vw, 5rem);
+
+//- MARK: Generic Styles
+.play-button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    box-sizing: border-box;
+    width: var(--play-button-size, #{$play-button-size});
+    height: var(--play-button-size, #{$play-button-size});
+    padding: 0;
+    border: var(--play-button-border-width, 3px) solid var(--play-button-border-color, var(--ui-softest));
+    border-radius: 50%;
+    cursor: pointer;
+
+    font-size: calc(var(--play-button-size, #{$play-button-size}) / 3);
+    line-height: 1;
+    color: var(--play-button-color, var(--ui-softest));
+    background-color: var(--play-button-background-color, color-mix(in srgb, var(--black) 45%, transparent));
+
+    transition: transform 200ms ease, background-color 200ms ease;
+
+    .fa-play {
+        margin-left: 0.125em;
+    }
+
+    &:hover,
+    &:focus-visible {
+        transform: translate(-50%, -50%) scale(var(--play-button-scale-hover, 1.08));
+    }
+
+    &:focus-visible {
+        outline: 3px solid var(--play-button-border-color, var(--ui-softest));
+        outline-offset: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+
+        &:hover,
+        &:focus-visible {
+            transform: translate(-50%, -50%);
+        }
+    }
+}

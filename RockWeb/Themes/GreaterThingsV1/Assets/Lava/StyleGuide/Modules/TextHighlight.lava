@@ -1,0 +1,50 @@
+/-
+    Text Highlight variants. Plain shows the base large-text layout; highlighted shows
+    the **marker** syntax that wraps terms in the accent color.
+
+    Parameters:
+        variant - Which example to draw. Already validated by Base.lava. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign button1 = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','Get Started' %}
+{% assign button2 = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','Learn More' %}
+{% assign buttons = '' | AddToArray:button1 | AddToArray:button2 %}
+
+//- MARK: Settings
+{% case variant %}
+    {% when 'highlighted' %}
+        {% assign content = ''
+            | AddToDictionary:'text','"We believe **every person** matters, **every story** counts, and **every step** forward is worth celebrating."'
+            | AddToDictionary:'buttons',buttons
+        %}
+
+    {% else %}
+        {% assign content = ''
+            | AddToDictionary:'text','"The local church is the hope of the world, and its future is as bright as the promises of God."'
+        %}
+{% endcase %}
+
+{% assign settings = '' %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Text Highlight', description:'Large pull-quote text. Wrap any words in **double asterisks** to render them in the accent color.' %}
+</div>
+
+{% capture rows %}
+    {% if variant == 'highlighted' %}
+        <tr>
+            <th scope="row">Highlighted terms</th>
+            <td>yes, wrap words in <code>**double asterisks**</code></td>
+        </tr>
+    {% else %}
+        <tr>
+            <th scope="row">Highlighted terms</th>
+            <td>none</td>
+        </tr>
+    {% endif %}
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/TextHighlight.lava', content:content, settings:settings %}

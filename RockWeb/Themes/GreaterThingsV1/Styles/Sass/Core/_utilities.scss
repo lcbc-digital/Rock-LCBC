@@ -1,0 +1,18 @@
+@use "../Utils/variables" as *;
+
+$gap-scale: (0: 0, 1: 0.25rem, 2: 0.5rem, 3: 1rem, 4: 1.5rem, 5: 3rem);
+
+@each $step, $size in $gap-scale {
+    .column-gap-#{$step} { column-gap: $size; }
+    .row-gap-#{$step}    { row-gap: $size; }
+}
+
+.container.container-lg {
+    @media (min-width: $screen-xxl-min) {
+        width: 1400px;
+    }
+}
+
+.highlighted-text {
+    color: var(--highlight-color, var(--primary));
+}

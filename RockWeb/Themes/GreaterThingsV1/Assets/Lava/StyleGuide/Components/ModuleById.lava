@@ -1,0 +1,24 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Module By Id', description:'Render a single Module V2 (or an entire Modular Page V2) anywhere by referencing its content channel item id. Handy when you want to drop one module into an HTML block without building a full modular page.' %}
+
+
+{% capture example %}
+{% raw %}
+{[ modulebycontentchannelitemid itemid:'1234' ]}
+{% endraw %}
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'example', title:'Example', demo:example %}
+
+
+<h3 class="styleguide-example-title mt-5" tt-cascade-item>Parameters</h3>
+<div class="table-responsive" tt-cascade-item>
+    <table class="table styleguide-settings">
+        <thead>
+            <tr><th>Parameter</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><th>itemid</th><td>The content channel item id of the Module V2 or Modular Page V2 to render.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<p class="styleguide-note mt-4" tt-cascade-item><strong>Note:</strong> Accepts either a Module V2 item (type id 70) or a full Modular Page V2 item (type id 69). If you know you want the full page, use <em>Modular Page By Id</em> instead.</p>

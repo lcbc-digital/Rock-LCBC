@@ -1,0 +1,14 @@
+/-
+    partnerName and themeName are assigned in Base.lava.
+-/
+
+//- MARK: Markup
+<div class="styleguide-intro">
+    <h5 class="styleguide-intro-welcome" tt-cascade-item>Welcome to {{ partnerName }}'s</h5>
+    <h1 class="display-2 styleguide-intro-title" tt-cascade-item>Greater Things<br>
+    <span class="text-primary">Web Style Guide</span></h1>
+
+    <p class="lead styleguide-intro-lead" tt-cascade-item>A single source of truth for typography, color, components, layouts and modules used across the {{ themeName }} theme.</p>
+
+    <p class="styleguide-intro-signature" tt-cascade-item>Developed by <strong>Triumph Tech</strong></p>
+</div>

@@ -1,0 +1,109 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/Cards.lava', content:cardsData, settings:cardsSettings %}
+    Description: A set of cards presented with the swiper shortcode. On mobile one card shows at a time; on larger
+                 screens the number of cards per view is driven by settings.cards.cardwidth. When the cards fit the
+                 available views the swiper simply does not scroll.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro - Optional lead content above the cards. Passed to IntroContent.lava -- see that file
+                    for its keys. Omit it to render cards only.
+
+            cards - Array of card dictionaries. Keys:
+                heading                - The card heading. Omit when the heading is baked into the image. (Optional, Text)
+                description            - The card description. (Optional, Text)
+                image                  - The image displayed on the card. (Required, Image Url)
+                accentcolor            - Accent color for this card, exposed to CSS as --card-accent. Lets a theme
+                                         tint a border, button or rule per card. (Optional, Text)
+
+                buttons                - Up to two buttons. See ButtonGroup.lava for the shape. (Optional, Array)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of content sitting directly on the section background, meaning the
+                                     intro heading and description. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large. Defaults to medium)
+            cards.cardtype         - The type of card to display. (Optional, standard | full-bleed | poster. Defaults to standard)
+                                     standard   - 16:9 image above a padded card body.
+                                     full-bleed - 3:2 image edge to edge above a padded body.
+                                     poster     - Tall 2:3 image with the content overlaid on it.
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+            cards.cardwidth        - How many cards share a row on large screens. Mobile always shows one.
+                                     (Optional, small = 4 | medium = 3 | large = 2. Defaults to medium)
+-/
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+{% assign cardType = settings.cards.cardtype | Default:'standard' %}
+{% assign cardWidth = settings.cards.cardwidth | Default:'medium' %}
+
+{% assign slidesTablet = 2 %}
+{% assign slidesDesktop = 3 %}
+{% case cardWidth %}
+    {% when 'small' %}
+        {% assign slidesTablet = 2 %}
+        {% assign slidesDesktop = 4 %}
+    {% when 'large' %}
+        {% assign slidesTablet = 1 %}
+        {% assign slidesDesktop = 2 %}
+{% endcase %}
+
+{% assign swiperSpacingClass = '' %}
+{% if content.intro != blank %}
+    {% assign swiperSpacingClass = 'mt-5' %}
+{% endif %}
+
+{% capture swiperBreakpoints %}sm-{{ slidesTablet }}|16,md-{{ slidesDesktop }}|16{% endcapture %}
+
+//- MARK: Content Logic
+{% assign cardClass = 'card' %}
+{% assign imageClass = 'card-img-top' %}
+{% assign bodyClass = 'card-body' %}
+{% case cardType %}
+    {% when 'full-bleed' %}
+        {% assign cardClass = 'card card-full-bleed' %}
+    {% when 'poster' %}
+        {% assign cardClass = 'card card-poster' %}
+        {% assign imageClass = 'card-img' %}
+        {% assign bodyClass = 'card-img-overlay d-flex flex-column justify-content-end' %}
+{% endcase %}
+
+//- MARK: Markup
+{% if content.cards != blank %}
+    <section class="cards-template template overflow-hidden template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        <div class="container">
+            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+
+            {[ swiper containerclass:'cards-swiper {{ swiperSpacingClass }}' slidesperview:'1.1' spacebetween:'16' breakpoints:'{{ swiperBreakpoints }}' shownavigation:'true' showpagination:'false' ]}
+                {% for card in content.cards %}
+                    [[ slide ]]
+                        {% capture cardStyles %}{% if card.accentcolor != blank %}--card-accent: {{ card.accentcolor }};{% endif %}{% endcapture %}
+                        <div class="{{ cardClass }} h-100" style="{{ cardStyles }}">
+                            <img class="{{ imageClass }} img-fallback-vertical"{% if card.image != blank %} src="{{ card.image }}"{% endif %} alt="Card {{ forloop.index }} image">
+                            <div class="{{ bodyClass }}">
+                                {% if card.heading != blank %}
+                                    <h3 class="card-title">{{ card.heading }}</h3>
+                                {% endif %}
+
+                                {% if card.description != blank %}
+                                    <p class="card-text">{{ card.description }}</p>
+                                {% endif %}
+
+                                {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:card.buttons, direction:'column' %}
+
+                            </div>
+                        </div>
+                    [[ endslide ]]
+                {% endfor %}
+            {[ endswiper ]}
+        </div>
+    </section>
+{% endif %}

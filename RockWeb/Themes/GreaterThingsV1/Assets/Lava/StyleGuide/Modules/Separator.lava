@@ -1,0 +1,65 @@
+/-
+    Separator variants. Each is shown between two colored bands so the effect reads clearly.
+
+    ripped       - Torn paper edge. Color matches the section below (light).
+    gradient-one - Named fade: dark primary above fading to the light background below.
+    gradient-two - Fade-out: transparent at the top, fading into the light background below.
+
+    Parameters:
+        variant - Which example to draw. Already validated by Base.lava. (Required, Text)
+-/
+
+//- MARK: Settings
+{% case variant %}
+    {% when 'gradient-one' %}
+        {% assign separatorInner = '' | AddToDictionary:'type','gradient' | AddToDictionary:'fromcolor','var(--color-primary)' | AddToDictionary:'tocolor','var(--color-interface-softest)' %}
+        {% assign topColor = 'var(--color-primary)' %}
+        {% assign bottomColor = 'var(--color-interface-softest)' %}
+
+    {% when 'gradient-two' %}
+        {% assign separatorInner = '' | AddToDictionary:'type','gradient' | AddToDictionary:'fromcolor','transparent' | AddToDictionary:'tocolor','var(--color-interface-softest)' %}
+        {% assign topColor = 'var(--color-primary)' %}
+        {% assign bottomColor = 'var(--color-interface-softest)' %}
+
+    {% else %}
+        {% assign separatorInner = '' | AddToDictionary:'type','ripped' | AddToDictionary:'color','var(--color-interface-softest)' %}
+        {% assign topColor = 'var(--color-primary)' %}
+        {% assign bottomColor = 'var(--color-interface-softest)' %}
+{% endcase %}
+
+{% assign settings = '' | AddToDictionary:'separator',separatorInner %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Separator', description:'A zero-height decoration sitting on the boundary between two sections. It paints over both neighbors, so it needs their background colors.' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Type</th>
+        <td>{{ settings.separator.type | Default:'ripped' }}</td>
+    </tr>
+    {% if settings.separator.color != blank %}
+        <tr>
+            <th scope="row">Color</th>
+            <td>{{ settings.separator.color }}</td>
+        </tr>
+    {% endif %}
+    {% if settings.separator.fromcolor != blank %}
+        <tr>
+            <th scope="row">From color</th>
+            <td>{{ settings.separator.fromcolor }}</td>
+        </tr>
+    {% endif %}
+    {% if settings.separator.tocolor != blank %}
+        <tr>
+            <th scope="row">To color</th>
+            <td>{{ settings.separator.tocolor }}</td>
+        </tr>
+    {% endif %}
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+<div style="background: {{ topColor }}; height: 120px;"></div>
+{% include '~~/Assets/Lava/Custom/Templates/Separator.lava', settings:settings %}
+<div style="background: {{ bottomColor }}; height: 120px;"></div>

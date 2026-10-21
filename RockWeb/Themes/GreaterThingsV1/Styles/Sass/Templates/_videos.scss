@@ -1,0 +1,106 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.videos-template .videos-swiper {
+    --swiper-nav-icon-height: var(--videos-nav-icon-height, 40px);
+}
+
+//- MARK: Generic Styles
+.videos-template {
+    position: relative;
+    isolation: isolate;
+
+    .texture {
+        position: absolute;
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .video-card {
+        position: relative;
+        display: block;
+        width: 100%;
+        padding: 0;
+        border: 0;
+        aspect-ratio: var(--video-card-aspect-ratio, 16 / 9);
+        overflow: hidden;
+        border-radius: var(--video-card-radius, 0px);
+        background-color: var(--video-card-background, var(--neutral-2));
+        cursor: pointer;
+
+        &:hover .play-button,
+        &:focus-visible .play-button {
+            transform: translate(-50%, -50%) scale(var(--play-button-scale-hover, 1.08));
+        }
+
+        &:focus-visible {
+            outline: 3px solid var(--play-button-border-color, var(--ui-softest));
+            outline-offset: 4px;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &:hover .play-button,
+            &:focus-visible .play-button {
+                transform: translate(-50%, -50%);
+            }
+        }
+    }
+
+    .video-card-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .videos-single {
+        max-width: var(--videos-single-max-width, 960px);
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .videos-swiper {
+        --swiper-navigation-color: var(--videos-nav-color, var(--body-text-color));
+
+        //- At 1.6 per view the next card is meant to run past the container and out to the section
+        //- edge, so this one opts out of the clip .swiper applies. .videos-template's own
+        //- overflow: hidden is what stops it reaching the page.
+        overflow: visible;
+
+        @media (min-width: $screen-sm-min) {
+            .swiper-button-prev,
+            .swiper-button-next {
+                display: none;
+            }
+        }
+
+        @media (max-width: $screen-xs-max) {
+            padding-bottom: calc(var(--videos-nav-icon-height, 40px) + var(--videos-nav-offset, 32px));
+
+            --swiper-navigation-top-offset: auto;
+
+            .swiper-pagination {
+                display: none;
+            }
+
+            .swiper-button-prev,
+            .swiper-button-next {
+                bottom: 0;
+                right: auto;
+                left: 50%;
+                width: auto;
+                height: auto;
+                margin-top: 0;
+                transform: none;
+            }
+
+            .swiper-button-prev {
+                margin-left: calc(-1 * (var(--videos-nav-icon-width, 48px) + var(--videos-nav-gap, 12px)));
+            }
+
+            .swiper-button-next {
+                margin-left: var(--videos-nav-gap, 12px);
+            }
+        }
+    }
+}

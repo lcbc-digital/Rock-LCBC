@@ -1,0 +1,232 @@
+@use "../Utils/variables" as *;
+
+//- A form card: the surface, the cursor glow (FormEntry.js) and Rock's standard form markup.
+//- Put .form-entry on any wrapper around .form-group / .control-label / .form-control markup,
+//- such as a Lava Helix app's form. The Rock workflow block's own fixes are in _workflow-entry.scss.
+
+//- MARK: Theme Specific Styles
+.form-entry {
+    --form-entry-card-background: var(--neutral-2);
+    --form-entry-card-border-color: var(--primary);
+    --form-entry-card-border-width: 1px;
+    --form-entry-card-radius: 20px;
+    --form-entry-card-padding: 32px;
+    --form-entry-gap: 16px;
+
+    --form-entry-label-color: var(--ui-softest);
+    --form-entry-label-size: 14px;
+    --form-entry-label-weight: 700;
+    --form-entry-label-gap: 8px;
+    --form-entry-checkbox-accent: var(--primary);
+
+    --form-entry-input-height: 38px;
+    --form-entry-input-radius: 4px;
+    --form-entry-input-background: rgba(255, 255, 255, 0.1);
+    --form-entry-input-border-color: color-mix(in srgb, var(--neutral-1) 20%, transparent);
+    --form-entry-input-border-color-focus: color-mix(in srgb, var(--primary) 40%, transparent);
+    --form-entry-input-color: var(--neutral-1);
+    --form-entry-input-padding-x: 11px;
+
+    --form-entry-section-heading-color: var(--primary);
+    --form-entry-section-heading-size: 16px;
+
+    --form-entry-divider-color: color-mix(in srgb, var(--neutral-1) 20%, transparent);
+
+    --form-entry-skeleton-background: var(--form-entry-input-background);
+
+    --form-entry-body-color: var(--ui-softest);
+    --form-entry-body-opacity: 0.8;
+    --form-entry-heading-color: var(--ui-softest);
+
+    //- Corner glow. The resting spot is the bottom right corner; FormEntry.js moves it to
+    //- follow the cursor and eases it back here on the way out.
+    --form-entry-glow-color: color-mix(in srgb, var(--secondary) 45%, transparent);
+    --form-entry-glow-radius: 58%;
+    --form-entry-glow-x: 100%;
+    --form-entry-glow-y: 100%;
+}
+
+//- MARK: Generic Styles
+.form-entry {
+    //- The card is always dark, so its text is set here rather than inherited from wherever the
+    //- card sits. Checkbox and radio text has no color of its own and reads this.
+    color: var(--form-entry-body-color, inherit);
+    background-color: var(--form-entry-card-background, transparent);
+
+    //- A background layer rather than a pseudo element: it paints over the card color, sits
+    //- behind the form, and the card's own border-radius clips it without anything being
+    //- positioned or stacked.
+    background-image: radial-gradient(
+        circle at var(--form-entry-glow-x) var(--form-entry-glow-y),
+        var(--form-entry-glow-color) 0%,
+        transparent var(--form-entry-glow-radius)
+    );
+
+    border: var(--form-entry-card-border-width, 1px) solid var(--form-entry-card-border-color, transparent);
+    border-radius: var(--form-entry-card-radius, 0);
+    padding: calc(var(--form-entry-card-padding, 0) * 0.5);
+    overflow: clip;
+
+    //- The card is a flex child on the commit page, so it would otherwise stretch to match the
+    //- column beside it and leave dead space below the form.
+    height: fit-content;
+
+    @media (min-width: $screen-md-min) {
+        padding: var(--form-entry-card-padding, 0);
+    }
+
+    p {
+        color: var(--form-entry-body-color, inherit);
+        opacity: var(--form-entry-body-opacity, 1);
+    }
+
+    //- Section headings are not caught by this: .form-section > .rock-header .title outranks it
+    //- and keeps its own accent color.
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--form-entry-heading-color, inherit);
+    }
+
+    .control-label {
+        display: block;
+        margin: 0;
+        padding-bottom: var(--form-entry-label-gap, 8px);
+        color: var(--form-entry-label-color, inherit);
+        font-size: var(--form-entry-label-size, 14px);
+        font-weight: var(--form-entry-label-weight, 700);
+        line-height: 20px;
+    }
+
+    .input-group-addon {
+        color: var(--form-entry-input-color);
+        background-color: var(--form-entry-input-background);
+        border: 1px solid var(--form-entry-input-border-color);
+        border-right: none;
+    }
+
+    .form-control {
+        height: var(--form-entry-input-height, auto);
+        padding-inline: var(--form-entry-input-padding-x, 12px);
+        border: 1px solid var(--form-entry-input-border-color, transparent);
+        border-radius: var(--form-entry-input-radius, 0);
+        background-color: var(--form-entry-input-background, transparent);
+        color: var(--form-entry-input-color, inherit);
+        box-shadow: none;
+
+        &::placeholder {
+            color: var(--form-entry-input-color, inherit);
+            opacity: 0.8;
+        }
+
+        &:focus {
+            border-color: var(--form-entry-input-border-color-focus, var(--form-entry-input-border-color, transparent));
+            background-color: var(--form-entry-input-background, transparent);
+            color: var(--form-entry-input-color, inherit);
+            box-shadow: none;
+            outline: none;
+        }
+    }
+
+    textarea.form-control {
+        height: auto;
+        padding-block: 8px;
+    }
+
+    //- The open list of a native select inherits the field's light text but keeps the browser's
+    //- white background, so the options are restated on the card's own colors.
+    select.form-control option {
+        color: var(--form-entry-input-color, inherit);
+        background-color: var(--form-entry-card-background, transparent);
+    }
+
+    .ant-select.form-control {
+        display: flex;
+        align-items: center;
+        padding-inline: 0;
+
+        .ant-select-selector {
+            padding-inline: var(--form-entry-input-padding-x, 12px);
+        }
+
+        .ant-select-selection-item,
+        .ant-select-selection-placeholder {
+            color: var(--form-entry-input-color, inherit);
+        }
+
+        .ant-select-arrow {
+            right: var(--form-entry-input-padding-x, 12px);
+            color: var(--form-entry-input-color, inherit);
+        }
+    }
+
+    .fileupload-dropzone {
+        border: 1px dashed var(--form-entry-input-border-color, transparent);
+        border-radius: var(--form-entry-input-radius, 0);
+        background-color: var(--form-entry-input-background, transparent);
+        color: var(--form-entry-input-color, inherit);
+
+        span {
+            color: inherit;
+        }
+    }
+
+    //- The framework paints this tile white, so each of its declarations is restated.
+    .fileupload-thumbnail {
+        border-color: var(--form-entry-input-border-color, transparent);
+        border-radius: var(--form-entry-input-radius, 0) var(--form-entry-input-radius, 0) 0 0;
+        background-color: var(--form-entry-input-background, transparent);
+        color: var(--form-entry-input-color, inherit);
+
+        .file-link {
+            color: inherit;
+            background-color: var(--form-entry-input-border-color);
+        }
+
+        &::before {
+            filter: invert(1) opacity(0.5);
+        }
+    }
+
+    .fileupload-remove,
+    .fileupload-group .btn-link {
+        color: var(--form-entry-input-color, inherit);
+    }
+
+    .fileupload-group {
+        border: 1px solid var(--form-entry-input-border-color);
+    }
+
+    .alert-validation {
+        border-radius: var(--form-entry-input-radius, 0);
+    }
+
+    .btn-primary {
+        --button-font-size: 20px;
+        width: 100%;
+    }
+
+    //- Radio and checkbox boxes. The framework draws these from the interface tokens -- the box
+    //- off --color-interface-softest and --color-interface-soft, the checked state off
+    //- --color-primary -- so remapping the tokens on the control restyles every state at once
+    //- rather than this file having to name the selector behind each one.
+    //-
+    //- Nothing here touches border-radius: the framework rounds radios and squares checkboxes on
+    //- its own, and a shared override would flatten that distinction.
+    .radio,
+    .checkbox,
+    .radio-inline,
+    .checkbox-inline {
+        --color-interface-softest: var(--form-entry-input-background, transparent);
+        --color-interface-soft: var(--form-entry-input-border-color, transparent);
+        --color-primary: var(--form-entry-checkbox-accent, currentColor);
+    }
+
+    cap-widget {
+        //- Rock sets the --cap-* tokens inline from captcha.js, so the colors they resolve to are remapped instead.
+        --color-interface-softest: var(--form-entry-input-background, transparent);
+        --color-interface-soft: var(--form-entry-input-border-color, transparent);
+        --color-interface-strong: var(--form-entry-input-color, inherit);
+        --color-primary: var(--form-entry-checkbox-accent, currentColor);
+        --rounded-small: var(--form-entry-input-radius, 0);
+        --rounded-xsmall: var(--form-entry-input-radius, 0);
+    }
+}

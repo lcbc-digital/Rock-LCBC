@@ -1,0 +1,40 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.swiper {
+    --swiper-navigation-color: var(--body-text-color);
+
+    .swiper-navigation-icon {
+        display: none;
+    }
+
+    .swiper-button-prev::after,
+    .swiper-button-next::after {
+        content: '';
+        width: var(--swiper-nav-icon-width, 48px);
+        height: var(--swiper-nav-icon-height, 44px);
+        background-color: currentColor;
+        -webkit-mask-image: var(--swiper-nav-icon, url("../Assets/Images/Textures/SmallArrow.png"));
+        mask-image: var(--swiper-nav-icon, url("../Assets/Images/Textures/SmallArrow.png"));
+        -webkit-mask-repeat: no-repeat;
+        mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        mask-position: center;
+        -webkit-mask-size: contain;
+        mask-size: contain;
+    }
+
+    .swiper-button-prev::after {
+        transform: scaleX(-1);
+    }
+}
+
+//- MARK: Generic Styles
+.swiper {
+    overflow: hidden;
+
+    //- Swiper's own lock rule is (0,1,0) and loses to any template's button styling.
+    .swiper-button-lock {
+        display: none !important;
+    }
+}

@@ -1,0 +1,27 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Alerts', description:'Bootstrap alert component for feedback messages — contextual color, optional heading, dismissible.' %}
+
+
+{% capture variants %}
+<div class="alert alert-success" role="alert">A simple success alert — check it out!</div>
+<div class="alert alert-danger" role="alert">A simple danger alert — check it out!</div>
+<div class="alert alert-warning" role="alert">A simple warning alert — check it out!</div>
+<div class="alert alert-info" role="alert">A simple info alert — check it out!</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'variants', title:'Variants', demo:variants %}
+
+{% capture withheading %}
+<div class="alert alert-success" role="alert">
+    <h4 class="alert-heading">Registration complete!</h4>
+    <p>You've successfully registered for the event. A confirmation email has been sent to your inbox.</p>
+    <hr>
+    <p class="mb-0">Check your spam folder if you don't see it within a few minutes.</p>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'with-heading', title:'With Heading', demo:withheading %}
+
+{% capture withlink %}
+<div class="alert alert-warning" role="alert">
+    Your session will expire soon. <a href="#" class="alert-link">Extend your session</a> to avoid losing changes.
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'with-link', title:'With Link', demo:withlink %}

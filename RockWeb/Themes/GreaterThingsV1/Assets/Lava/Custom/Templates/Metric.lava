@@ -1,0 +1,244 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/Metric.lava', content:metricContent, settings:metricSettings %}
+    Description: Progress towards a goal, drawn one of four ways. Every display type reads the same
+                 metrics, so switching between them is a settings change and never a content one.
+
+                 Progress and goal are numbers, not text. The fill of a gauge and the figure printed
+                 beside it both come from them, so the two can never disagree. How a number looks is a
+                 separate decision -- see the format key, and MetricNumber.lava.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro   - Optional lead content above the metrics. Passed to IntroContent.lava -- see that
+                      file for its keys. Omit it to render the metrics only.
+
+            metrics - Array of metric dictionaries. Keys:
+                title    - What is being counted, e.g. Attendees. (Optional, Text)
+                progress - How far along it is. (Required, Number)
+                goal     - What it is counting towards. Drives the gauge, and a metric without one is
+                           drawn with no fill. The card type ignores it. (Optional, Number)
+                icon     - Tabler icon class, e.g. 'ti ti-users'. (Optional, Text)
+                format   - How to print progress and goal. Set per metric, because one module can hold
+                           an amount raised beside a head count. (Optional, number | currency | compact |
+                           currency-compact | percent. Defaults to number. See MetricNumber.lava)
+                featured - Promotes this metric above the others. (Optional, Boolean)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of the intro heading and description. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to medium)
+
+            metric.displaytype     - How to draw the metrics. (Optional, bar | semicircle | circle | card.
+                                     Defaults to bar)
+                                     bar        - A horizontal bar per metric, stacked. The figure sits
+                                                  inside the fill, the goal above it.
+                                     semicircle - A half ring per metric, stacked, with the scale's two
+                                                  ends labeled underneath.
+                                     circle     - A full ring per metric, side by side, with the
+                                                  percentage in the middle.
+                                     card       - No gauge at all: an icon, the figure, and a label.
+                                                  Use it where there is no goal to show.
+
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+{{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/Metric.js' | AddScriptLink:true }}
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+{% assign displayType = settings.metric.displaytype | Default:'bar' %}
+
+{% assign metricsSpacingClass = '' %}
+{% if content.intro != blank %}
+    {% assign metricsSpacingClass = 'mt-5' %}
+{% endif %}
+
+//- MARK: Markup
+{% if content.metrics != blank or content.intro != blank %}
+    <section class="metric-template template template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        <div class="container">
+            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+
+            {% if content.metrics != blank %}
+                <ul class="metrics metrics-{{ displayType }} js-metrics list-unstyled {{ metricsSpacingClass }}">
+                    {% for metric in content.metrics %}
+
+                        //- MARK: Metric Values
+                        {% assign progressNumber = metric.progress | AsDecimal %}
+                        {% assign goalNumber = metric.goal | AsDecimal %}
+
+                        {% assign percentNumber = 0 %}
+                        {% if goalNumber > 0 %}
+                            {% assign percentNumber = progressNumber | DividedBy:goalNumber,4 | Times:100 %}
+                        {% endif %}
+
+                        {% if percentNumber > 100 %}
+                            {% assign percentNumber = 100 %}
+                        {% endif %}
+                        {% assign percentLabel = percentNumber | Format:'#,##0' %}
+
+                        {% capture progressLabel %}{% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/MetricNumber.lava', value:progressNumber, format:metric.format %}{% endcapture %}
+                        {% assign progressLabel = progressLabel | Trim %}
+
+                        {% capture goalLabel %}{% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/MetricNumber.lava', value:goalNumber, format:metric.format %}{% endcapture %}
+                        {% assign goalLabel = goalLabel | Trim %}
+
+                        {% assign featuredClass = '' %}
+                        {% if metric.featured %}
+                            {% assign featuredClass = 'metric-featured' %}
+                        {% endif %}
+
+                        {% capture metricIcon %}
+                            {% if metric.icon != blank %}
+                                <span class="metric-icon" aria-hidden="true"><i class="{{ metric.icon }}"></i></span>
+                            {% endif %}
+                        {% endcapture %}
+
+                        <li class="metric {{ featuredClass }}" style="--metric-percent: {{ percentNumber }};">
+
+                            {% case displayType %}
+
+                                //- MARK: Bar
+                                {% when 'bar' %}
+                                    <div class="metric-bar-header">
+                                        {% if metric.title != blank %}
+                                            <span class="metric-title h1 m-0">{{ metric.title }}</span>
+                                        {% endif %}
+
+                                        {% if goalNumber > 0 %}
+                                            <span class="metric-goal">
+                                                <span class="metric-goal-label h6 m-0">Goal</span>
+                                                <span class="metric-goal-value h2 m-0">{{ goalLabel }}</span>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-track">
+                                            <div class="metric-bar-fill"></div>
+                                        </div>
+
+                                        <div class="metric-bar-marker"></div>
+
+                                        <div class="metric-bar-content">
+                                            {{ metricIcon }}
+
+                                            <span class="metric-value h2 m-0"
+                                                  data-metric-count="{{ progressNumber }}"
+                                                  data-metric-format="{{ metric.format | Default:'number' }}">{{ progressLabel }}</span>
+                                        </div>
+                                    </div>
+
+                                //- MARK: Semicircle
+                                {% when 'semicircle' %}
+                                    <div class="metric-gauge-frame">
+                                        <svg class="metric-gauge" viewBox="0 0 120 62" aria-hidden="true">
+                                            //- See the circle gauge below for why the stops are left uncolored.
+                                            <defs>
+                                                <linearGradient id="metric-gauge-track-gradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop class="metric-gauge-track-from" offset="0"></stop>
+                                                    <stop class="metric-gauge-track-to" offset="1"></stop>
+                                                </linearGradient>
+                                            </defs>
+
+                                            <path class="metric-gauge-track" d="M 6 58 A 54 54 0 0 1 114 58" pathLength="100"></path>
+                                            <path class="metric-gauge-fill" d="M 6 58 A 54 54 0 0 1 114 58" pathLength="100"></path>
+                                        </svg>
+
+                                        <div class="metric-gauge-body">
+                                            {{ metricIcon }}
+
+                                            <span class="metric-value display-2 m-0"
+                                                  data-metric-count="{{ progressNumber }}"
+                                                  data-metric-format="{{ metric.format | Default:'number' }}">{{ progressLabel }}</span>
+
+                                            {% if goalNumber > 0 %}
+                                                <span class="metric-percent h6 m-0"><span class="metric-percent-number">{{ percentLabel }}%</span><span class="metric-percent-label"> of the goal</span></span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    {% if goalNumber > 0 %}
+                                        <div class="metric-scale">
+                                            <span class="metric-scale-start h6 m-0">{% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/MetricNumber.lava', value:0, format:metric.format %}</span>
+                                            <span class="metric-scale-end h6 m-0">{{ goalLabel }}</span>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if metric.title != blank %}
+                                        <span class="metric-title h6 m-0">{{ metric.title }}</span>
+                                    {% endif %}
+
+                                //- MARK: Circle
+                                {% when 'circle' %}
+                                    <div class="metric-gauge-frame">
+                                        <svg class="metric-gauge" viewBox="0 0 120 120" aria-hidden="true">
+                                            /- A paint server the track's stroke can reference, so a theme can run a
+                                               gradient down it. The stops carry no color of their own: stop-color is a
+                                               CSS property, so a stylesheet sets it and nothing is hard coded here. -/
+                                            <defs>
+                                                <linearGradient id="metric-gauge-track-gradient" x1="0" y1="0" x2="0" y2="1">
+                                                    <stop class="metric-gauge-track-from" offset="0"></stop>
+                                                    <stop class="metric-gauge-track-to" offset="1"></stop>
+                                                </linearGradient>
+                                            </defs>
+
+                                            <circle class="metric-gauge-track" cx="60" cy="60" r="56" pathLength="100"></circle>
+                                            <circle class="metric-gauge-fill" cx="60" cy="60" r="56" pathLength="100"></circle>
+                                        </svg>
+
+                                        <div class="metric-gauge-body">
+                                            {{ metricIcon }}
+
+                                            {% if goalNumber > 0 %}
+                                                <span class="metric-percent display-2 m-0">{{ percentLabel }}%</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <div class="metric-caption">
+                                        <span class="metric-value display-2 m-0"
+                                              data-metric-count="{{ progressNumber }}"
+                                              data-metric-format="{{ metric.format | Default:'number' }}">{{ progressLabel }}</span>
+
+                                        {% if metric.title != blank %}
+                                            <span class="metric-title h6 m-0">{{ metric.title }}</span>
+                                        {% endif %}
+
+                                        {% if goalNumber > 0 %}
+                                            <span class="metric-goal">
+                                                <span class="metric-goal-label h6 m-0">Goal</span>
+                                                <span class="metric-goal-value h1 m-0">{{ goalLabel }}</span>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+
+                                //- MARK: Card
+                                {% else %}
+                                    {{ metricIcon }}
+
+                                    <span class="metric-value display-1 m-0"
+                                          data-metric-count="{{ progressNumber }}"
+                                          data-metric-format="{{ metric.format | Default:'number' }}">{{ progressLabel }}</span>
+
+                                    {% if metric.title != blank %}
+                                        <span class="metric-title h6 m-0">{{ metric.title }}</span>
+                                    {% endif %}
+
+                            {% endcase %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}

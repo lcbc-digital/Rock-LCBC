@@ -1,0 +1,70 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.intro-content {
+    &:has(.title.h1)              { --label-font-size: 20px; }
+    &:has(.title.h2)              { --label-font-size: 18px; }
+    &:has(.title.h3)              { --label-font-size: 16px; }
+    &:has(.title.h4),
+    &:has(.title.h5),
+    &:has(.title.h6)              { --label-font-size: 14px; }
+}
+
+//- MARK: Generic Styles
+.intro-content {
+
+    .title,
+    .description {
+        color: var(--template-foreground-color, inherit);
+    }
+
+    .title {
+        max-width: var(--intro-content-heading-max-width, 700px);
+    }
+
+    .description {
+        max-width: var(--intro-content-description-max-width, 700px);
+        opacity: var(--intro-content-description-opacity, 0.8);
+    }
+
+    .button-group {
+        width: 100%;
+
+        @media (min-width: $screen-sm-min) {
+            width: fit-content;
+        }
+
+        .btn {
+            text-transform: uppercase;
+        }
+    }
+}
+
+.intro-content-split {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--intro-content-gap, 1rem);
+    text-align: center;
+
+    .intro-content-lead,
+    .intro-content-support {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--intro-content-gap, 1rem);
+    }
+
+    @media (min-width: $screen-md-min) {
+        flex-direction: row;
+        align-items: var(--intro-content-split-align, flex-end);
+        gap: var(--intro-content-split-gap, 32px);
+        text-align: left;
+
+        .intro-content-lead,
+        .intro-content-support {
+            flex: 1 1 0;
+            align-items: flex-start;
+        }
+    }
+}

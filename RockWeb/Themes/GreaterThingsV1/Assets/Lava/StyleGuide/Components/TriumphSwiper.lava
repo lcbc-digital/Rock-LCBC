@@ -1,0 +1,82 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Triumph Swiper', description:'A carousel and slideshow shortcode from Triumph Tech. Wraps content in touch-friendly slides with optional navigation, pagination, autoplay, and effects.' %}
+
+
+//- MARK: Markup
+{% capture basic %}
+{% raw %}
+{[ swiper ]}
+    [[ slide ]]
+        <img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" class="w-100 img-responsive" alt="">
+    [[ endslide ]]
+    [[ slide ]]
+        <img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" class="w-100 img-responsive" alt="">
+    [[ endslide ]]
+    [[ slide ]]
+        <img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" class="w-100 img-responsive" alt="">
+    [[ endslide ]]
+{[ endswiper ]}
+{% endraw %}
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'basic', title:'Basic Swiper', demo:basic, lava:'true' %}
+
+
+{% capture navigation %}
+{% raw %}
+{[ swiper shownavigation:'true' navigationcolor:'#ff8610' ]}
+    [[ slide ]]<img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" class="w-100 img-responsive" alt="">[[ endslide ]]
+    [[ slide ]]<img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" class="w-100 img-responsive" alt="">[[ endslide ]]
+{[ endswiper ]}
+{% endraw %}
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'navigation', title:'With Arrows', demo:navigation, lava:'true' %}
+
+
+{% capture autoplay %}
+{% raw %}
+{[ swiper autoplay:'3000' loop:'true' effect:'fade' ]}
+    [[ slide ]]<img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" class="w-100 img-responsive" alt="">[[ endslide ]]
+    [[ slide ]]<img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" class="w-100 img-responsive" alt="">[[ endslide ]]
+    [[ slide ]]<img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg" class="w-100 img-responsive" alt="">[[ endslide ]]
+{[ endswiper ]}
+{% endraw %}
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'autoplay', title:'Autoplay with Fade', demo:autoplay, lava:'true' %}
+
+
+{% capture multi %}
+{% raw %}
+{[ swiper slidesperview:'3' spacebetween:'16' shownavigation:'true' ]}
+    [[ slide ]]<img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-1-1.jpg" class="w-100 img-responsive" alt="">[[ endslide ]]
+    [[ slide ]]<img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-1-1.jpg" class="w-100 img-responsive" alt="">[[ endslide ]]
+    [[ slide ]]<img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-1-1.jpg" class="w-100 img-responsive" alt="">[[ endslide ]]
+    [[ slide ]]<img src="/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-1-1.jpg" class="w-100 img-responsive" alt="">[[ endslide ]]
+{[ endswiper ]}
+{% endraw %}
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'multi', title:'Three Slides Per View', demo:multi, lava:'true' %}
+
+
+<h3 class="styleguide-example-title mt-5" tt-cascade-item>Common Parameters</h3>
+<div class="table-responsive" tt-cascade-item>
+    <table class="table styleguide-settings">
+        <thead>
+            <tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><th>shownavigation</th><td>false</td><td>Show previous/next arrows.</td></tr>
+            <tr><th>showpagination</th><td>true</td><td>Show pagination dots below the slider.</td></tr>
+            <tr><th>paginationtype</th><td>bullets</td><td>One of: bullets, fraction, progressbar, custom.</td></tr>
+            <tr><th>paginationclickable</th><td>false</td><td>Let users click bullets to jump to a slide.</td></tr>
+            <tr><th>paginationcolor</th><td>none</td><td>Color of the pagination dots.</td></tr>
+            <tr><th>navigationcolor</th><td>none</td><td>Color of the arrow buttons.</td></tr>
+            <tr><th>slidesperview</th><td>1</td><td>How many slides are visible at once.</td></tr>
+            <tr><th>spacebetween</th><td>0</td><td>Pixel gap between slides.</td></tr>
+            <tr><th>speed</th><td>300</td><td>Transition duration in milliseconds.</td></tr>
+            <tr><th>autoplay</th><td>0</td><td>Auto-advance interval in ms. 0 disables autoplay.</td></tr>
+            <tr><th>loop</th><td>false</td><td>Return to the first slide after the last.</td></tr>
+            <tr><th>effect</th><td>slide</td><td>Transition style: slide, fade, cube, coverflow, flip, creative, cards.</td></tr>
+            <tr><th>centeredslides</th><td>false</td><td>Center the active slide instead of aligning left.</td></tr>
+            <tr><th>autoheight</th><td>false</td><td>Match the swiper height to the active slide.</td></tr>
+        </tbody>
+    </table>
+</div>

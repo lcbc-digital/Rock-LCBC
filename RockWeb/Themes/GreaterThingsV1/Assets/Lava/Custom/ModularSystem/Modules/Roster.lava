@@ -1,0 +1,81 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Roster.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - Roster channel. Turns the People attribute matrix into the
+                 array of people the template expects, adds the display settings, then renders the
+                 template. A matrix row can point at a person record for their photo and name, spell
+                 those out by hand, or both -- see the People section for which wins.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: People
+/-
+    A row can name someone in Rock, spell the person out by hand, or do both. Picking a person
+    supplies the photo and the name; anything typed into Image or Name wins over what the person
+    carries, which is how a row shows a stage name or a portrait that is not their profile photo.
+
+    Role, Bio, Link Text and Buttons have no equivalent on a person record and are always manual.
+-/
+{% assign personRows = module | Attribute:'People','Object' | Property:'AttributeMatrixItems' | OrderBy:'Order' %}
+
+{% assign personList = '' %}
+{% for row in personRows %}
+    {% assign rowPerson = row | Attribute:'Person','Object' %}
+    {% assign rowImageGuid = row | Attribute:'Image','RawValue' %}
+
+    //- A row earns its place on either input. Without this it takes both, and picking a person
+    //- alone -- the whole point of the column -- would silently drop the row.
+    {% if rowPerson != null or rowImageGuid != blank %}
+
+        {% assign rowImageUrl = '' %}
+        {% if rowImageGuid != blank %}
+            {% assign rowImageUrl = rowImageGuid | ImageUrl %}
+        {% elseif rowPerson != null %}
+            {% assign rowImageUrl = rowPerson.PhotoUrl %}
+        {% endif %}
+        {% capture rowImageUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:rowImageUrl, cdnParams:'' %}{% endcapture %}
+        {% assign rowImageUrl = rowImageUrl | Trim %}
+
+        {% assign rowName = row | Attribute:'Name' %}
+        {% if rowName == blank and rowPerson != null %}
+            {% assign rowName = rowPerson.FullName %}
+        {% endif %}
+
+        {% assign rowRole = row | Attribute:'Role' %}
+        {% assign rowBio = row | Attribute:'Bio' %}
+        {% assign rowLinkText = row | Attribute:'LinkText' %}
+
+        //- See ButtonGroup.lava for why the JSON round trip is required on a key value list.
+        {% assign rowButtons = row | Attribute:'Buttons','Object' | ToJSON | FromJSON %}
+
+        {% assign person = ''
+            | AddToDictionary:'image',rowImageUrl
+            | AddToDictionary:'name',rowName
+            | AddToDictionary:'role',rowRole
+            | AddToDictionary:'bio',rowBio
+            | AddToDictionary:'linktext',rowLinkText
+            | AddToDictionary:'buttons',rowButtons
+        %}
+
+        {% assign personList = personList | AddToArray:person %}
+    {% endif %}
+{% endfor %}
+
+{% assign content = content | AddToDictionary:'people',personList %}
+
+//- MARK: Display Settings
+{% assign cardType = module | Attribute:'CardType','RawValue' %}
+{% assign bandColor = module | Attribute:'BandColor' %}
+
+{% assign rosterDisplay = ''
+    | AddToDictionary:'cardtype',cardType
+    | AddToDictionary:'bandcolor',bandColor
+%}
+
+{% assign settings = settings | AddToDictionary:'roster',rosterDisplay %}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/Roster.lava', content:content, settings:settings %}

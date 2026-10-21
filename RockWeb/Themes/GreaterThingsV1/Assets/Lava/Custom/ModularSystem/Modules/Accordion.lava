@@ -1,0 +1,35 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Accordion.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - Accordion channel. Turns the Items attribute matrix into the array of
+                 item dictionaries the template expects, adds the display settings, then renders the template.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: Items
+{% assign itemRows = module | Attribute:'Items','Object' | Property:'AttributeMatrixItems' | OrderBy:'Order' %}
+
+{% assign itemList = '' %}
+{% for row in itemRows %}
+    {% assign rowTitle = row | Attribute:'Title' %}
+    {% assign rowDescription = row | Attribute:'Description' %}
+
+    {% assign accordionItem = ''
+        | AddToDictionary:'title',rowTitle
+        | AddToDictionary:'description',rowDescription
+    %}
+
+    {% assign itemList = itemList | AddToArray:accordionItem %}
+{% endfor %}
+
+{% assign content = content | AddToDictionary:'items',itemList %}
+
+//- MARK: Display Settings
+{% assign firstItemOpen = module | Attribute:'FirstItemOpen' | AsBoolean %}
+{% assign settings = settings | AddToDictionary:'firstitemopen',firstItemOpen %}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/Accordion.lava', content:content, settings:settings %}

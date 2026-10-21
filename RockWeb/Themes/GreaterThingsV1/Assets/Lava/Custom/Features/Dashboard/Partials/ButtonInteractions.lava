@@ -1,0 +1,243 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/ButtonInteractions.lava' %}
+    Description: Which buttons people pressed, gathered under the page they pressed them on.
+
+                 Presentation only. There is no separate click log: a press is an ordinary page view
+                 carrying the tags TrackedUrl.lava put on the link. Which utm column holds what, and
+                 why a press is counted once per visitor per button, are documented beside the queries
+                 in PersistedDatasets/dashboard.lava.
+
+                 Renders inside InteractionSummary.lava, which is where its Requires list comes from.
+
+    Requires from Base.lava:
+        dashboardWindow, dashboardShortRangeLabel
+-/
+
+//- MARK: Figures
+{% assign buttons = dashboardWindow.Buttons %}
+{% assign buttonPages = buttons.Pages %}
+{% assign buttonClicks = buttons.Clicks %}
+
+//- Assigned outside the panel because the modal below is gated on them too.
+{% assign buttonPageLimit = 10 %}
+
+{% assign buttonPageCount = buttonPages | Size %}
+
+//- MARK: Filter Options
+//- Built off the loaded rows. Id and title together, so the menu shows the name and filters on id.
+{% assign destinationOptions = '' | Split:',' %}
+{% assign destinationSeen = '' | Split:',' %}
+
+{% for buttonRow in buttonClicks %}
+    {% unless destinationSeen contains buttonRow.DestinationId %}
+        {% assign destinationSeen = destinationSeen | AddToArray:buttonRow.DestinationId %}
+
+        {% assign destinationOption = ''
+            | AddToDictionary:'id',buttonRow.DestinationId
+            | AddToDictionary:'name',buttonRow.Destination
+        %}
+        {% assign destinationOptions = destinationOptions | AddToArray:destinationOption %}
+    {% endunless %}
+{% endfor %}
+
+{% assign destinationOptions = destinationOptions | OrderBy:'name' %}
+
+//- MARK: Markup
+<div class="panel panel-block">
+    <div class="panel-heading rank-heading">
+        <h3 class="panel-title">Button Interactions</h3>
+
+        <div class="rank-heading-tools">
+            {% if buttonPageCount > 0 %}
+                <div class="dropdown">
+                    <button type="button" class="btn btn-default btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="js-source-label">All Pages</span>
+                        <i class="ti ti-chevron-down dashboard-period-caret" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="#" class="js-source-filter" data-source="">All Pages</a></li>
+                        <li class="divider" role="separator"></li>
+                        {% for sourceOption in buttonPages %}
+                            <li><a href="#" class="js-source-filter" data-source="{{ sourceOption.PageId }}">{{ sourceOption.PageName }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="dropdown">
+                    <button type="button" class="btn btn-default btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <span class="js-destination-label">All Destinations</span>
+                        <i class="ti ti-chevron-down dashboard-period-caret" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a href="#" class="js-destination-filter" data-destination="">All Destinations</a></li>
+                        <li class="divider" role="separator"></li>
+                        {% for destinationOption in destinationOptions %}
+                            <li><a href="#" class="js-destination-filter" data-destination="{{ destinationOption.id }}">{{ destinationOption.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="panel-body">
+        {% if buttonPageCount > 0 %}
+            <ul class="rank-list button-list js-button-list">
+                {% for buttonPageRow in buttonPages limit:buttonPageLimit %}
+                    {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/ButtonPageRow.lava', buttonPageRow:buttonPageRow, buttonClicks:buttonClicks %}
+                {% endfor %}
+            </ul>
+
+            <div class="alert alert-info rank-empty js-button-empty" hidden>Nothing matches both filters.</div>
+
+            {% if buttonPageCount > buttonPageLimit %}
+                <button type="button" class="btn btn-link rank-details" data-toggle="modal" data-target="#dashboard-buttons-modal">
+                    <i class="ti ti-arrows-maximize" aria-hidden="true"></i>
+                    <span>View All</span>
+                </button>
+            {% endif %}
+        {% else %}
+            <p class="text-muted">No buttons were pressed in the selected window.</p>
+        {% endif %}
+    </div>
+</div>
+
+//- MARK: All Buttons Modal
+{% if buttonPageCount > buttonPageLimit %}
+
+    <div class="modal fade" id="dashboard-buttons-modal" tabindex="-1" role="dialog" aria-labelledby="dashboard-buttons-modal-title">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title rank-modal-title" id="dashboard-buttons-modal-title">{{ dashboardShortRangeLabel }}</h4>
+                </div>
+
+                <div class="modal-body">
+                    <ul class="rank-list button-list js-button-list">
+                        {% for buttonPageRow in buttonPages %}
+                            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/ButtonPageRow.lava', buttonPageRow:buttonPageRow, buttonClicks:buttonClicks %}
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+//- MARK: Script
+<script>
+    (function () {
+        var lists = document.querySelectorAll('.js-button-list');
+        if (!lists.length) return;
+
+        var sourceFilter = '';
+        var destinationFilter = '';
+
+        function applyFilters() {
+            lists.forEach(function (list) {
+                var groups = list.querySelectorAll('.button-group-row');
+                var peak = 0;
+                var visibleGroups = 0;
+
+                groups.forEach(function (group) {
+                    var matchesSource = !sourceFilter || group.getAttribute('data-source-page') === sourceFilter;
+                    var rows = group.querySelectorAll('.button-subrow');
+                    var total = 0;
+                    var shown = 0;
+
+                    rows.forEach(function (row) {
+                        var matchesDestination = !destinationFilter || row.getAttribute('data-destination-page') === destinationFilter;
+
+                        row.hidden = !(matchesSource && matchesDestination);
+
+                        if (row.hidden) return;
+
+                        total += parseInt(row.getAttribute('data-clicks'), 10) || 0;
+                        shown += 1;
+                    });
+
+                    var visible = matchesSource && shown > 0;
+
+                    group.hidden = !visible;
+
+                    if (!visible) return;
+
+                    visibleGroups += 1;
+                    peak = Math.max(peak, total);
+                    group.setAttribute('data-total', total);
+
+                    var totalCell = group.querySelector('.js-button-total');
+
+                    if (totalCell) totalCell.textContent = total.toLocaleString();
+                });
+
+                // Rescaled against what is left visible.
+                groups.forEach(function (group) {
+                    if (group.hidden || peak <= 0) return;
+
+                    var total = parseInt(group.getAttribute('data-total'), 10) || 0;
+                    var toggle = group.querySelector('.js-button-toggle');
+
+                    if (toggle) {
+                        toggle.style.setProperty('--rank-total', ((total / peak) * 100).toFixed(1) + '%');
+                    }
+                });
+
+                var empty = list.parentNode.querySelector('.js-button-empty');
+                if (empty) empty.hidden = visibleGroups > 0;
+            });
+        }
+
+        function bind(selector, attribute, labelSelector, emptyText, assign) {
+            document.querySelectorAll(selector).forEach(function (option) {
+                option.addEventListener('click', function (event) {
+                    event.preventDefault();
+
+                    assign(option.getAttribute(attribute));
+
+                    document.querySelectorAll(labelSelector).forEach(function (label) {
+                        label.textContent = option.textContent.trim() || emptyText;
+                    });
+
+                    applyFilters();
+                });
+            });
+        }
+
+        bind('.js-source-filter', 'data-source', '.js-source-label', 'All Pages', function (value) {
+            sourceFilter = value;
+        });
+
+        bind('.js-destination-filter', 'data-destination', '.js-destination-label', 'All Destinations', function (value) {
+            destinationFilter = value;
+        });
+
+        function toggleGroup(toggle) {
+            var group = toggle.closest('.button-group-row');
+            if (!group) return;
+
+            var open = group.getAttribute('data-open') === 'true';
+
+            group.setAttribute('data-open', open ? 'false' : 'true');
+            toggle.setAttribute('aria-expanded', open ? 'false' : 'true');
+        }
+
+        document.querySelectorAll('.js-button-toggle').forEach(function (toggle) {
+            toggle.addEventListener('click', function () {
+                toggleGroup(toggle);
+            });
+
+            // A div rather than a button, because a button cannot hold the row's grid.
+            toggle.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    toggleGroup(toggle);
+                }
+            });
+        });
+    })();
+</script>

@@ -1,0 +1,54 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Videos.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - Videos channel. Turns the Videos attribute matrix into the
+                 array of video dictionaries the template expects, then renders the template.
+
+                 The matrix holds only the media element and an optional poster. The label and the
+                 fallback poster are both read off the element itself, which is already loaded here.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: Videos
+{% assign videoRows = module | Attribute:'Videos','Object' | Property:'AttributeMatrixItems' | OrderBy:'Order' %}
+
+{% assign videoList = '' %}
+{% for row in videoRows %}
+    {% assign videoElement = row | Attribute:'Video','Object' %}
+    {% assign videoId = videoElement | Property:'Id' %}
+
+    /- The label is the media element's own name rather than a matrix column, so it stays right
+       when a video is renamed in the media library. Trimmed because those names are entered by
+       hand and routinely carry leading spaces. -/
+    {% assign rowTitle = videoElement | Property:'Name' | Trim %}
+
+    /- The poster is resolved here rather than in the template. VideoCard.lava can fall back to the
+       media element's default thumbnail on its own, but that costs a lookup per video, and the
+       element is already loaded at this point. -/
+    {% assign thumbnailGuid = row | Attribute:'Thumbnail','RawValue' %}
+    {% assign thumbnailUrl = '' %}
+    {% if thumbnailGuid != blank %}
+        {% assign thumbnailUrl = thumbnailGuid | ImageUrl %}
+    {% endif %}
+    {% if thumbnailUrl == blank %}
+        {% assign thumbnailUrl = videoElement | Property:'DefaultThumbnailUrl' %}
+    {% endif %}
+    {% capture thumbnailUrl %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:thumbnailUrl, cdnParams:'' %}{% endcapture %}
+    {% assign thumbnailUrl = thumbnailUrl | Trim %}
+
+    {% assign videoItem = ''
+        | AddToDictionary:'video',videoId
+        | AddToDictionary:'thumbnail',thumbnailUrl
+        | AddToDictionary:'title',rowTitle
+    %}
+
+    {% assign videoList = videoList | AddToArray:videoItem %}
+{% endfor %}
+
+{% assign content = content | AddToDictionary:'videos',videoList %}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/Videos.lava', content:content, settings:settings %}

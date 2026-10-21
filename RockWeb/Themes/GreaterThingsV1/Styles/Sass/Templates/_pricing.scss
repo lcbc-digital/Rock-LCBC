@@ -1,0 +1,156 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.pricing-template {
+
+    .pricing-card-title {
+        font-weight: 900;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+    }
+
+    .pricing-card-ribbon text {
+        font-weight: 700;
+    }
+
+    .pricing-card .btn {
+        text-transform: uppercase;
+    }
+
+    .pricing-card-featured::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 40%;
+        z-index: -1;
+
+        background-image: url("#{$cdn-theme-root}/Assets/Images/Textures/TextureThree.jpg?optimizer=image");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+
+        -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+        mask-image: linear-gradient(to bottom, #000 40%, transparent 100%);
+
+        filter: grayscale(1);
+        opacity: 0.4;
+        pointer-events: none;
+    }
+}
+
+//- MARK: Generic Styles
+.pricing-template {
+
+    .pricing-cards {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+        justify-content: center;
+        padding-top: var(--pricing-card-border-width, 4px);
+    }
+
+    .pricing-card {
+        display: flex;
+        flex-direction: column;
+        flex: 0 1 var(--pricing-card-width, 300px);
+        padding: 24px;
+        border: var(--pricing-card-border-width, 4px) solid var(--pricing-card-border-color, var(--pricing-featured-background, var(--neutral-2)));
+        background-color: var(--pricing-card-background, transparent);
+        margin-top: calc(-1 * var(--pricing-card-border-width, 4px));
+
+        & + .pricing-card {
+            margin-left: calc(-1 * var(--pricing-card-border-width, 4px));
+        }
+    }
+
+    .pricing-card-body {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pricing-card-title {
+        color: var(--pricing-card-title-color, var(--template-foreground-color, var(--ui-strong)));
+    }
+
+    .pricing-card-price {
+        color: var(--pricing-card-price-color, var(--template-foreground-color, var(--secondary)));
+    }
+
+    .pricing-card-description {
+        color: var(--pricing-card-description-color, var(--template-foreground-color, var(--ui-strong)));
+        opacity: var(--pricing-card-description-opacity, 0.8);
+        padding-bottom: 48px;
+    }
+
+    .pricing-card .button-group {
+        margin-top: 24px;
+
+        .btn:not(#cms-admin-footer *) {
+            width: 100%;
+        }
+    }
+
+    //- MARK: Sold Out
+    .pricing-card-sold-out {
+        opacity: 0.5;
+
+        &, * {
+            pointer-events: none;
+        }
+    }
+
+    //- MARK: Featured
+    .pricing-card-featured {
+        position: relative;
+        z-index: 1;
+        margin-top: -16px;
+        margin-bottom: -16px;
+
+        --pricing-card-background: var(--pricing-featured-background, var(--neutral-2));
+        --pricing-card-title-color: var(--primary);
+        --pricing-card-price-color: var(--ui-softest);
+        --pricing-card-description-color: var(--ui-softest);
+
+        background-image: var(--pricing-featured-image, none);
+        background-repeat: no-repeat;
+        background-position: top right;
+        background-size: cover;
+
+        box-shadow: var(--pricing-featured-shadow, 0 18px 40px rgba(0, 0, 0, 0.25));
+    }
+
+    .pricing-card-ribbon {
+        position: absolute;
+        top: -8px;
+        right: -7px;
+        z-index: 2;
+
+        color: var(--pricing-ribbon-background, var(--danger));
+
+        text {
+            fill: var(--pricing-ribbon-color, var(--ui-softest));
+            font-family: inherit;
+            font-size: var(--pricing-ribbon-font-size, 16px);
+        }
+    }
+
+    @media (max-width: $screen-xs-max) {
+        .pricing-card {
+            flex-basis: 100%;
+
+            & + .pricing-card {
+                margin-left: 0;
+                margin-top: calc(-1 * var(--pricing-card-border-width, 4px));
+            }
+        }
+
+        .pricing-card-featured {
+            margin-top: calc(-1 * var(--pricing-card-border-width, 4px));
+            margin-bottom: calc(-1 * var(--pricing-card-border-width, 4px));
+        }
+    }
+}

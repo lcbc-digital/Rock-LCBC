@@ -1,0 +1,35 @@
+@use "variables" as *;
+
+.img-inset,
+.img-outset {
+    position: relative;
+    --image-border-color: rgba(255, 255, 255, 0.4);
+    --image-border-radius: 0px;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: var(--image-border-offset, 0px);
+        right: var(--image-border-offset, 0px);
+        bottom: var(--image-border-offset, 0px);
+        left: var(--image-border-offset, 0px);
+        border: 1px solid var(--image-border-color, rgba(255, 255, 255, 0.4));
+        border-radius: var(--image-border-radius, 0px);
+        pointer-events: none;
+        z-index: 1;
+    }
+}
+
+.img-inset { --image-border-offset: 16px; }
+.img-outset { --image-border-offset: -16px; }
+
+.img-fallback-vertical,
+.img-fallback-square,
+.img-fallback-horizontal {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.img-fallback-vertical   { background-image: var(--fallback-image-vertical); }
+.img-fallback-square     { background-image: var(--fallback-image-square); }
+.img-fallback-horizontal { background-image: var(--fallback-image-horizontal); }

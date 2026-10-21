@@ -1,0 +1,101 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/PosterAccordion.lava', content:posterContent, settings:posterSettings %}
+    Description: A grid of poster tiles, each showing an image with a title along the bottom. Opening a
+                 poster blurs its image and fades in a panel of extra content over it. Only one poster
+                 is open at a time, and opening a second closes the first.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro   - Optional lead content above the posters. Passed to IntroContent.lava -- see that
+                      file for its keys. Omit it to render posters only.
+
+            posters - Array of poster dictionaries. Keys:
+                image         - The image behind the tile. (Required, Image Url)
+                title         - Title along the bottom of the tile. (Optional, Text)
+                subtitle      - Sits under the title. (Optional, Text)
+                activetitle   - Heading of the panel revealed on open. (Optional, Text)
+                activecontent - Body of the panel revealed on open. (Optional, HTML)
+                buttons       - Up to two buttons inside the revealed panel. See ButtonGroup.lava for
+                                the shape. (Optional, Array)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of the intro heading and description. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to medium)
+
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+//- MARK: Settings Logic
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+
+{% assign postersSpacingClass = '' %}
+{% if content.intro != blank %}
+    {% assign postersSpacingClass = 'mt-5' %}
+{% endif %}
+
+{{ '~/Themes/GreaterThingsV1/Assets/Scripts/Components/PosterAccordion.js' | AddScriptLink:true }}
+
+//- MARK: Markup
+{% if content.posters != blank or content.intro != blank %}
+    <section class="poster-accordion-template template template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        <div class="container">
+            {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+
+            {% if content.posters != blank %}
+                <div class="poster-accordion js-poster-accordion {{ postersSpacingClass }}">
+                    <div class="row">
+                        {% for poster in content.posters %}
+                            <div class="col-xs-12 col-sm-6 col-md-4 mb-4">
+                                <div class="poster-accordion-item js-poster-accordion-item" tabindex="0" role="button" aria-expanded="false">
+                                    <img class="poster-accordion-image img-fallback-vertical"{% if poster.image != blank %} src="{{ poster.image }}"{% endif %} alt="{{ poster.title | Default:'Poster' }}">
+                                    <div class="poster-accordion-overlay"></div>
+                                    <div class="poster-accordion-blur"></div>
+
+                                    <div class="poster-accordion-panel">
+                                        {% if poster.activetitle != blank %}
+                                            <h3 class="poster-accordion-panel-title h5 m-0">{{ poster.activetitle }}</h3>
+                                        {% endif %}
+
+                                        {% if poster.activecontent != blank %}
+                                            <div class="poster-accordion-panel-content">{{ poster.activecontent }}</div>
+                                        {% endif %}
+
+                                        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:poster.buttons, direction:'column' %}
+
+                                    </div>
+
+                                    <div class="poster-accordion-body">
+                                        <div class="poster-accordion-heading">
+                                            {% if poster.title != blank %}
+                                                <h3 class="poster-accordion-title h5 m-0">{{ poster.title }}</h3>
+                                            {% endif %}
+
+                                            {% if poster.subtitle != blank %}
+                                                <p class="poster-accordion-subtitle m-0">{{ poster.subtitle }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        <span class="poster-accordion-icon" aria-hidden="true">
+                                            <i class="ti ti-plus"></i>
+                                            <i class="ti ti-minus"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}

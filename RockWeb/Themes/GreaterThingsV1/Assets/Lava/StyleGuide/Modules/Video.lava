@@ -1,0 +1,61 @@
+/-
+    Video variants. Single shows the full-width layout; five shows the swiper layout.
+
+    Parameters:
+        variant        - Which example to draw. Already validated by Base.lava. (Required, Text)
+        sampleImage169 - 16:9 fallback image URL. Passed in from Base.lava setup variables. (Required, Image Url)
+        sampleVideoIds - Comma-separated Rock media element Ids. Passed in from Base.lava setup variables. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign sampleButton = ''
+    | AddToDictionary:'Key','#'
+    | AddToDictionary:'Value','See All Videos'
+%}
+{% assign sampleButtons = '' | AddToArray:sampleButton %}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','Watch and Learn'
+    | AddToDictionary:'heading','Recent Messages'
+    | AddToDictionary:'description','Catch up on the latest messages from our teaching team.'
+    | AddToDictionary:'buttons',sampleButtons
+%}
+
+{% assign videoIdArray = sampleVideoIds | Split:',' %}
+
+{% assign videos = '' %}
+{% for videoId in videoIdArray %}
+    {% assign videoEntry = '' | AddToDictionary:'video',videoId %}
+    {% assign videos = videos | AddToArray:videoEntry %}
+{% endfor %}
+
+//- MARK: Settings
+{% assign introSettings = '' | AddToDictionary:'contentalignment','center' %}
+
+{% case variant %}
+    {% when 'five' %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'videos',videos %}
+        {% assign settings = '' | AddToDictionary:'intro',introSettings | AddToDictionary:'verticalpadding','small' %}
+
+    {% else %}
+        {% assign firstVideoId = videoIdArray | First %}
+        {% assign singleVideo = '' | AddToDictionary:'video',firstVideoId %}
+        {% assign singleVideoArray = '' | AddToArray:singleVideo %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'videos',singleVideoArray %}
+        {% assign settings = '' | AddToDictionary:'intro',introSettings | AddToDictionary:'verticalpadding','small' %}
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Video', description:'One or more videos, each opening in a modal player. A single video renders full width; two or more render in a swiper.' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Videos</th>
+        <td>{{ content.videos | Size }}</td>
+    </tr>
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/Videos.lava', content:content, settings:settings %}

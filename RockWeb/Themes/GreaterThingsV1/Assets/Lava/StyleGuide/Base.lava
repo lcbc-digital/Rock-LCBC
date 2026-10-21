@@ -1,0 +1,206 @@
+/-
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Base.lava' %}
+
+-/
+
+{% assign base = '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/' %}
+{% assign partnerName = 'LCBC' %}
+{% assign themeName = 'GreaterThingsV1' %}
+{% assign defaultPage = 'Introduction' %}
+
+/- Each item is a slug: it is the file name (Components/<slug>.lava) AND the
+   ?component= value. Keep them PascalCase with no spaces or punctuation --
+   the sidebar label is derived from the slug in Partials/Navigation.lava, so
+   "SideBySide" displays as "Side By Side" with nothing else to keep in sync. -/
+{% capture navJson %}
+[
+    { "Group": "", "Items": ["Introduction"] },
+    { "Group": "Core Styles", "Items": ["Typography", "Colors", "Buttons"] },
+    { "Group": "Components",  "Items": ["Panels", "Cards", "Alerts", "Modals", "Accordions", "Forms", "Navigation"] },
+    { "Group": "Layouts", "BaseUrl": "/greater-things/style-guide/layouts", "Items": ["FullWidth", "FullWidthNarrow", "Uncontained", "LeftSidebar", "RightSidebar"] },
+    { "Group": "Modules", "Folder": "Modules", "FullWidth": true, "Items": ["ModularSettings", "Billboard", "SideBySide", "Video", "Pricing", "Roster", "PosterAccordion", "Schedule", "TimedShowcase", "Metrics", "Accordion", "Separator", "TextHighlight"] },
+    { "Group": "Shortcodes",  "Items": ["ModularPageById", "ModuleById"] },
+    { "Group": "Reporting",  "Items": ["LinkTracking"] },
+    { "Group": "External References",  "Items": [] }
+]
+{% endcapture %}
+{% assign nav = navJson | FromJSON %}
+
+/- The examples a section offers, flat and tagged with the section they belong to. Declared here
+   rather than in the section file because {% include %} runs in a child scope: params passed in
+   reach it, but nothing it assigns comes back out, so the bar could never read a list the section
+   owned. "For" matches an Items slug; "Slug" is the ?variant= value. -/
+{% capture variantsJson %}
+[
+    { "For": "ModularSettings", "Slug": "start",       "Label": "Align: Start" },
+    { "For": "ModularSettings", "Slug": "center",      "Label": "Align: Center" },
+    { "For": "ModularSettings", "Slug": "end",         "Label": "Align: End" },
+    { "For": "ModularSettings", "Slug": "split",       "Label": "Align: Split" },
+    { "For": "ModularSettings", "Slug": "colors",      "Label": "Colors" },
+    { "For": "ModularSettings", "Slug": "background",  "Label": "Background + Image" },
+    { "For": "ModularSettings", "Slug": "padding",     "Label": "Padding" },
+    { "For": "ModularSettings", "Slug": "separator",   "Label": "Separator" },
+    { "For": "Billboard",   "Slug": "small",            "Label": "Small" },
+    { "For": "Billboard",   "Slug": "medium",           "Label": "Medium" },
+    { "For": "Billboard",   "Slug": "full",             "Label": "Full" },
+    { "For": "Billboard",   "Slug": "video",            "Label": "Video Background" },
+    { "For": "Billboard",   "Slug": "dev-heading-only",  "Label": "Heading Only",       "DevOnly": true },
+    { "For": "Billboard",   "Slug": "dev-no-image",      "Label": "No Image",           "DevOnly": true },
+    { "For": "Billboard",   "Slug": "dev-long-content",  "Label": "Long Content",       "DevOnly": true },
+    { "For": "Billboard",   "Slug": "dev-invalid-video", "Label": "Invalid Video",      "DevOnly": true },
+    { "For": "SideBySide", "Slug": "image-standard",   "Label": "Image: Standard" },
+    { "For": "SideBySide", "Slug": "dev-no-image",      "Label": "No Image",           "DevOnly": true },
+    { "For": "SideBySide", "Slug": "dev-long-content",  "Label": "Long Content",       "DevOnly": true },
+    { "For": "SideBySide", "Slug": "image-full-bleed",  "Label": "Image: Full Bleed" },
+    { "For": "SideBySide", "Slug": "video-standard",   "Label": "Video: Standard" },
+    { "For": "SideBySide", "Slug": "video-full-bleed",  "Label": "Video: Full Bleed" },
+    { "For": "Video",      "Slug": "single",            "Label": "Single" },
+    { "For": "Video",      "Slug": "five",              "Label": "Five" },
+    { "For": "Roster",          "Slug": "profile",  "Label": "Profile" },
+    { "For": "Roster",          "Slug": "poster",   "Label": "Poster" },
+    { "For": "Roster",          "Slug": "band",     "Label": "Band Color" },
+    { "For": "Roster",          "Slug": "dev-few",          "Label": "Few People",     "DevOnly": true },
+    { "For": "Roster",          "Slug": "dev-no-image",     "Label": "No Image",       "DevOnly": true },
+    { "For": "Roster",          "Slug": "dev-mixed",        "Label": "Mixed Content",  "DevOnly": true },
+    { "For": "PosterAccordion", "Slug": "three",    "Label": "Three" },
+    { "For": "PosterAccordion", "Slug": "five",     "Label": "Five + Split Intro" },
+    { "For": "PosterAccordion", "Slug": "dev-mixed", "Label": "Mixed Content", "DevOnly": true },
+    { "For": "Schedule",        "Slug": "three-day",  "Label": "Three Day" },
+    { "For": "Schedule",        "Slug": "dev-one-day",  "Label": "One Day",        "DevOnly": true },
+    { "For": "Schedule",        "Slug": "dev-ten-days", "Label": "Ten Days",       "DevOnly": true },
+    { "For": "TimedShowcase",        "Slug": "default",     "Label": "Default" },
+    { "For": "TimedShowcase",        "Slug": "dev-one",     "Label": "One Item",      "DevOnly": true },
+    { "For": "TimedShowcase",        "Slug": "dev-four",    "Label": "Four Items",    "DevOnly": true },
+    { "For": "TimedShowcase",        "Slug": "dev-mixed",   "Label": "Mixed Content", "DevOnly": true },
+    { "For": "Metrics",         "Slug": "bar",         "Label": "Bars" },
+    { "For": "Metrics",         "Slug": "semicircle",  "Label": "Half Dials" },
+    { "For": "Metrics",         "Slug": "circle",      "Label": "Rings" },
+    { "For": "Metrics",         "Slug": "card",        "Label": "Cards" },
+    { "For": "Metrics",         "Slug": "dev-single",  "Label": "Single",        "DevOnly": true },
+    { "For": "Metrics",         "Slug": "dev-many",    "Label": "Many",          "DevOnly": true },
+    { "For": "Metrics",         "Slug": "dev-mixed",   "Label": "Mixed Content", "DevOnly": true },
+    { "For": "Pricing", "Slug": "standard",   "Label": "Standard" },
+    { "For": "Pricing", "Slug": "sold-out",   "Label": "Sold Out" },
+    { "For": "Pricing", "Slug": "dev-single",       "Label": "Single Card",        "DevOnly": true },
+    { "For": "Pricing", "Slug": "dev-five",         "Label": "Five Cards",         "DevOnly": true },
+    { "For": "Pricing", "Slug": "dev-mixed-length", "Label": "Mixed Content",      "DevOnly": true },
+    { "For": "Pricing", "Slug": "dev-long-ribbon",  "Label": "Long Ribbon",        "DevOnly": true },
+    { "For": "Cards", "Slug": "standard",        "Label": "Standard" },
+    { "For": "Cards", "Slug": "full-bleed",       "Label": "Full Bleed" },
+    { "For": "Cards", "Slug": "poster",           "Label": "Poster" },
+    { "For": "Cards", "Slug": "standard-color",   "Label": "Standard + Color" },
+    { "For": "Cards", "Slug": "poster-color",     "Label": "Poster + Color" },
+    { "For": "Cards", "Slug": "dev-single",          "Label": "Single Card",         "DevOnly": true },
+    { "For": "Cards", "Slug": "dev-many",            "Label": "Many Cards",           "DevOnly": true },
+    { "For": "Cards", "Slug": "dev-mixed",           "Label": "Mixed Text Lengths",   "DevOnly": true },
+    { "For": "Cards", "Slug": "dev-poster-no-image", "Label": "Poster: No Image",     "DevOnly": true },
+    { "For": "Accordion",       "Slug": "default",     "Label": "Default" },
+    { "For": "Accordion",       "Slug": "dev-mixed",   "Label": "Mixed Content", "DevOnly": true },
+    { "For": "Separator",       "Slug": "ripped",       "Label": "Ripped" },
+    { "For": "Separator",       "Slug": "gradient-one", "Label": "Gradient One" },
+    { "For": "Separator",       "Slug": "gradient-two",  "Label": "Gradient Two" },
+    { "For": "TextHighlight",   "Slug": "plain",         "Label": "Plain" },
+    { "For": "TextHighlight",   "Slug": "highlighted",   "Label": "Highlighted" }
+]
+{% endcapture %}
+{% assign allVariants = variantsJson | FromJSON %}
+
+{% capture slugCsv %}{% for group in nav %}{% for item in group.Items %}{% if item != empty %}{{ item }},{% endif %}{% endfor %}{% endfor %}{% endcapture %}
+{% assign slugs = slugCsv | Split:',' %}
+
+{% assign page = PageParameter.component | Default:'' %}
+{% unless page != '' and slugs contains page %}{% assign page = defaultPage %}{% endunless %}
+
+{% assign pageFolder = 'Components' %}
+{% assign fullWidth = false %}
+{% for group in nav %}
+    {% if group.Items contains page %}
+        {% assign pageFolder = group.Folder | Default:'Components' %}
+        {% assign fullWidth = group.FullWidth | AsBoolean %}
+    {% endif %}
+{% endfor %}
+
+//- MARK: Variant Logic
+{% assign isDeveloper = PageParameter.developer | AsBoolean %}
+
+{% assign variants = '' %}
+{% for option in allVariants %}
+    {% if option.For == page %}
+        {% if option.DevOnly %}
+            {% if isDeveloper %}
+                {% assign variants = variants | AddToArray:option %}
+            {% endif %}
+        {% else %}
+            {% assign variants = variants | AddToArray:option %}
+        {% endif %}
+    {% endif %}
+{% endfor %}
+
+{% assign variant = PageParameter.variant | Default:'' %}
+{% assign variantIsKnown = false %}
+{% for option in variants %}
+    {% if option.Slug == variant %}
+        {% assign variantIsKnown = true %}
+    {% endif %}
+{% endfor %}
+
+{% unless variantIsKnown %}
+    {% assign variant = '' %}
+    {% for option in variants %}
+        {% if forloop.first %}
+            {% assign variant = option.Slug %}
+        {% endif %}
+    {% endfor %}
+{% endunless %}
+
+//- MARK: Setup variables
+//- Hardcoded test data shared across module style guide pages. Update here to change
+//- sample media across all modules at once.
+{% assign sampleImage169 = '/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-16-9.jpg' %}
+{% assign sampleImage11 = '/Themes/GreaterThingsV1/Assets/Images/Fallbacks/Fallback-1-1.jpg' %}
+{% assign sampleVideoIds = '7204,7224,2393,7226,2341' %}
+
+{% capture navPath %}{{ base }}Partials/Navigation.lava{% endcapture %}
+{% capture componentPath %}{{ base }}{{ pageFolder }}/{{ page }}.lava{% endcapture %}
+
+{% if fullWidth %}
+    <section id="style-guide" class="style-guide-full">
+        {% include navPath, nav:nav, page:page, default:defaultPage, orientation:'top', variants:variants, variant:variant, isDeveloper:isDeveloper %}
+        <div tt-cascade="fade" tt-cascade-stagger="80" tt-cascade-duration="500">
+            {% include componentPath, variant:variant, sampleImage169:sampleImage169, sampleImage11:sampleImage11, sampleVideoIds:sampleVideoIds %}
+        </div>
+    </section>
+{% else %}
+    <section id="style-guide">
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-12 col-md-4 col-lg-3">
+                    {% include navPath, nav:nav, page:page, default:defaultPage %}
+                </div>
+
+                <div class="col-xs-12 col-md-8 col-lg-9" tt-cascade="fade" tt-cascade-stagger="80" tt-cascade-duration="500">
+                    {% include componentPath, sampleImage169:sampleImage169, sampleImage11:sampleImage11, sampleVideoIds:sampleVideoIds %}
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<script>
+    /- The style guide bar sticks below the site header, and only the browser knows how tall that is:
+       the logo is clamped against the viewport, so it differs between phone and desktop and changes
+       on rotate. Measured here and published as a custom property the bar's top reads. -/
+    (function () {
+        'use strict';
+
+        function measure() {
+            var header = document.getElementById('SiteHeader');
+            var offset = header ? header.offsetHeight : 0;
+            document.documentElement.style.setProperty('--styleguide-topbar-offset', offset + 'px');
+        }
+
+        measure();
+        window.addEventListener('resize', measure);
+        window.addEventListener('orientationchange', measure);
+    })();
+</script>

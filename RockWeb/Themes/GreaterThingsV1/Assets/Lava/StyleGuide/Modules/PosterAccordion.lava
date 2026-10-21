@@ -1,0 +1,140 @@
+/-
+    Poster accordion variants. Three shows the base grid; five adds split intro content to show
+    how the component pairs with lead copy.
+
+    Parameters:
+        variant        - Which example to draw. Already validated by Base.lava. (Required, Text)
+        sampleImage169 - 16:9 fallback image URL. Passed in from Base.lava setup variables. (Required, Image Url)
+-/
+
+//- MARK: Sample Content
+{% assign learnMoreButton = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','Learn More' %}
+{% assign learnMoreButtons = '' | AddToArray:learnMoreButton %}
+
+{% assign poster1 = ''
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'title','Sunday Experience'
+    | AddToDictionary:'subtitle','Worship'
+    | AddToDictionary:'activetitle','What to Expect'
+    | AddToDictionary:'activecontent','<p>Our Sunday gatherings are welcoming, energetic, and grounded in Scripture. Whether it is your first time or your hundredth, there is a place for you.</p>'
+    | AddToDictionary:'buttons',learnMoreButtons
+%}
+
+{% assign poster2 = ''
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'title','Find Your People'
+    | AddToDictionary:'subtitle','Groups'
+    | AddToDictionary:'activetitle','Life Happens in Groups'
+    | AddToDictionary:'activecontent','<p>Small groups are where community gets real. Find a group meeting near you and take your next step toward belonging.</p>'
+    | AddToDictionary:'buttons',learnMoreButtons
+%}
+
+{% assign poster3 = ''
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'title','Use Your Gifts'
+    | AddToDictionary:'subtitle','Serve'
+    | AddToDictionary:'activetitle','Make a Difference'
+    | AddToDictionary:'activecontent','<p>Everyone has something to offer. Serving is one of the best ways to grow and to help the people around you do the same.</p>'
+    | AddToDictionary:'buttons',learnMoreButtons
+%}
+
+{% assign poster4 = ''
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'title','Next Gen'
+    | AddToDictionary:'subtitle','Students and Kids'
+    | AddToDictionary:'activetitle','Raising the Next Generation'
+    | AddToDictionary:'activecontent','<p>From toddlers to teenagers, we have environments designed for every age to encounter God in a way that makes sense for them.</p>'
+%}
+
+{% assign poster5 = ''
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'title','Beyond Our Walls'
+    | AddToDictionary:'subtitle','Missions'
+    | AddToDictionary:'activetitle','Local and Global Impact'
+    | AddToDictionary:'activecontent','<p>We believe the church exists for the world. Join us in caring for our neighbors locally and partnering with missionaries globally.</p>'
+%}
+
+{% assign threePosters = ''
+    | AddToArray:poster1
+    | AddToArray:poster2
+    | AddToArray:poster3
+%}
+
+{% assign fivePosters = ''
+    | AddToArray:poster1
+    | AddToArray:poster2
+    | AddToArray:poster3
+    | AddToArray:poster4
+    | AddToArray:poster5
+%}
+
+//- MARK: Settings
+{% case variant %}
+    {% when 'five' %}
+        {% assign introSettings = '' | AddToDictionary:'contentalignment','split' %}
+        {% assign intro = ''
+            | AddToDictionary:'kicker','Get Involved'
+            | AddToDictionary:'heading','There Is a Place for You Here'
+            | AddToDictionary:'description','Whatever your story, whatever your season, one of these areas is the right next step. Tap any tile to learn more.'
+        %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'posters',fivePosters
+        %}
+        {% assign settings = '' | AddToDictionary:'intro',introSettings | AddToDictionary:'verticalpadding','small' %}
+
+    {% when 'dev-mixed' %}
+        //- Posters missing various optional fields: no subtitle, no buttons, no active content (non-interactive).
+        {% assign noSubtitle = ''
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'title','Sunday Experience'
+            | AddToDictionary:'activetitle','What to Expect'
+            | AddToDictionary:'activecontent','<p>Our Sunday gatherings are welcoming, energetic, and grounded in Scripture.</p>'
+            | AddToDictionary:'buttons',learnMoreButtons
+        %}
+        {% assign noButtons = ''
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'title','Find Your People'
+            | AddToDictionary:'subtitle','Groups'
+            | AddToDictionary:'activetitle','Life Happens in Groups'
+            | AddToDictionary:'activecontent','<p>Small groups are where community gets real.</p>'
+        %}
+        {% assign noActivecontent = ''
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'title','Use Your Gifts'
+            | AddToDictionary:'subtitle','Serve'
+        %}
+        {% assign mixedPosters = ''
+            | AddToArray:poster1
+            | AddToArray:noSubtitle
+            | AddToArray:noButtons
+            | AddToArray:noActivecontent
+        %}
+        {% assign content = '' | AddToDictionary:'posters',mixedPosters %}
+        {% assign settings = '' | AddToDictionary:'verticalpadding','small' %}
+
+    {% else %}
+        {% assign content = '' | AddToDictionary:'posters',threePosters %}
+        {% assign settings = '' | AddToDictionary:'verticalpadding','small' %}
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Poster Accordion', description:'A grid of poster tiles. Opening one blurs its image and reveals a panel of content over it. Only one tile is open at a time.' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Posters</th>
+        <td>{{ content.posters | Size }}</td>
+    </tr>
+    {% if settings.intro.contentalignment != blank %}
+        <tr>
+            <th scope="row">Intro alignment</th>
+            <td>{{ settings.intro.contentalignment }}</td>
+        </tr>
+    {% endif %}
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/PosterAccordion.lava', content:content, settings:settings %}

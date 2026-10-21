@@ -1,0 +1,16 @@
+/-
+    Path: {% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+    Description: Renders the "Settings for this example" table used by module style guide pages.
+
+    Parameters:
+        rows - Captured HTML of one or more <tr> elements. (Required, HTML)
+-/
+<div class="container styleguide-brief">
+    <p class="styleguide-settings-heading">Settings for this example</p>
+
+    <table class="styleguide-settings">
+        <tbody>
+            {{ rows }}
+        </tbody>
+    </table>
+</div>

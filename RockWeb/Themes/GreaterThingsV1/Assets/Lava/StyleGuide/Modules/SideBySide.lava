@@ -1,0 +1,137 @@
+/-
+    Side by side variants. The four examples cover the two media types (image / video)
+    and the two layout modes (standard / full-bleed), plus reversal on the video standard
+    example to show the reverse setting.
+
+    Content and colors are identical across all four so the layout differences read clearly.
+
+    Parameters:
+        variant         - Which example to draw. Already validated by Base.lava. (Required, Text)
+        sampleImage169  - 16:9 fallback image URL. Passed in from Base.lava setup variables. (Required, Image Url)
+        sampleVideoIds  - Comma-separated Rock media element Ids. Passed in from Base.lava setup variables. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign sampleButton = ''
+    | AddToDictionary:'Key','#'
+    | AddToDictionary:'Value','Learn More'
+%}
+{% assign sampleButtons = '' | AddToArray:sampleButton %}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','A Compelling Reason'
+    | AddToDictionary:'heading','Something Worth Stopping For'
+    | AddToDictionary:'description','Side by side pairs a media column with lead content. Keep the description short enough that both columns stay balanced at this heading size.'
+    | AddToDictionary:'buttons',sampleButtons
+%}
+
+{% assign sampleIntroSettings = ''
+    | AddToDictionary:'headingsize','h2'
+%}
+
+//- MARK: Settings
+{% assign sampleVideoId = sampleVideoIds | Split:',' | First %}
+
+{% case variant %}
+    {% when 'image-full-bleed' %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'image',sampleImage169
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'sidebysidetype','full-bleed'
+            | AddToDictionary:'verticalpadding','small'
+        | AddToDictionary:'intro',sampleIntroSettings
+        %}
+
+    {% when 'video-standard' %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'video',sampleVideoId
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'sidebysidetype','standard'
+            | AddToDictionary:'reverse',true
+            | AddToDictionary:'verticalpadding','small'
+        | AddToDictionary:'intro',sampleIntroSettings
+        %}
+
+    {% when 'video-full-bleed' %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'video',sampleVideoId
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'sidebysidetype','full-bleed'
+            | AddToDictionary:'verticalpadding','small'
+        | AddToDictionary:'intro',sampleIntroSettings
+        %}
+
+    {% when 'dev-no-image' %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'sidebysidetype','standard'
+            | AddToDictionary:'verticalpadding','small'
+            | AddToDictionary:'intro',sampleIntroSettings
+        %}
+
+    {% when 'dev-long-content' %}
+        {% assign veryLongDescription = 'Side by side pairs a media column with lead content, and it assumes the two columns will stay roughly balanced. This is what happens when they do not. The description here is long enough that the content column grows significantly taller than the image beside it. At that point the image centers vertically in the remaining space, which may or may not look intentional depending on how much height difference there is. If your content regularly runs this long, a different template — or a shorter description — is probably the better call. This is the point where a copywriter would tell you to cut half of it.' %}
+        {% assign introLong = ''
+            | AddToDictionary:'kicker','A Compelling Reason'
+            | AddToDictionary:'heading','Something Worth Stopping For'
+            | AddToDictionary:'description',veryLongDescription
+            | AddToDictionary:'buttons',sampleButtons
+        %}
+        {% assign content = ''
+            | AddToDictionary:'intro',introLong
+            | AddToDictionary:'image',sampleImage169
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'sidebysidetype','standard'
+            | AddToDictionary:'verticalpadding','small'
+            | AddToDictionary:'intro',sampleIntroSettings
+        %}
+
+    {% else %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'image',sampleImage169
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'sidebysidetype','standard'
+            | AddToDictionary:'verticalpadding','small'
+        | AddToDictionary:'intro',sampleIntroSettings
+        %}
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Side By Side', description:'Media and lead content in two columns. Supports still images and video, standard and full-bleed layout.' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Type</th>
+        <td>{{ settings.sidebysidetype }}</td>
+    </tr>
+    {% if settings.reverse %}
+        <tr>
+            <th scope="row">Reversed</th>
+            <td>yes</td>
+        </tr>
+    {% endif %}
+    {% if content.video != blank %}
+        <tr>
+            <th scope="row">Media ID</th>
+            <td>{{ content.video }}</td>
+        </tr>
+    {% endif %}
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/SideBySide.lava', content:content, settings:settings %}

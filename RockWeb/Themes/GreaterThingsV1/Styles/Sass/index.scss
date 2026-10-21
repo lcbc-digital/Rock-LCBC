@@ -1,0 +1,22 @@
+// =====================================================================
+// Sass/index.scss — the only entrypoint for the custom layer.
+//
+// Compiles on its own and is injected into theme.css above the
+// "CSS Overrides Bottom Start" marker so it wins the cascade. NEVER
+// loads styles-v2 / the NextGen framework — that is already compiled
+// into theme.css.
+//
+// Order below IS the cascade order. A module's CSS is emitted the first
+// time it is loaded, so Utils lands first and rock-v2-overrides last.
+// =====================================================================
+
+@use "Utils";
+@use "Foundation";
+@use "Components";
+@use "Blocks";
+@use "Global";
+@use "Features";
+@use "Modules";
+@use "Templates";
+@use "Animation";
+@use "rock-v2-overrides";

@@ -1,0 +1,57 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/SocialLinks.lava' %}
+    Description: The social destinations from the Social Links defined type, rendered as icon buttons.
+                 A value needs both a Url and an Icon to render; the group is omitted entirely when
+                 nothing renders.
+
+                 The defined values are read with the definedvalue entity command rather than
+                 FromCache. FromCache returns DefinedValueCache objects, and the Attribute filter
+                 comes back empty against those, so Url and Icon would both be blank.
+
+    Parameters:
+        definedtypeid - The defined type to read. (Optional, Number. Defaults to the Social Links type,
+                        guid 8d6538ae-ffcd-473b-9a89-ff09b0a42a0f. Ids are not portable between
+                        instances -- re-resolve from that guid if this theme is moved.)
+
+        justify       - How the row is aligned. (Optional, start | center | end. Defaults to center)
+
+        buttonclass   - Classes for each icon button. (Optional, Text. Defaults to the outlined white
+                        treatment, which suits a photographic or colored background. Override where the
+                        section has its own button styling to match, as the footer does.)
+-/
+
+//- MARK: Settings Logic
+{% assign socialLinksTypeId = definedtypeid | Default:225 %}
+{% assign socialButtonClass = buttonclass | Default:'btn btn-default btn-icon text-white border-white' %}
+
+{% assign justifyClass = 'justify-content-center' %}
+{% case justify %}
+    {% when 'start' %}
+        {% assign justifyClass = 'justify-content-start' %}
+    {% when 'end' %}
+        {% assign justifyClass = 'justify-content-end' %}
+{% endcase %}
+
+//- MARK: Content Logic
+{% capture socialLinksMarkup %}
+    {% definedvalue where:'DefinedTypeId == {{ socialLinksTypeId }} && IsActive == true' sort:'Order' securityenabled:'false' %}
+        {% for socialLink in definedvalueItems %}
+            {% assign linkUrl = socialLink | Attribute:'Url' %}
+            {% assign linkIcon = socialLink | Attribute:'Icon' %}
+
+            {% if linkUrl != blank and linkIcon != blank %}
+                <a href="{{ linkUrl }}" class="{{ socialButtonClass }}" aria-label="{{ socialLink.Value | Escape }}">
+                    <i class="{{ linkIcon }}" aria-hidden="true"></i>
+                </a>
+            {% endif %}
+        {% endfor %}
+    {% enddefinedvalue %}
+{% endcapture %}
+{% assign socialLinksMarkup = socialLinksMarkup | Trim %}
+
+//- MARK: Markup
+{% if socialLinksMarkup != blank %}
+    <div class="social-links d-flex flex-row align-items-center {{ justifyClass }} gap-2">
+        {{ socialLinksMarkup }}
+    </div>
+{% endif %}

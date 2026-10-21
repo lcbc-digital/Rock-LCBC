@@ -1,0 +1,253 @@
+/-
+    Cards template variants. Covers the three card types (standard, full-bleed, poster) and
+    the three card widths. Each variant fixes a type and uses a different width so both
+    dimensions are shown without a separate variant per axis.
+
+    Parameters:
+        variant - Which example to draw. Already validated by Base.lava. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign button1 = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','Learn More' %}
+{% assign buttons1 = '' | AddToArray:button1 %}
+
+{% assign card1 = ''
+    | AddToDictionary:'heading','Sunday Experience'
+    | AddToDictionary:'description','Join us every weekend for worship, practical teaching, and genuine community.'
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'buttons',buttons1
+%}
+{% assign card2 = ''
+    | AddToDictionary:'heading','Life Groups'
+    | AddToDictionary:'description','Smaller gatherings built around real relationships, real conversations, and real growth.'
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'buttons',buttons1
+%}
+{% assign card3 = ''
+    | AddToDictionary:'heading','Serve'
+    | AddToDictionary:'description','Use your gifts to make a difference — on our teams, in your neighborhood, and around the world.'
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'buttons',buttons1
+%}
+{% assign card4 = ''
+    | AddToDictionary:'heading','Give'
+    | AddToDictionary:'description','Generosity is one of the most powerful ways to participate in what God is doing.'
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'buttons',buttons1
+%}
+
+{% assign card5 = ''
+    | AddToDictionary:'heading','Kids Ministry'
+    | AddToDictionary:'description','A safe and fun environment where kids grow in faith and in community.'
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'buttons',buttons1
+%}
+{% assign card6 = ''
+    | AddToDictionary:'heading','Youth'
+    | AddToDictionary:'description','Middle and high school students finding their place, their purpose, and their people.'
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'buttons',buttons1
+%}
+{% assign card7 = ''
+    | AddToDictionary:'heading','Young Adults'
+    | AddToDictionary:'description','A community for people in their twenties navigating faith, relationships, and the future.'
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'buttons',buttons1
+%}
+{% assign card8 = ''
+    | AddToDictionary:'heading','Next Steps'
+    | AddToDictionary:'description','Not sure where to begin? Start here.'
+    | AddToDictionary:'image',sampleImage169
+    | AddToDictionary:'buttons',buttons1
+%}
+
+{% assign introButton = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','View All' %}
+{% assign introButtons = '' | AddToArray:introButton %}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','Get Involved'
+    | AddToDictionary:'heading','There Is a Place for You'
+    | AddToDictionary:'description','No matter where you are in life, there is a next step waiting.'
+    | AddToDictionary:'buttons',introButtons
+%}
+
+//- MARK: Settings
+{% case variant %}
+    {% when 'full-bleed' %}
+        {% assign cards = '' | AddToArray:card1 | AddToArray:card2 | AddToArray:card3 | AddToArray:card4 %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'cards',cards %}
+        {% assign introSettings = '' | AddToDictionary:'contentalignment','center' %}
+        {% assign cardSettings = '' | AddToDictionary:'cardtype','full-bleed' | AddToDictionary:'cardwidth','small' %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'cards',cardSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'poster' %}
+        //- Accent colors are per-card, exposed as --card-accent for themes to use on borders or rules.
+        {% assign posterCard1 = card1 | AddToDictionary:'accentcolor','var(--color-primary)' %}
+        {% assign posterCard2 = card2 | AddToDictionary:'accentcolor','var(--color-secondary)' %}
+        {% assign posterCard3 = card3 | AddToDictionary:'accentcolor','var(--color-primary)' %}
+        {% assign cards = '' | AddToArray:posterCard1 | AddToArray:posterCard2 | AddToArray:posterCard3 %}
+        {% assign content = '' | AddToDictionary:'cards',cards %}
+        {% assign cardSettings = '' | AddToDictionary:'cardtype','poster' | AddToDictionary:'cardwidth','large' %}
+        {% assign settings = ''
+            | AddToDictionary:'cards',cardSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'standard-color' %}
+        {% assign cards = '' | AddToArray:card1 | AddToArray:card2 | AddToArray:card3 | AddToArray:card4 %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'cards',cards %}
+        {% assign introSettings = '' | AddToDictionary:'contentalignment','center' | AddToDictionary:'headingsize','display-1' %}
+        {% assign colors = '' | AddToDictionary:'background','#141314' | AddToDictionary:'foreground','#f0efe4' %}
+        {% assign cardSettings = '' | AddToDictionary:'cardtype','standard' | AddToDictionary:'cardwidth','medium' %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'cards',cardSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'poster-color' %}
+        {% assign posterCard1 = card1 | AddToDictionary:'accentcolor','var(--color-primary)' %}
+        {% assign posterCard2 = card2 | AddToDictionary:'accentcolor','var(--color-secondary)' %}
+        {% assign posterCard3 = card3 | AddToDictionary:'accentcolor','var(--color-primary)' %}
+        {% assign cards = '' | AddToArray:posterCard1 | AddToArray:posterCard2 | AddToArray:posterCard3 %}
+        {% assign content = '' | AddToDictionary:'cards',cards %}
+        {% assign colors = '' | AddToDictionary:'background','#141314' | AddToDictionary:'foreground','#f0efe4' %}
+        {% assign cardSettings = '' | AddToDictionary:'cardtype','poster' | AddToDictionary:'cardwidth','large' %}
+        {% assign settings = ''
+            | AddToDictionary:'colors',colors
+            | AddToDictionary:'cards',cardSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-poster-no-image' %}
+        {% assign noImageCard1 = '' | AddToDictionary:'heading','Sunday Experience' | AddToDictionary:'description','Join us every weekend.' | AddToDictionary:'buttons',buttons1 %}
+        {% assign noImageCard2 = '' | AddToDictionary:'heading','Life Groups' | AddToDictionary:'description','Real relationships, real growth.' | AddToDictionary:'buttons',buttons1 %}
+        {% assign noImageCard3 = '' | AddToDictionary:'heading','Serve' | AddToDictionary:'description','Make a difference with your gifts.' | AddToDictionary:'buttons',buttons1 %}
+        {% assign cards = '' | AddToArray:noImageCard1 | AddToArray:noImageCard2 | AddToArray:noImageCard3 %}
+        {% assign content = '' | AddToDictionary:'cards',cards %}
+        {% assign cardSettings = '' | AddToDictionary:'cardtype','poster' | AddToDictionary:'cardwidth','large' %}
+        {% assign settings = ''
+            | AddToDictionary:'cards',cardSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-single' %}
+        {% assign cards = '' | AddToArray:card1 %}
+        {% assign content = '' | AddToDictionary:'cards',cards %}
+        {% assign cardSettings = '' | AddToDictionary:'cardtype','standard' | AddToDictionary:'cardwidth','medium' %}
+        {% assign settings = ''
+            | AddToDictionary:'cards',cardSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-many' %}
+        {% assign cards = '' | AddToArray:card1 | AddToArray:card2 | AddToArray:card3 | AddToArray:card4 | AddToArray:card5 | AddToArray:card6 | AddToArray:card7 | AddToArray:card8 %}
+        {% assign content = '' | AddToDictionary:'cards',cards %}
+        {% assign cardSettings = '' | AddToDictionary:'cardtype','standard' | AddToDictionary:'cardwidth','medium' %}
+        {% assign settings = ''
+            | AddToDictionary:'cards',cardSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-mixed' %}
+        {% assign mixedCard1 = ''
+            | AddToDictionary:'heading','Go'
+            | AddToDictionary:'description','Step out.'
+            | AddToDictionary:'image',sampleImage169
+        %}
+        {% assign mixedCard2 = ''
+            | AddToDictionary:'heading','Sunday Morning Experience at LCBC — A Gathering Worth Getting Out of Bed For'
+            | AddToDictionary:'description','Every weekend we gather to worship together, hear from God through practical teaching, and remind each other that we are not alone in this. It is casual, it is welcoming, and it is genuinely worth your time.'
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'buttons',buttons1
+        %}
+        {% assign mixedCard3 = ''
+            | AddToDictionary:'heading','Life Groups'
+            | AddToDictionary:'image',sampleImage169
+            | AddToDictionary:'buttons',buttons1
+        %}
+        {% assign mixedCard4 = ''
+            | AddToDictionary:'heading','Serve'
+            | AddToDictionary:'description','Using your gifts for something greater than yourself is one of the most fulfilling things you can do. Our teams are always looking for people who want to make a difference — whether that means greeting someone at the door, helping in kids ministry, running sound, or something else entirely.'
+            | AddToDictionary:'image',sampleImage169
+        %}
+        {% assign cards = '' | AddToArray:mixedCard1 | AddToArray:mixedCard2 | AddToArray:mixedCard3 | AddToArray:mixedCard4 %}
+        {% assign content = '' | AddToDictionary:'cards',cards %}
+        {% assign cardSettings = '' | AddToDictionary:'cardtype','standard' | AddToDictionary:'cardwidth','medium' %}
+        {% assign settings = ''
+            | AddToDictionary:'cards',cardSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% else %}
+        {% assign cards = '' | AddToArray:card1 | AddToArray:card2 | AddToArray:card3 | AddToArray:card4 %}
+        {% assign content = '' | AddToDictionary:'intro',intro | AddToDictionary:'cards',cards %}
+        {% assign introSettings = '' | AddToDictionary:'contentalignment','start' %}
+        {% assign cardSettings = '' | AddToDictionary:'cardtype','standard' | AddToDictionary:'cardwidth','medium' %}
+        {% assign settings = ''
+            | AddToDictionary:'intro',introSettings
+            | AddToDictionary:'cards',cardSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Cards', description:'A swipeable set of cards. One card per slide on mobile; controlled per column count on larger screens.' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Card type</th>
+        <td>{{ settings.cards.cardtype | Default:'standard' }} &middot; standard, full-bleed, poster</td>
+    </tr>
+    <tr>
+        <th scope="row">Card width</th>
+        <td>{{ settings.cards.cardwidth | Default:'medium' }} &middot; small = 4 per row, medium = 3, large = 2</td>
+    </tr>
+    <tr>
+        <th scope="row">Intro</th>
+        <td>{% if content.intro != blank %}shown{% else %}none{% endif %}</td>
+    </tr>
+    <tr>
+        <th scope="row">Cards</th>
+        <td>{{ content.cards | Size }}</td>
+    </tr>
+    {% if variant == 'poster' or variant == 'poster-color' %}
+        <tr>
+            <th scope="row">Accent colors</th>
+            <td>per card via <code>accentcolor</code>, exposed as <code>--card-accent</code></td>
+        </tr>
+    {% endif %}
+    {% if settings.colors.background != blank %}
+        <tr>
+            <th scope="row">Background color</th>
+            <td>{{ settings.colors.background }}</td>
+        </tr>
+        <tr>
+            <th scope="row">Foreground color</th>
+            <td>{{ settings.colors.foreground }}</td>
+        </tr>
+    {% endif %}
+    {% if variant == 'dev-single' or variant == 'dev-many' or variant == 'dev-mixed' or variant == 'dev-poster-no-image' %}
+        <tr>
+            <th scope="row">Testing</th>
+            <td>
+                {% case variant %}
+                    {% when 'dev-single' %}single-item swiper behavior
+                    {% when 'dev-many' %}pagination with {{ content.cards | Size }} cards
+                    {% when 'dev-mixed' %}card height consistency across very different text lengths
+                    {% when 'dev-poster-no-image' %}poster card with no image set
+                {% endcase %}
+            </td>
+        </tr>
+    {% endif %}
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/Cards.lava', content:content, settings:settings %}

@@ -1,0 +1,81 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/Filters.lava' %}
+    Description: The period bar above the dashboard. A window pill on the left, the range it covers
+                 and when it was built on the right.
+
+                 The menu is built from the widths the dataset actually carries, so adding one is a
+                 change to the dataset and nothing here.
+
+                 The chosen window is written to the query string, so the view is linkable.
+
+                 Every option is a plain link with a real href, and there is no script. Rock wraps
+                 the page in one server-side form, so a control that posts back would lose the window
+                 before it reached the query string. An anchor navigates instead of submitting.
+
+                 The range is shown rather than offered: a width the dataset has not precomputed
+                 cannot be asked for, so there is nothing to validate and no custom range to open.
+
+    Requires from Base.lava:
+        dashboardWindowDays, dashboardWindowOptions, dashboardRangeLabel, dashboardGeneratedAt
+-/
+
+//- MARK: Window Label
+//- Named here rather than in the dataset, which stores a width and leaves the wording to the page.
+{% case dashboardWindowDays %}
+    {% when 1 %}
+        {% assign dashboardWindowLabel = 'Past 24 Hours' %}
+    {% when 7 %}
+        {% assign dashboardWindowLabel = 'Past Week' %}
+    {% when 30 %}
+        {% assign dashboardWindowLabel = 'Past Month' %}
+    {% else %}
+        {% capture dashboardWindowLabel %}Past {{ dashboardWindowDays }} Days{% endcapture %}
+{% endcase %}
+
+//- MARK: Markup
+<div class="panel dashboard-toolbar">
+    <div class="panel-body">
+
+        <div class="dashboard-toolbar-inner d-flex flex-wrap align-items-center justify-content-between">
+
+            <div class="dashboard-toolbar-controls d-flex flex-wrap align-items-center">
+
+                <div class="dropdown">
+                    <button type="button" class="btn btn-default dashboard-period" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="ti ti-chart-bar" aria-hidden="true"></i>
+                        <span>{{ dashboardWindowLabel }}</span>
+                        <i class="ti ti-chevron-down dashboard-period-caret" aria-hidden="true"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% for dashboardWindowOption in dashboardWindowOptions %}
+                            {% assign dashboardOptionDays = dashboardWindowOption | AsInteger %}
+
+                            {% case dashboardOptionDays %}
+                                {% when 1 %}
+                                    {% assign dashboardOptionLabel = 'Past 24 Hours' %}
+                                {% when 7 %}
+                                    {% assign dashboardOptionLabel = 'Past Week' %}
+                                {% when 30 %}
+                                    {% assign dashboardOptionLabel = 'Past Month' %}
+                                {% else %}
+                                    {% capture dashboardOptionLabel %}Past {{ dashboardOptionDays }} Days{% endcapture %}
+                            {% endcase %}
+
+                            <li{% if dashboardOptionDays == dashboardWindowDays %} class="active"{% endif %}>
+                                <a href="?Days={{ dashboardOptionDays }}">{{ dashboardOptionLabel }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="dashboard-toolbar-meta">
+                <span>{{ dashboardWindowLabel }}: <strong>{{ dashboardRangeLabel }}</strong></span>
+                <span class="dashboard-toolbar-built">Built {{ dashboardGeneratedAt | AsDateTime | Date:'MMM d, h:mm tt' }}</span>
+            </div>
+
+        </div>
+
+    </div>
+</div>

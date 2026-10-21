@@ -1,0 +1,177 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.timed-cta-template {
+    --timed-cta-outer-radius: 0;
+    --timed-cta-inner-radius: 0;
+    --timed-cta-description-color: var(--ui-stronger);
+    --timed-cta-timer-color: var(--secondary);
+
+    .timed-cta-item-link {
+        font-weight: 800;
+    }
+}
+
+//- MARK: Generic Styles
+.timed-cta-template {
+
+    .timed-cta {
+        padding: 8px;
+        border: 1px solid var(--timed-cta-border-color, color-mix(in srgb, var(--ui-strongest) 12%, transparent));
+        border-radius: var(--timed-cta-outer-radius);
+        background-color: var(--timed-cta-background, var(--ui-softest));
+        overflow: hidden;
+
+        @media (min-width: $screen-md-min) {
+            padding: 16px;
+        }
+    }
+
+    .timed-cta-inner {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: 100%;
+
+        @media (min-width: $screen-md-min) {
+            flex-direction: row;
+            gap: 16px;
+        }
+    }
+
+    //- MARK: Image
+    .timed-cta-image-frame {
+        position: relative;
+        aspect-ratio: var(--timed-cta-image-aspect, 9 / 10);
+        width: 100%;
+        border-radius: var(--timed-cta-inner-radius);
+        overflow: hidden;
+
+        @media (min-width: $screen-md-min) {
+            width: 50%;
+            aspect-ratio: unset;
+        }
+    }
+
+    .timed-cta-image {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+
+        opacity: 0;
+        transition: opacity 0.4s ease;
+
+        &.active {
+            opacity: 1;
+        }
+    }
+
+    //- MARK: Items
+    .timed-cta-items {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+
+        @media (min-width: $screen-md-min) {
+            width: 50%;
+            border: 1px solid var(--timed-cta-border-color, color-mix(in srgb, var(--ui-strongest) 12%, transparent));
+            border-radius: var(--timed-cta-inner-radius);
+            overflow: hidden;
+        }
+    }
+
+    .timed-cta-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 24px 32px 24px 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        + .timed-cta-item {
+            border-top: 1px solid var(--timed-cta-border-color, color-mix(in srgb, var(--ui-strongest) 12%, transparent));
+        }
+
+        &.active,
+        &:hover,
+        &:focus-visible {
+            background-color: var(--timed-cta-row-active-background, color-mix(in srgb, var(--ui-strongest) 4%, transparent));
+        }
+
+        &:focus-visible {
+            outline: 2px solid var(--timed-cta-timer-color, var(--primary));
+            outline-offset: -2px;
+        }
+
+        @media (min-width: $screen-lg-min) {
+            padding: 32px 32px 32px 24px;
+        }
+    }
+
+    .timed-cta-item-body {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .timed-cta-item-title {
+        color: var(--timed-cta-title-color, var(--ui-strongest));
+    }
+
+    .timed-cta-item-description {
+        color: var(--timed-cta-description-color, var(--ui-strong));
+        display: none;
+
+        @media (min-width: $screen-md-min) {
+            display: block;
+        }
+    }
+
+    .timed-cta-item-link {
+        width: fit-content;
+        color: var(--timed-cta-link-color, var(--primary));
+    }
+
+    //- MARK: Timer
+    .timed-cta-timer {
+        flex: 0 0 auto;
+        width: 30px;
+        height: 30px;
+        transform: rotate(-90deg);
+
+        circle {
+            fill: transparent;
+            stroke-width: 10;
+        }
+    }
+
+    .timed-cta-timer-track {
+        stroke: var(--timed-cta-timer-color, var(--primary));
+        opacity: var(--timed-cta-timer-track-opacity, 0.2);
+    }
+
+    .timed-cta-timer-progress {
+        stroke: var(--timed-cta-timer-color, var(--primary));
+        stroke-linecap: round;
+        stroke-dasharray: 282.74;
+        stroke-dashoffset: 282.74;
+        opacity: 0;
+    }
+
+    .timed-cta-item.active .timed-cta-timer-progress {
+        opacity: 1;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .timed-cta-image,
+        .timed-cta-item,
+        .timed-cta-timer-progress {
+            transition: none;
+        }
+    }
+}

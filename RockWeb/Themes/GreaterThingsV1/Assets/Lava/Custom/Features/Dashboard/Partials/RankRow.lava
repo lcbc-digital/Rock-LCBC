@@ -1,0 +1,55 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/RankRow.lava', rankLabel:pageRow.PageName, rankTotal:pageRow.PageViews, rankSubset:pageRow.Sessions, rankPeak:pageRow.PeakViews, rankTone:'', rankMedium:'', rankAsUtm:'' %}
+    Description: One row of a ranked list, with its bar drawn behind the label. Used by Page
+                 Analytics, Traffic Sources and Secondary Goal Pages.
+
+                 Two widths are emitted against different things. The bar's width is a share of the
+                 busiest row, so the list reads on one axis. The split inside it is a share of the
+                 row's own total, because it divides the bar rather than the row.
+
+                 Pass every parameter on every include. Lava includes share scope going in, so one
+                 left off keeps whatever the previous row set it to.
+
+    Parameters:
+        rankLabel  - What the row is. (Required, Text)
+        rankTotal  - The headline figure, and the full width of the bar. (Required, Number)
+        rankSubset - The figure nested inside the total, drawn as the leading band. Pass '' when the
+                     row has one figure rather than two, which draws one colour and a one line
+                     tooltip. (Required, Number no larger than rankTotal, or '')
+        rankPeak   - The largest total in the list, which every bar is scaled against. (Required, Number)
+        rankTone   - Colour pair for the two bands. '' for blue and orange, or goal-tone-1 | 2 | 3.
+                     (Required, Text)
+        rankMedium - The medium, and carried as data-medium for the filter. '' for none.
+                     (Required, Text)
+        rankAsUtm  - Label the row as the query string that produced it, ?utm_medium=x&utm_source=y.
+                     (Required, 'true' or '')
+
+                     A parameter rather than inferred from rankMedium, because a source with no medium
+                     and a page name are both a bare label and only the caller knows which it has.
+-/
+
+//- MARK: Figures
+{% assign rankTotalShare = 0 %}
+{% assign rankSplitShare = 0 %}
+
+{% if rankPeak > 0 %}
+    {% assign rankTotalShare = rankTotal | DividedBy:rankPeak,4 | Times:100 %}
+{% endif %}
+
+{% if rankTotal > 0 and rankSubset != blank %}
+    {% assign rankSplitShare = rankSubset | DividedBy:rankTotal,4 | Times:100 %}
+{% endif %}
+
+//- A blank subset is one figure, not two: one colour, one tooltip line.
+{% if rankSubset == blank %}
+    {% capture rankTooltip %}<span class='tip-row'><span class='tip-dot dot-total {{ rankTone }}'></span>{{ rankTotal | Format:'#,##0' }} unique visitors</span>{% endcapture %}
+{% else %}
+    {% capture rankTooltip %}<span class='tip-row'><span class='tip-dot dot-total {{ rankTone }}'></span>{{ rankTotal | Format:'#,##0' }} page hits</span><span class='tip-row'><span class='tip-dot dot-subset {{ rankTone }}'></span>{{ rankSubset | Format:'#,##0' }} unique visitors</span>{% endcapture %}
+{% endif %}
+
+//- MARK: Markup
+<li class="rank-row {{ rankTone }} js-rank-tooltip" data-toggle="tooltip" data-placement="top" title="{{ rankTooltip }}" data-medium="{{ rankMedium | Humanize }}"{% if rankAsUtm == 'true' %} data-source="{{ rankLabel }}"{% endif %} data-hits="{{ rankTotal }}" style="--rank-total: {{ rankTotalShare | Format:'#,##0.#' }}%; --rank-split: {{ rankSplitShare | Format:'#,##0.#' }}%;">
+    <span class="rank-bar" aria-hidden="true"></span>
+    <span class="rank-label">{% if rankAsUtm == 'true' %}{% if rankMedium != blank %}<span class="utm-key">?utm_medium=</span><span class="utm-value">{{ rankMedium | Downcase }}</span><span class="utm-key">&amp;utm_source=</span>{% else %}<span class="utm-key">?utm_source=</span>{% endif %}<span class="utm-value">{{ rankLabel | Downcase }}</span>{% else %}{{ rankLabel }}{% endif %}</span>
+    <span class="rank-value">{{ rankTotal | Format:'#,##0' }}</span>
+</li>

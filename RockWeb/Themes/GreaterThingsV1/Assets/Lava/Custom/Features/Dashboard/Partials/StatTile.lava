@@ -1,0 +1,25 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/Features/Dashboard/Partials/StatTile.lava', tileLabel:'Page Views', tileValue:1204, tileFormat:'number', tileNote:'' %}
+    Description: One figure with its label. The only shared presentation in the dashboard, so every
+                 number on the page is printed the same way.
+
+                 Pass every parameter on every include, including the ones you want empty. Lava
+                 includes share scope, so a parameter left off keeps whatever the previous tile set
+                 it to, and the tile silently inherits the note or format from the tile above it.
+
+    Parameters:
+        tileLabel  - What the number is. (Required, Text)
+        tileValue  - The number. (Required, Number)
+        tileFormat - How to print it, handed to MetricNumber. (Required, Text)
+                     number | currency | compact | currency-compact | percent
+        tileNote   - A line of context under the label. Pass '' for none. (Required, Text)
+-/
+
+//- MARK: Markup
+<div class="stat-tile">
+    <p class="stat-value">{% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/MetricNumber.lava', value:tileValue, format:tileFormat %}</p>
+    <p class="stat-label">{{ tileLabel }}</p>
+    {% if tileNote != blank %}
+        <p class="stat-note">{{ tileNote }}</p>
+    {% endif %}
+</div>

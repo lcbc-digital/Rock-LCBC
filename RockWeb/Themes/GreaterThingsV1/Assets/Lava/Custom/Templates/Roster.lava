@@ -1,0 +1,210 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/Roster.lava', content:rosterContent, settings:rosterSettings %}
+    Description: A roster of people -- speakers, staff, a band -- presented with the swiper shortcode.
+                 Every person is one card, and the whole roster uses a single card type chosen in
+                 settings. One card shows at a time on a phone, two on a tablet, three on a small
+                 desktop and four above that. When the cards fit the available views the swiper
+                 simply does not scroll.
+
+                 Anyone with a bio opens a dialog holding it. That is the only thing a card does: a
+                 roster has nowhere else to send anybody.
+
+    Parameters:
+        content - Dictionary of the template content. Keys:
+            intro  - Optional lead content above the roster. Passed to IntroContent.lava -- see that
+                     file for its keys. Omit it to render the roster only.
+
+            people - Array of person dictionaries. Keys:
+                image    - Their photo. Cropped to a circle on a profile card and to the full tile on a
+                           poster card, so it wants a subject near the middle. (Required, Image Url)
+                name     - Their name. (Optional, Text)
+                role     - What they are here as, e.g. Guest Speaker. Sits under the name. (Optional, Text)
+                bio      - Longer copy about them. It is the only thing that makes a card a control:
+                           supplying it turns the card into a trigger for a dialog holding their photo,
+                           name, role and this text. A card without one is not clickable, because a
+                           roster has nowhere else to send anybody. (Optional, HTML)
+                buttons  - Up to two buttons at the foot of that dialog, e.g. an email or a booking
+                           link. Only used when there is a bio. See ButtonGroup.lava for the shape.
+                           (Optional, Array)
+                linktext - Label for the trigger. Shown on a profile card and used as the accessible
+                           name of a poster card. (Optional, Text. Defaults to See Bio)
+
+        settings - Dictionary of the template settings. Keys:
+            colors.background      - The background color of the section. (Optional, Text)
+            colors.foreground      - Color of the intro heading and description. (Optional, Text)
+            backgroundimage        - Background image behind the whole section. (Optional, Image Url)
+            verticalpadding        - The vertical padding of the section. (Optional, none | small | medium | large.
+                                     Defaults to medium)
+
+            roster.cardtype        - The type of card to display. (Optional, profile | poster. Defaults to profile)
+                                     profile - Circular photo on a pale card with a thin ring set off around it.
+                                               The trigger shows as text at the foot of the card.
+                                     poster  - Tall photo filling the tile with the name over the bottom of it.
+                                               The whole tile is the trigger.
+            roster.bandcolor       - Fills the lower part of the band behind the cards, edge to edge, and
+                                     tints the ring around a profile card. The cards then straddle the line
+                                     where it starts. Omit for no band. (Optional, Text)
+
+            intro.*                - Settings passed through to IntroContent.lava. See that file for its keys.
+-/
+
+//- MARK: Settings Logic
+{% assign bandColor = settings.roster.bandcolor %}
+
+{% capture templateStyles %}
+    {% if settings.colors.background != blank %}--template-background-color: {{ settings.colors.background }};{% endif %}
+    {% if settings.colors.foreground != blank %}--template-foreground-color: {{ settings.colors.foreground }};{% endif %}
+    {% if settings.backgroundimage != blank %}--template-background-image: url('{{ settings.backgroundimage }}');{% endif %}
+    {% if bandColor != blank %}--roster-band-color: {{ bandColor }};{% endif %}
+{% endcapture %}
+{% assign templateStyles = templateStyles | Trim %}
+
+{% assign verticalPadding = settings.verticalpadding | Default:'medium' %}
+{% assign cardType = settings.roster.cardtype | Default:'profile' %}
+
+//- Wide enough that the ring set off around a profile card cannot reach its neighbor.
+{% assign slideGap = 24 %}
+{% capture swiperBreakpoints %}sm-2|{{ slideGap }},md-3|{{ slideGap }},lg-4|{{ slideGap }}{% endcapture %}
+
+//- The band is a background on the row wrapper rather than on the section, so it can run edge to
+//- edge underneath the cards while the intro above it stays in the container.
+{% assign bandClass = '' %}
+{% if bandColor != blank %}
+    {% assign bandClass = 'roster-band' %}
+{% endif %}
+
+{% assign rosterSpacingClass = '' %}
+{% if content.intro != blank %}
+    {% assign rosterSpacingClass = 'mt-5' %}
+{% endif %}
+
+//- Ids are built from one prefix plus the person's index, so a trigger and its dialog can be paired
+//- across the two loops without carrying anything between them.
+{% assign rosterPrefix = '' | UniqueIdentifier | Prepend:'roster-' %}
+
+//- MARK: Markup
+{% if content.people != blank or content.intro != blank %}
+    <section class="roster-template template template-padding-{{ verticalPadding }}" style="{{ templateStyles }}">
+        {% if content.intro != blank %}
+            <div class="container">
+                {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:content, settings:settings.intro %}
+            </div>
+        {% endif %}
+
+        {% if content.people != blank %}
+            <div class="roster {{ bandClass }} {{ rosterSpacingClass }}">
+                <div class="container">
+                    {[ swiper containerclass:'roster-swiper' slidesperview:'1.1' spacebetween:'{{ slideGap }}' breakpoints:'{{ swiperBreakpoints }}' shownavigation:'true' showpagination:'false' ]}
+                        {% for person in content.people %}
+                            {% assign modalId = rosterPrefix | Append:'-modal-' | Append:forloop.index0 %}
+                            {% assign linkText = person.linktext | Default:'See Bio' %}
+
+                            {% assign triggerAttributes = '' %}
+                            {% if person.bio != blank %}
+                                {% capture triggerAttributes %}href="#" data-toggle="modal" data-target="#{{ modalId }}"{% endcapture %}
+                            {% endif %}
+
+                            [[ slide ]]
+                                {% if cardType == 'poster' %}
+                                    {% capture posterBody %}
+                                        <img class="roster-poster-image img-fallback-vertical"{% if person.image != blank %} src="{{ person.image }}"{% endif %} alt="{{ person.name | Default:'Roster photo' }}">
+
+                                        <div class="roster-poster-overlay"></div>
+
+                                        <div class="roster-poster-body">
+                                            {% if person.name != blank %}
+                                                <h5 class="roster-name h3 m-0">{{ person.name }}</h5>
+                                            {% endif %}
+
+                                            {% if person.role != blank %}
+                                                <p class="roster-role m-0">{{ person.role }}</p>
+                                            {% endif %}
+
+                                            {% if triggerAttributes != blank %}
+                                                <span class="roster-poster-icon" aria-hidden="true">
+                                                    <i class="ti ti-arrow-right"></i>
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    {% endcapture %}
+
+                                    {% if triggerAttributes != blank %}
+                                        <a class="roster-card roster-poster" {{ triggerAttributes }} aria-label="{{ linkText }}{% if person.name != blank %}: {{ person.name }}{% endif %}">
+                                            {{ posterBody }}
+                                        </a>
+                                    {% else %}
+                                        <div class="roster-card roster-poster">
+                                            {{ posterBody }}
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="roster-card roster-profile">
+                                        <div class="roster-profile-body">
+                                            <img class="roster-profile-image img-fallback-square"{% if person.image != blank %} src="{{ person.image }}"{% endif %} alt="{{ person.name | Default:'Roster photo' }}">
+
+                                            {% if person.name != blank %}
+                                                <h5 class="roster-name h3 m-0">{{ person.name }}</h5>
+                                            {% endif %}
+
+                                            {% if person.role != blank %}
+                                                <p class="roster-role m-0">{{ person.role }}</p>
+                                            {% endif %}
+                                        </div>
+
+                                        {% if triggerAttributes != blank %}
+                                            <div class="roster-profile-footer">
+                                                <a class="roster-link" {{ triggerAttributes }}>{{ linkText }}</a>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                            [[ endslide ]]
+                        {% endfor %}
+                    {[ endswiper ]}
+                </div>
+            </div>
+
+            {% for person in content.people %}
+                {% if person.bio != blank %}
+                    {% assign modalId = rosterPrefix | Append:'-modal-' | Append:forloop.index0 %}
+
+                    <div class="modal fade roster-modal" id="{{ modalId }}" tabindex="-1" role="dialog" aria-labelledby="{{ modalId }}-title">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+
+                                    <div class="modal-title roster-modal-person">
+                                        <img class="roster-modal-image img-fallback-square"{% if person.image != blank %} src="{{ person.image }}"{% endif %} alt="{{ person.name | Default:'Roster photo' }}">
+
+                                        <div class="roster-modal-heading">
+                                            {% if person.name != blank %}
+                                                <h4 class="roster-modal-name m-0" id="{{ modalId }}-title">{{ person.name }}</h4>
+                                            {% endif %}
+
+                                            {% if person.role != blank %}
+                                                <p class="roster-modal-role m-0">{{ person.role }}</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="modal-body">
+                                    {{ person.bio }}
+                                </div>
+
+                                {% if person.buttons != blank %}
+                                    <div class="modal-footer">
+                                        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:person.buttons %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+    </section>
+{% endif %}

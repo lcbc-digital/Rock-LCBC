@@ -1,0 +1,27 @@
+@use "../Utils/variables" as *;
+@use "../Utils/mixins" as *;
+
+
+//- MARK: Theme Specific Styles
+.example-modular-page {
+    .text-highlight-template {
+        .btn-primary {
+            --button-font-family: 'Minion Pro', serif; 
+            --button-background-image: url('#{$cdn-theme-root}/Assets/Images/Textures/TextureOne.jpg?optimizer=image');
+            --button-primary-background-color: transparent;
+            --button-primary-background-color-active: transparent;
+            --button-primary-outline-color: transparent; 
+            --button-primary-outline-color-active: transparent;
+            font-style: italic;
+            font-weight: 400;
+
+            @include button-large;
+            padding-top: 18px !important;
+            padding-bottom: 18px !important;
+
+            &::after {
+                filter: grayscale(1);
+            }
+        }
+    }
+}

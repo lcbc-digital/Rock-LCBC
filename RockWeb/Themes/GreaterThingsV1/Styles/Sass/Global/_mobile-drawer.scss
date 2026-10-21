@@ -1,0 +1,210 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.site-header-drawer {
+    --drawer-padding: 15px;
+    --drawer-text-color: var(--ui-softer);
+    --drawer-heading-text-color: color-mix(in srgb, var(--primary) 60%, transparent);
+
+    --drawer-fade-height: 48px;
+
+    --drawer-texture-veil: color-mix(in srgb, var(--secondary) 55%, transparent);
+
+    display: none;
+    width: 100%;
+    overflow: hidden;
+    background-color: var(--secondary);
+    background-image:
+        linear-gradient(
+            var(--drawer-texture-veil),
+            var(--drawer-texture-veil)
+        ),
+        url("#{$cdn-theme-root}/Assets/Images/Textures/GridOne.png?optimizer=image");
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: 100% 100%, auto 100%;
+    color: var(--drawer-text-color);
+
+    &.is-open {
+        display: flex;
+        flex-direction: column;
+    }
+
+    @media (min-width: $screen-lg-min) {
+        display: none !important;
+    }
+}
+
+.site-header-drawer-scroll {
+
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    padding: var(--drawer-padding);
+    padding-bottom: 0;
+}
+
+body.site-header-drawer-open {
+    overflow: hidden;
+}
+
+body.site-header-drawer-open header#SiteHeader {
+    display: flex;
+    flex-direction: column;
+    max-height: 100dvh;
+
+    //- Auto side margins outrank stretch in a column flex container, so this would shrink to its content.
+    //- Only below sm; above it the framework gives .container a fixed width that this would override.
+    > .container {
+        @media (max-width: $screen-xs-max) {
+            width: 100%;
+        }
+    }
+
+    .site-header-drawer {
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+}
+
+.site-header-drawer-actions {
+    display: none;
+    flex: 0 0 auto;
+    padding: 24px var(--drawer-padding) var(--drawer-padding);
+
+    @media (max-width: $screen-xxs-max) {
+        display: block;
+    }
+
+    .btn {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+}
+
+@media (max-width: $screen-xxs-max) {
+    .site-header-drawer-scroll {
+        -webkit-mask-image: linear-gradient(
+            to bottom,
+            #000 calc(100% - var(--drawer-fade-height)),
+            transparent 100%
+        );
+        mask-image: linear-gradient(
+            to bottom,
+            #000 calc(100% - var(--drawer-fade-height)),
+            transparent 100%
+        );
+    }
+}
+
+.site-header-drawer-panel {
+    display: none;
+    flex-direction: column;
+    padding-bottom: 12px;
+
+    &.is-active {
+        display: flex;
+        flex: 1 0 auto;
+    }
+}
+
+.site-header-drawer-back {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+}
+
+.site-header-drawer-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font-size: 1.25rem;
+    font-weight: 900;
+    line-height: 1.2;
+    text-transform: uppercase;
+
+    i {
+        font-size: 24px;
+    }
+}
+
+.site-header-drawer-sub-heading {
+    margin-top: 32px;
+    margin-bottom: 6px;
+    margin-left: 12px;
+    color: var(--drawer-heading-text-color);
+    font-size: 1.25rem;
+    font-weight: 900;
+    line-height: 1.2;
+    letter-spacing: -1px;
+    text-transform: uppercase;
+}
+
+.site-header-drawer-links {
+    --nav-link-text-color: var(--ui-softest);
+    --nav-interactive-text-color: var(--ui-softest);
+    --nav-interactive-background-color: color-mix(in srgb, var(--secondary) 85%, var(--ui-softest) 15%);
+    --nav-active-text-color: var(--primary);
+    --nav-active-background-color: transparent;
+
+    --drawer-link-padding-block: 10px;
+    --drawer-link-nudge: 4px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    li {
+        margin: 0;
+    }
+
+    li > a,
+    li > button {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        width: 100%;
+        padding-top: calc(var(--drawer-link-padding-block) + var(--drawer-link-nudge));
+        padding-right: 12px;
+        padding-bottom: calc(var(--drawer-link-padding-block) - var(--drawer-link-nudge));
+        padding-left: 12px;
+        border: none;
+        background: none;
+        font-family: var(--title-font-family);
+        font-size: var(--h2-font-size);
+        font-weight: var(--h2-font-weight);
+        line-height: var(--h2-line-height);
+        letter-spacing: 0.84px;
+        text-align: left;
+        text-transform: uppercase;
+
+        i {
+            flex-shrink: 0;
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+    }
+
+    li:first-child > a,
+    li:first-child > button {
+        margin-top: calc(-1 * (var(--drawer-link-padding-block) + var(--drawer-link-nudge)));
+    }
+
+    li:last-child > a,
+    li:last-child > button {
+        margin-bottom: calc(-1 * (var(--drawer-link-padding-block) - var(--drawer-link-nudge)));
+    }
+}

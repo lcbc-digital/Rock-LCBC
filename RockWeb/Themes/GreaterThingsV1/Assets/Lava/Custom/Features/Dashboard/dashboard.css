@@ -1,0 +1,532 @@
+/* =====================================================================
+   Greater Things internal dashboard
+
+   Linked from Base.lava with AddCssLink. Lives here rather than in
+   Styles/Sass because this renders on an internal Rock page, where the
+   theme's stylesheet never loads. Plain CSS, no build step.
+
+   Only the things Rock has no component for: the period bar, the metric
+   cards and the ranked lists.
+
+   Spacing, radius and interface colour use Rock CSS variables so they
+   follow the theme and invert in dark mode. Brand colours are literal.
+
+   No color-mix anywhere. It takes the whole declaration with it when it
+   fails to parse, which is how the bars vanished once already.
+   ===================================================================== */
+
+.dashboard-section {
+    margin-bottom: var(--spacing-xlarge, 32px);
+}
+
+.dashboard-section-title {
+    margin-bottom: var(--spacing-medium, 16px);
+    font-size: var(--font-size-h3, 20px);
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--color-interface-strongest);
+}
+
+/* -------------------------------------------------
+   Period bar
+   ------------------------------------------------- */
+.dashboard-toolbar {
+    margin-bottom: var(--spacing-large, 24px);
+}
+
+.dashboard-toolbar-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-medium, 16px);
+}
+
+.dashboard-toolbar-controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-xsmall, 8px);
+}
+
+.dashboard-period {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xsmall, 8px);
+    border-radius: 999px;
+    font-weight: var(--font-weight-semibold, 600);
+}
+
+.dashboard-period-caret {
+    font-size: 0.85em;
+    opacity: 0.6;
+}
+
+.dashboard-toolbar-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-xsmall, 8px);
+    font-size: var(--font-size-small, 13px);
+    color: var(--color-interface-stronger);
+}
+
+.dashboard-toolbar-meta strong {
+    color: var(--color-interface-strongest);
+}
+
+/* Every figure is a snapshot, so when it was taken belongs beside the range
+   it covers. Quieter than the range, which is the thing being read. */
+.dashboard-toolbar-built {
+    opacity: 0.7;
+}
+
+/* -------------------------------------------------
+   Metric cards
+   ------------------------------------------------- */
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: var(--spacing-medium, 16px);
+    margin-bottom: var(--spacing-medium, 16px);
+}
+
+.metric-card {
+    --metric-accent: #007aff;
+    --metric-chip: rgba(0, 122, 255, 0.12);
+
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    border: 1px solid var(--color-interface-soft);
+    border-radius: var(--rounded-large);
+    background-color: var(--color-interface-softest);
+}
+
+.metric-card.tone-indigo {
+    --metric-accent: #5856d6;
+    --metric-chip: rgba(88, 86, 214, 0.12);
+}
+
+.metric-card.tone-teal {
+    --metric-accent: #0f9ba8;
+    --metric-chip: rgba(15, 155, 168, 0.12);
+}
+
+.metric-card.tone-green {
+    --metric-accent: #2a9d4a;
+    --metric-chip: rgba(42, 157, 74, 0.12);
+}
+
+.metric-card.tone-orange {
+    --metric-accent: #ff8610;
+    --metric-chip: rgba(255, 134, 16, 0.14);
+}
+
+.metric-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+}
+
+.metric-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--rounded-small, 8px);
+    background-color: var(--metric-chip);
+    color: var(--metric-accent);
+    font-size: 16px;
+    line-height: 1;
+}
+
+.metric-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--color-interface-strongest);
+}
+
+.metric-value {
+    margin: 0;
+    font-size: 28px;
+    line-height: 32px;
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--color-interface-strongest);
+    font-variant-numeric: tabular-nums;
+}
+
+.metric-unit {
+    font-size: 18px;
+    font-weight: var(--font-weight-regular, 400);
+    color: var(--color-interface-stronger);
+}
+
+.metric-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin: 0;
+    font-size: var(--font-size-small, 13px);
+    line-height: 16px;
+    color: var(--color-interface-stronger);
+}
+
+.metric-trend > .ti {
+    font-size: 12px;
+    line-height: 1;
+}
+
+.metric-trend.direction-up {
+    color: var(--color-success-strong, #248a3d);
+}
+
+.metric-trend.direction-down {
+    color: var(--color-danger-strong, #d70015);
+}
+
+/* -------------------------------------------------
+   Ranked page list
+   ------------------------------------------------- */
+.rank-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-xsmall, 8px);
+}
+
+.modal-header .rank-modal-title {
+    margin: 0;
+    font-size: var(--font-size-h4);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-interface-strongest);
+}
+
+.rank-heading-tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-medium, 16px);
+}
+
+.rank-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-medium, 16px);
+    font-size: var(--font-size-small, 13px);
+    color: var(--color-interface-stronger);
+}
+
+/* A traffic source row labels itself as the query string that produced
+   it, so nothing has to be inferred from a bracket. */
+.utm-key {
+    font-size: 0.85em;
+    font-weight: var(--font-weight-regular, 400);
+    color: var(--color-interface-medium);
+}
+
+.utm-value {
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--color-interface-strongest);
+}
+
+.rank-key {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-tiny, 4px);
+}
+
+.rank-key::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+}
+
+.rank-key.key-hits::before {
+    background-color: #008cd0;
+}
+
+.rank-key.key-visitors::before {
+    background-color: #ff8610;
+}
+
+.rank-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rank-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    min-height: 34px;
+    cursor: default;
+
+    /* Declared here rather than on the hover rule so it eases both ways.
+       On the hover rule it would fade out and then snap back. */
+    transition: opacity 180ms ease-out;
+}
+
+/* Hovering a row quiets the rest of its list, so one bar can be read
+   against the others without losing them entirely.
+
+   Hung off the list rather than the row, because a row cannot know
+   whether a sibling is hovered. Scoped to .rank-list so each list dims
+   only itself: hovering a page leaves Traffic Sources alone.
+
+   The tooltip is a Bootstrap popup appended to the body, outside this
+   subtree, so it stays at full strength. Same arrangement as the chart,
+   where everything recedes except the reading. */
+.rank-list:hover .rank-row {
+    opacity: 0.35;
+}
+
+.rank-list:hover .rank-row:hover {
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .rank-row {
+        transition: none;
+    }
+}
+
+/* The display above is an author rule and outranks the browser's own
+   [hidden] styling, so a hidden row stayed on screen. Every filterable
+   row needs this. */
+.rank-row[hidden],
+.button-group-row[hidden] {
+    display: none;
+}
+
+.rank-bar {
+    grid-row: 1;
+    grid-column: 1 / 3;
+    align-self: stretch;
+    width: var(--rank-total, 0%);
+    min-width: var(--rounded-small, 4px);
+    border-radius: var(--rounded-small, 4px);
+
+    background-image: linear-gradient(
+        to right,
+        var(--rank-subset-color, rgba(255, 134, 16, 0.28)) 0,
+        var(--rank-subset-color, rgba(255, 134, 16, 0.28)) var(--rank-split, 0%),
+        var(--rank-total-color, rgba(0, 140, 208, 0.18)) var(--rank-split, 0%),
+        var(--rank-total-color, rgba(0, 140, 208, 0.18)) 100%
+    );
+}
+
+.rank-row.goal-tone-1 {
+    --rank-subset-color: rgba(179, 204, 13, 0.55);
+    --rank-total-color: rgba(179, 204, 13, 0.20);
+}
+
+.rank-row.goal-tone-2 {
+    --rank-subset-color: rgba(0, 140, 208, 0.45);
+    --rank-total-color: rgba(0, 140, 208, 0.16);
+}
+
+.rank-row.goal-tone-3 {
+    --rank-subset-color: rgba(255, 134, 16, 0.50);
+    --rank-total-color: rgba(255, 134, 16, 0.18);
+}
+
+
+.rank-row + .rank-row {
+    margin-top: var(--spacing-tiny, 4px);
+}
+
+.rank-label {
+    grid-row: 1;
+    grid-column: 1;
+    overflow: hidden;
+    padding: var(--spacing-xsmall, 8px) var(--spacing-xsmall, 8px) var(--spacing-xsmall, 8px) var(--spacing-small, 12px);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-interface-strongest);
+}
+
+.rank-value {
+    grid-row: 1;
+    grid-column: 2;
+    padding: var(--spacing-xsmall, 8px) var(--spacing-small, 12px) var(--spacing-xsmall, 8px) var(--spacing-xsmall, 8px);
+    font-variant-numeric: tabular-nums;
+    color: var(--color-interface-strongest);
+}
+
+.rank-details {
+    display: block;
+    width: 100%;
+    margin-top: var(--spacing-xsmall, 8px);
+    padding: var(--spacing-xsmall, 8px);
+    border-top: 1px solid var(--color-interface-soft);
+    border-radius: 0;
+    color: var(--color-interface-stronger);
+}
+
+.rank-details:hover,
+.rank-details:focus {
+    color: var(--color-interface-strongest);
+    text-decoration: none;
+}
+
+/* -------------------------------------------------
+   Button interactions
+
+   A page row opens into its buttons. Built on the same
+   .rank-row as every other ranked list, so the bars line
+   up and only the nesting is new here.
+   ------------------------------------------------- */
+.button-group-row {
+    list-style: none;
+}
+
+.button-group-row + .button-group-row {
+    margin-top: var(--spacing-tiny, 4px);
+}
+
+.rank-row-toggle {
+    cursor: pointer;
+    user-select: none;
+}
+
+.rank-row-toggle:focus-visible {
+    outline: 2px solid var(--color-primary, #008cd0);
+    outline-offset: 2px;
+}
+
+.button-caret {
+    margin-right: var(--spacing-tiny, 4px);
+    font-size: 0.85em;
+    color: var(--color-interface-medium);
+    transition: transform 150ms ease;
+}
+
+.button-group-row[data-open="true"] .button-caret {
+    transform: rotate(90deg);
+}
+
+.button-route {
+    font-weight: var(--font-weight-regular);
+    color: var(--color-interface-medium);
+}
+
+/* A route is a literal string, so nothing here may case-transform it. */
+.button-route {
+    text-transform: none;
+}
+
+.button-sublist {
+    display: none;
+    margin: var(--spacing-tiny, 4px) 0 var(--spacing-xsmall, 8px) var(--spacing-large, 24px);
+    padding: 0;
+    list-style: none;
+}
+
+.button-group-row[data-open="true"] .button-sublist {
+    display: block;
+}
+
+/* Three columns rather than two: where the button is, what it says, the
+   count. Place leads because labels repeat, so it is the column that
+   identifies a button. */
+.button-subrow {
+    grid-template-columns: minmax(0, 26em) minmax(0, 1fr) auto;
+    min-height: 28px;
+    font-size: var(--font-size-small, 13px);
+}
+
+.button-subrow .rank-bar {
+    grid-column: 1 / 4;
+}
+
+.button-subrow .rank-label {
+    grid-column: 2;
+    padding-left: var(--spacing-xsmall, 8px);
+}
+
+.button-subrow .rank-value {
+    grid-column: 3;
+}
+
+/* Wraps rather than clipping, at a fixed width so the labels beside it
+   still line up down the list. */
+.button-place {
+    grid-row: 1;
+    grid-column: 1;
+    padding: var(--spacing-tiny, 4px) var(--spacing-xsmall, 8px) var(--spacing-tiny, 4px) var(--spacing-small, 12px);
+    overflow-wrap: anywhere;
+    font-weight: var(--font-weight-semibold, 600);
+    color: var(--color-interface-stronger);
+}
+
+.button-subrow .rank-label,
+.button-subrow .rank-value {
+    padding-top: var(--spacing-tiny, 4px);
+    padding-bottom: var(--spacing-tiny, 4px);
+}
+
+.rank-empty {
+    margin: var(--spacing-xsmall, 8px) 0 0;
+}
+
+/* One colour, unlike the two-tone bars elsewhere: this panel has one
+   figure and no key. Two tints still separate a page from its buttons. */
+.button-list .rank-row-toggle {
+    --rank-subset-color: rgba(0, 140, 208, 0.26);
+    --rank-total-color: rgba(0, 140, 208, 0.26);
+}
+
+.button-subrow {
+    --rank-subset-color: rgba(0, 140, 208, 0.14);
+    --rank-total-color: rgba(0, 140, 208, 0.14);
+}
+
+.rank-tooltip .tooltip-inner {
+    max-width: none;
+    padding: var(--spacing-xsmall, 8px) var(--spacing-small, 12px);
+    text-align: left;
+}
+
+.rank-tooltip .tip-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-tiny, 6px);
+    white-space: nowrap;
+}
+
+.rank-tooltip .tip-row + .tip-row {
+    margin-top: var(--spacing-tiny, 4px);
+}
+
+.rank-tooltip .tip-dot {
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+}
+
+.rank-tooltip .tip-dot.dot-total {
+    background-color: #008cd0;
+}
+
+.rank-tooltip .tip-dot.dot-subset {
+    background-color: #ff8610;
+}
+
+.rank-tooltip .tip-dot.dot-total.goal-tone-1 { background-color: #d6e46b; }
+.rank-tooltip .tip-dot.dot-subset.goal-tone-1 { background-color: #b3cc0d; }
+
+.rank-tooltip .tip-dot.dot-total.goal-tone-2 { background-color: #7fc5e8; }
+.rank-tooltip .tip-dot.dot-subset.goal-tone-2 { background-color: #008cd0; }
+
+.rank-tooltip .tip-dot.dot-total.goal-tone-3 { background-color: #ffc287; }
+.rank-tooltip .tip-dot.dot-subset.goal-tone-3 { background-color: #ff8610; }

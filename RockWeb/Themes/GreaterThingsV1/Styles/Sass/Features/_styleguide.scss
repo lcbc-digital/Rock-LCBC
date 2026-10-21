@@ -1,0 +1,265 @@
+#style-guide {
+    .container {
+        padding-block: 2rem 6rem;
+    }
+
+    [tt-cascade] [tt-cascade-item] {
+        opacity: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        [tt-cascade] [tt-cascade-item] {
+            opacity: 1;
+        }
+    }
+
+    // ── Navigation ──────────────────────────────────────────────────────────────
+
+    .styleguide-nav-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .styleguide-nav-heading {
+        font-size: .75rem;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        opacity: .6;
+    }
+
+    // ── Topbar (full-width mode) ─────────────────────────────────────────────────
+    // Sticks below the site header, not at top: 0. The offset is written by JS in
+    // Base.lava because nothing in CSS can read another element's height.
+
+    .styleguide-topbar {
+        position: sticky;
+        top: var(--styleguide-topbar-offset, 0px);
+        z-index: 5;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        padding: .75rem 1rem;
+        border-bottom: 1px solid var(--color-interface-soft, #d9d9e3);
+        background-color: var(--color-interface-softest, #fff);
+    }
+
+    .styleguide-topbar-select {
+        flex: 1 1 12rem;
+        max-width: 20rem;
+    }
+
+    .styleguide-topbar-steps {
+        display: flex;
+        gap: .25rem;
+        margin-left: auto;
+    }
+
+    // ── Section brief ────────────────────────────────────────────────────────────
+
+    .styleguide-brief {
+        padding-block: 2rem;
+
+        > :last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    // ── Settings table ───────────────────────────────────────────────────────────
+
+    .styleguide-settings-heading {
+        font-size: .75rem;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        opacity: .6;
+        margin-bottom: .5rem;
+    }
+
+    .styleguide-settings {
+        width: 100%;
+        margin-bottom: 0;
+
+        th,
+        td {
+            padding: .5rem .75rem;
+            border-bottom: 1px solid var(--color-interface-soft, #d9d9e3);
+            vertical-align: top;
+            text-align: left;
+        }
+
+        th {
+            width: 40%;
+            font-size: .8125rem;
+            font-weight: 400;
+            opacity: .7;
+        }
+
+        td {
+            font-weight: 700;
+        }
+
+        tr:last-child th,
+        tr:last-child td {
+            border-bottom: none;
+        }
+    }
+
+    // ── Example blocks ───────────────────────────────────────────────────────────
+
+    .styleguide-example + .styleguide-example {
+        margin-top: 3rem;
+        border-top: 1px solid var(--color-interface-soft, #d9d9e3);
+        padding-top: 3rem;
+    }
+
+    .styleguide-example-title {
+        margin-top: 0;
+    }
+
+    .styleguide-example-code {
+        margin-top: 1rem;
+        max-height: 24rem;
+        overflow: auto;
+    }
+
+    // Rock styles <code> as an inline chip; inside <pre> that adds a second box,
+    // so reset it back to plain text.
+    pre code {
+        padding: 0;
+        font-size: inherit;
+        color: #e83e8c;
+        white-space: inherit;
+        background-color: transparent;
+        border-radius: 0;
+    }
+
+    // ── Introduction page ────────────────────────────────────────────────────────
+
+    .styleguide-intro {
+        padding-block: 1rem 2rem;
+    }
+
+    .styleguide-intro-welcome {
+        margin: 0 0 .5rem;
+        opacity: .7;
+    }
+
+    .styleguide-intro-title {
+        margin: 0 0 1.5rem;
+        line-height: .95;
+    }
+
+    .styleguide-intro-lead {
+        max-width: 42rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .styleguide-intro-signature {
+        margin: 0;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--ui-soft, rgba(0, 0, 0, .1));
+        font-size: .875rem;
+        opacity: .7;
+    }
+
+    // ── Typography page ──────────────────────────────────────────────────────────
+    // Side-by-side desktop/mobile scale comparison.
+
+    .styleguide-pair {
+        display: flex;
+        align-items: flex-end;
+        padding: 16px 0;
+        border-top: 1px solid var(--color-interface-soft, #d9d9e3);
+    }
+
+    .styleguide-pair-head {
+        border-top: 0;
+        padding-bottom: 0;
+    }
+
+    .styleguide-pair-cell {
+        flex: 1 1 50%;
+        // min-width lets the cell shrink below content width so display-1 wraps instead of blowing out.
+        min-width: 0;
+        padding-right: 24px;
+        overflow-wrap: anywhere;
+
+        // Margins would desync the two cells vertically.
+        > * {
+            margin: 0;
+        }
+    }
+
+    // ── Colors page ──────────────────────────────────────────────────────────────
+
+    .styleguide-swatches {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    // Sections with fewer swatches (status, brand) should not stretch to fill a seventh of the row.
+    .styleguide-swatches-loose {
+        grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+    }
+
+    // Grid children default to min-width: auto so a wide name label blows the column out.
+    .styleguide-swatch {
+        min-width: 0;
+    }
+
+    .styleguide-swatch-chip {
+        display: flex;
+        align-items: flex-end;
+        height: 5rem;
+        padding: .5rem;
+        margin-bottom: .5rem;
+        border: 1px solid var(--ui-soft);
+        border-radius: 4px;
+    }
+
+    .styleguide-swatch-name {
+        margin: 0;
+        font-size: .8125rem;
+        font-weight: 600;
+        color: var(--ui-stronger);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .styleguide-usage {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .styleguide-usage-card {
+        padding: 1.25rem;
+        border: 1px solid var(--ui-soft);
+        border-radius: .5rem;
+    }
+
+    .styleguide-usage-demo {
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+        margin-top: 1rem;
+    }
+
+    .styleguide-usage-tip {
+        padding: 1rem;
+        border-radius: .5rem;
+        background-color: var(--ui-softer);
+        margin-bottom: 0;
+    }
+
+    .styleguide-border-demo {
+        padding: .5rem .75rem;
+        border: 2px solid;
+        border-radius: 4px;
+    }
+}

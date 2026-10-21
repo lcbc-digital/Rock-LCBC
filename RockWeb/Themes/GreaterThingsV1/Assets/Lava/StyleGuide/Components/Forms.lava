@@ -1,0 +1,121 @@
+/-
+    Documents Styles/Sass/Components/_form-entry.scss and Assets/Scripts/Components/FormEntry.js.
+    Keep the class table in step with the selectors there.
+-/
+
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Forms', description:'The form card: a dark surface with a cursor glow, styled from standard Rock form markup.' %}
+
+//- MARK: Where It Applies
+<div class="panel panel-default mb-4" tt-cascade-item>
+    <div class="panel-heading"><h4 class="panel-title">Where it applies</h4></div>
+    <div class="panel-body">
+
+        <p class="mb-0">Workflow Entry blocks, and any form wrapped in <code>.form-entry</code>.</p>
+
+    </div>
+</div>
+
+//- MARK: Classes
+<div class="panel panel-default mb-4" tt-cascade-item>
+    <div class="panel-heading"><h4 class="panel-title">Classes</h4></div>
+    <div class="panel-body">
+
+        <div class="table-responsive">
+            <table class="table table-bordered mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 35%">Class</th>
+                        <th>What it does</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>.form-entry</code></td>
+                        <td>The card on the wrapper: background, border, radius, padding and the cursor glow. Required.</td>
+                    </tr>
+                    <tr>
+                        <td><code>.form-group</code></td>
+                        <td>One field: its label and its control together.</td>
+                    </tr>
+                    <tr>
+                        <td><code>.control-label</code></td>
+                        <td>The field's label.</td>
+                    </tr>
+                    <tr>
+                        <td><code>.form-control</code></td>
+                        <td>Text inputs, <code>&lt;select&gt;</code> and <code>&lt;textarea&gt;</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>.input-group</code> + <code>.input-group-addon</code></td>
+                        <td>An icon or symbol attached to the front of an input.</td>
+                    </tr>
+                    <tr>
+                        <td><code>.checkbox</code> / <code>.radio</code></td>
+                        <td>A box or dot with its text in <code>.label-text</code>. Add <code>-inline</code> to sit them side by side.</td>
+                    </tr>
+                    <tr>
+                        <td><code>.btn.btn-primary</code></td>
+                        <td>The submit button, full width.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+//- MARK: Examples
+{% capture basic %}
+<div class="form-entry">
+    <div class="form-group">
+        <label class="control-label">Name</label>
+        <input class="form-control" type="text" placeholder="First and last name">
+    </div>
+    <div class="form-group">
+        <label class="control-label">Email</label>
+        <input class="form-control" type="email" placeholder="you@example.com">
+    </div>
+    <button class="btn btn-primary" type="button">Submit</button>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'basic', title:'Basic', demo:basic %}
+
+{% capture fields %}
+<div class="form-entry">
+    <div class="form-group">
+        <label class="control-label">Amount</label>
+        <div class="input-group">
+            <span class="input-group-addon">$</span>
+            <input class="form-control" type="text" placeholder="0.00">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Campus</label>
+        <select class="form-control">
+            <option>Choose a campus</option>
+            <option>Campus One</option>
+            <option>Campus Two</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Note</label>
+        <textarea class="form-control" rows="3" placeholder="Anything we should know?"></textarea>
+    </div>
+    <div class="form-group">
+        <label class="control-label">Frequency</label>
+        <div class="radio">
+            <label><input type="radio" name="styleguide-form-frequency" checked><span class="label-text">One time</span></label>
+        </div>
+        <div class="radio">
+            <label><input type="radio" name="styleguide-form-frequency"><span class="label-text">Monthly</span></label>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="checkbox">
+            <label><input type="checkbox"><span class="label-text">Email me updates</span></label>
+        </div>
+    </div>
+    <button class="btn btn-primary" type="button">Submit</button>
+</div>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'fields', title:'Every Field Type', demo:fields %}

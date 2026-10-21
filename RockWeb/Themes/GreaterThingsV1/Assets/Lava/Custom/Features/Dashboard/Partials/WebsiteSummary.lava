@@ -1,0 +1,162 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/WebsiteSummary.lava' %}
+    Description: Traffic to the Greater Things site for the selected window.
+
+                 Presentation only. Every figure was counted when the greater-things-dashboard
+                 dataset was built, so there is nothing to query and nothing to cache here. What the
+                 numbers mean, and what New Visitors does and does not count, is documented beside
+                 the queries in PersistedDatasets/dashboard.lava.
+
+                 Counts are tested with Size rather than against empty, because the dataset writes
+                 null for a section with no rows rather than an empty array.
+
+    Requires from Base.lava:
+        dashboardWindow, dashboardShortRangeLabel
+-/
+
+//- MARK: Figures
+{% assign website = dashboardWindow.Website %}
+{% assign websitePageItems = dashboardWindow.Pages %}
+{% assign secondaryGoalItems = dashboardWindow.SecondaryGoals %}
+
+//- Assigned outside the panel because the modal below is gated on it too.
+{% assign pageListLimit = 10 %}
+
+{% assign websitePageCount = websitePageItems | Size %}
+{% assign secondaryGoalCount = secondaryGoalItems | Size %}
+
+/-
+    MARK: Trend
+    Every card's comparison figure is picked up here rather than read straight off the dataset, so
+    that one rule below can withdraw the lot.
+
+    Withdrawn on the 1 day window. On this instance a window ends YESTERDAY, so 1 day is a complete
+    day against the complete day before it and the comparison is actually fair. It is suppressed to
+    match the sister dashboard, whose windows run to today and whose 1 day figure really is a part
+    built day reading about -85% every morning. Delete the condition to read the trend here; the
+    dataset carries the Prior figures either way.
+
+    MetricCard treats an empty metricPrior as "no trend row" and renders nothing, which is why these
+    are blanked rather than zeroed: zero would draw "New this period".
+-/
+{% assign trendNewVisitors = website.PriorNewVisitors %}
+{% assign trendCommitVisitors = website.PriorCommitVisitors %}
+{% assign trendPageViews = website.PriorPageViews %}
+{% assign trendSessions = website.PriorSessions %}
+
+{% if dashboardWindowDays == 1 %}
+    {% assign trendNewVisitors = '' %}
+    {% assign trendCommitVisitors = '' %}
+    {% assign trendPageViews = '' %}
+    {% assign trendSessions = '' %}
+{% endif %}
+
+{% capture newVisitorsValue %}{{ website.NewVisitors | Format:'#,##0' }}{% endcapture %}
+{% capture commitValue %}{{ website.CommitVisitors | Format:'#,##0' }}{% endcapture %}
+{% capture pageViewsValue %}{{ website.PageViews | Format:'#,##0' }}{% endcapture %}
+{% capture sessionsValue %}{{ website.Sessions | Format:'#,##0' }}{% endcapture %}
+
+//- MARK: Markup
+<section class="dashboard-section">
+
+    <h2 class="dashboard-section-title">Website Summary</h2>
+
+    <div class="metric-grid">
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/MetricCard.lava', metricIcon:'ti-user-plus', metricLabel:'New Visitors', metricValue:newVisitorsValue, metricUnit:'unique visitors', metricCurrent:website.NewVisitors, metricPrior:trendNewVisitors, metricTone:'blue' %}
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/MetricCard.lava', metricIcon:'ti-heart-handshake', metricLabel:'Visited Commit Page', metricValue:commitValue, metricUnit:' unique visitors', metricCurrent:website.CommitVisitors, metricPrior:trendCommitVisitors, metricTone:'orange' %}
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/MetricCard.lava', metricIcon:'ti-eye', metricLabel:'Page Views', metricValue:pageViewsValue, metricUnit:'views', metricCurrent:website.PageViews, metricPrior:trendPageViews, metricTone:'indigo' %}
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/MetricCard.lava', metricIcon:'ti-device-desktop-analytics', metricLabel:'Sessions', metricValue:sessionsValue, metricUnit:'visits', metricCurrent:website.Sessions, metricPrior:trendSessions, metricTone:'teal' %}
+    </div>
+
+    /-
+        The chart takes a row of its own, at full width, because it is read across time and a
+        narrower one would squeeze thirty days of points together. The two ranked lists then share
+        the row below it.
+    -/
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/VisitorChart.lava' %}
+
+    <div class="row">
+
+        <div class="col-md-8">
+
+            <div class="panel panel-block">
+                <div class="panel-heading rank-heading">
+                    <h3 class="panel-title">Page Analytics</h3>
+                    <div class="rank-legend">
+                        <span class="rank-key key-hits">Page Hits</span>
+                        <span class="rank-key key-visitors">Unique Visitors</span>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    {% if websitePageCount > 0 %}
+                        <ul class="rank-list">
+                            {% for pageRow in websitePageItems limit:pageListLimit %}
+                                {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/RankRow.lava', rankLabel:pageRow.PageName, rankTotal:pageRow.PageViews, rankSubset:pageRow.Sessions, rankPeak:pageRow.PeakViews, rankTone:'', rankMedium:'', rankAsUtm:'' %}
+                            {% endfor %}
+                        </ul>
+
+                        {% if websitePageCount > pageListLimit %}
+                            <button type="button" class="btn btn-link rank-details" data-toggle="modal" data-target="#dashboard-pages-modal">
+                                <i class="ti ti-arrows-maximize" aria-hidden="true"></i>
+                                <span>View All</span>
+                            </button>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted">No page views were recorded in the selected window.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="panel panel-block">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Secondary Goal Pages</h3>
+                </div>
+                <div class="panel-body">
+                    {% if secondaryGoalCount > 0 %}
+                        <ul class="rank-list">
+                            {% for goalRow in secondaryGoalItems %}
+                                {% assign goalToneIndex = forloop.index0 | Modulo:3 | Plus:1 %}
+                                {% capture goalTone %}goal-tone-{{ goalToneIndex }}{% endcapture %}
+
+                                {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/RankRow.lava', rankLabel:goalRow.PageName, rankTotal:goalRow.PageViews, rankSubset:goalRow.UniqueVisitors, rankPeak:goalRow.PeakViews, rankTone:goalTone, rankMedium:'', rankAsUtm:'' %}
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted">No secondary goal pages were visited in the selected window.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    //- MARK: All Pages Modal
+    {% if websitePageCount > pageListLimit %}
+
+        <div class="modal fade" id="dashboard-pages-modal" tabindex="-1" role="dialog" aria-labelledby="dashboard-pages-modal-title">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title rank-modal-title" id="dashboard-pages-modal-title">{{ dashboardShortRangeLabel }}</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <ul class="rank-list">
+                            {% for pageRow in websitePageItems %}
+                                {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/RankRow.lava', rankLabel:pageRow.PageName, rankTotal:pageRow.PageViews, rankSubset:pageRow.Sessions, rankPeak:pageRow.PeakViews, rankTone:'', rankMedium:'', rankAsUtm:'' %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+</section>

@@ -1,0 +1,28 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Billboard.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - Billboard channel. Adds the channel's own attributes to the
+                 dictionaries already built by Modules/Base.lava, then renders the Billboard template.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: Channel Attributes
+{% assign height = module | Attribute:'Height','RawValue' %}
+{% assign verticalAlignment = module | Attribute:'VerticalAlignment','RawValue' %}
+{% assign shadowHeight = module | Attribute:'ShadowHeight' %}
+{% assign showSocialLinks = module | Attribute:'ShowSocialLinks' | AsBoolean %}
+{% assign backgroundVideo = module | Attribute:'BackgroundVideo','Object' | Property:'Id' %}
+
+{% assign settings = settings
+    | AddToDictionary:'height',height
+    | AddToDictionary:'verticalalignment',verticalAlignment
+    | AddToDictionary:'shadowheight',shadowHeight
+    | AddToDictionary:'showsociallinks',showSocialLinks
+    | AddToDictionary:'backgroundvideo',backgroundVideo
+%}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/Billboard.lava', content:content, settings:settings %}

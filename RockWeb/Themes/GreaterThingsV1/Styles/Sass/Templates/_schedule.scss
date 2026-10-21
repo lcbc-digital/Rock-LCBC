@@ -1,0 +1,264 @@
+@use "../Utils/variables" as *;
+
+//- MARK: Theme Specific Styles
+.schedule-template {
+    --schedule-label-background: var(--ui-softest);
+    --schedule-session-radius: 0px;
+
+    .schedule-tab-date,
+    .schedule-select-date,
+    .schedule-session-time {
+        font-family: var(--title-font-family);
+        font-weight: 900;
+        letter-spacing: 0.08em;
+    }
+
+    .schedule-session-time {
+        transform: translateY(3px);
+    }
+
+    .schedule-session {
+        background-color: color-mix(in srgb, var(--neutral-2) 40%, transparent);
+        backdrop-filter: blur(20px);
+    }
+
+    .schedule-tab-day,
+    .schedule-select-day,
+    .schedule-session-label {
+        font-weight: 700;
+        letter-spacing: 0.04em;
+    }
+}
+
+//- MARK: Generic Styles
+.schedule-template {
+
+    .schedule-tabs {
+        display: none;
+        margin-bottom: 32px;
+
+        @media (min-width: $screen-md-min) {
+            display: flex;
+        }
+
+        overflow-x: auto;
+        scrollbar-width: none;
+        cursor: grab;
+
+        &::-webkit-scrollbar {
+            display: none;
+        }
+
+        &.is-dragging {
+            cursor: grabbing;
+            user-select: none;
+        }
+
+        &.is-overflow-right {
+            mask-image: linear-gradient(to right, black calc(100% - 64px), transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, black calc(100% - 64px), transparent 100%);
+        }
+
+        &.is-overflow-left {
+            mask-image: linear-gradient(to right, transparent 0%, black 64px);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 64px);
+        }
+
+        &.is-overflow-left.is-overflow-right {
+            mask-image: linear-gradient(to right, transparent 0%, black 64px, black calc(100% - 64px), transparent 100%);
+            -webkit-mask-image: linear-gradient(to right, transparent 0%, black 64px, black calc(100% - 64px), transparent 100%);
+        }
+    }
+
+    .schedule-select {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        column-gap: 12px;
+        margin-bottom: 32px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--schedule-accent, var(--primary));
+
+        @media (min-width: $screen-md-min) {
+            display: none;
+        }
+    }
+
+    .schedule-select-native {
+        grid-area: 1 / 1 / 3 / 3;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        opacity: 0;
+        cursor: pointer;
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    .schedule-select-display {
+        display: contents;
+    }
+
+    .schedule-select-date {
+        grid-area: 1 / 1;
+        font-size: 34px;
+        line-height: 1;
+        text-transform: uppercase;
+        color: var(--schedule-select-color, var(--template-foreground-color, var(--neutral-2)));
+    }
+
+    .schedule-select-chevron {
+        grid-area: 1 / 2;
+        font-size: 24px;
+        color: var(--schedule-select-color, var(--template-foreground-color, var(--neutral-2)));
+    }
+
+    .schedule-select-day {
+        grid-area: 2 / 1 / 3 / 3;
+        margin-top: 4px;
+        text-transform: uppercase;
+        color: var(--schedule-accent, var(--primary));
+    }
+
+    .schedule-tab {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        margin: 0;
+        padding: 0 64px 12px 0;
+        border: 0;
+        border-bottom: 2px solid currentColor;
+        background: none;
+        text-align: left;
+        color: var(--template-foreground-color, var(--neutral-2));
+        opacity: var(--schedule-tab-inactive-opacity, 0.25);
+        cursor: pointer;
+        transition: opacity 0.3s ease, color 0.3s ease;
+
+        &:focus-visible {
+            outline: 2px solid currentColor;
+            outline-offset: 4px;
+        }
+    }
+
+    @media (hover: hover) {
+        .schedule-tab:not(.active):hover {
+            opacity: 0.5;
+        }
+    }
+
+    .schedule-tab.active {
+        opacity: 1;
+        border-bottom-color: var(--schedule-accent, var(--primary));
+
+        .schedule-tab-day {
+            color: var(--schedule-accent, var(--primary));
+        }
+    }
+
+    .schedule-tab-date {
+        font-size: 34px;
+        line-height: 1;
+        text-transform: uppercase;
+        color: inherit;
+    }
+
+    .schedule-tab-day {
+        text-transform: uppercase;
+        color: inherit;
+        transition: color 0.3s ease;
+    }
+
+    .schedule-day {
+        display: none;
+    }
+
+    .schedule-day.active {
+        display: block;
+    }
+
+    @media (min-width: $screen-md-min) {
+        .schedule-panels {
+            display: grid;
+        }
+
+        .schedule-day {
+            display: block;
+            grid-area: 1 / 1;
+            visibility: hidden;
+        }
+
+        .schedule-day.active {
+            visibility: visible;
+        }
+    }
+
+    .schedule-sessions {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .schedule-session {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+
+        padding: 16px;
+        border: 2px solid var(--schedule-session-border-color, var(--template-foreground-color, var(--neutral-2)));
+        border-radius: var(--schedule-session-radius, 4px);
+        color: var(--template-foreground-color, var(--neutral-2));
+    }
+
+    .schedule-session-time {
+        flex: 0 0 auto;
+        font-size: 28px;
+        line-height: 1;
+        text-transform: uppercase;
+        white-space: nowrap;
+        color: inherit;
+
+        @media (min-width: $screen-sm-min) {
+            width: 96px;
+        }
+    }
+
+    .schedule-session-description {
+        flex: 1 1 0;
+        min-width: 0;
+        color: inherit;
+    }
+
+    .schedule-session-label {
+        flex: 0 0 auto;
+        padding: 6px 16px;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        background-color: var(--schedule-label-background, transparent);
+        color: var(--schedule-label-color, var(--schedule-accent, var(--primary)));
+        font-size: 13px;
+        line-height: 1.2;
+        text-transform: uppercase;
+        white-space: nowrap;
+        text-align: center;
+        width: 100%;
+
+        @media (min-width: $screen-sm-min) {
+            width: fit-content;
+            text-align: left;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .schedule-tab,
+        .schedule-tab-day {
+            transition: none;
+        }
+    }
+}

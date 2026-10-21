@@ -1,0 +1,41 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Notification Alert Bar', description:'Sitewide alerts and a live-service countdown bar. Pulls messages from the Sitewide Alert Bar content channel and shows a countdown before online services.' %}
+
+
+//- MARK: Markup
+<p class="lead" tt-cascade-item>The <code>sitewidenotification</code> shortcode renders two kinds of bars, in this order:</p>
+
+<ol tt-cascade-item>
+    <li><strong>Live service countdown</strong>: shows sixty minutes before an online service and stays live until the service ends.</li>
+    <li><strong>Content channel alerts</strong>: messages managed in the <em>Sitewide Alert Bar</em> content channel, active between their start and expiration dates.</li>
+</ol>
+
+{% capture basic %}
+{% raw %}
+{[ sitewidenotification ]}
+{% endraw %}
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'basic', title:'Basic Usage', demo:basic %}
+
+
+{% capture withParameters %}
+{% raw %}
+{[ sitewidenotification ShowChOP:'true' watchlivetext:'Join us live for Church Online' ]}
+{% endraw %}
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'with-params', title:'With Parameters', demo:withParameters %}
+
+
+<h3 class="styleguide-example-title mt-5" tt-cascade-item>Parameters</h3>
+<div class="table-responsive" tt-cascade-item>
+    <table class="table styleguide-settings">
+        <thead>
+            <tr><th>Parameter</th><th>Default</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+            <tr><th>ShowChOP</th><td>false</td><td>When true, show the Church Online countdown and live-now bar.</td></tr>
+            <tr><th>watchlivetext</th><td>Join us live for Church Online</td><td>Message displayed while a service is live.</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<p class="styleguide-note mt-4" tt-cascade-item><strong>Note:</strong> Alert messages live in the <em>Sitewide Alert Bar</em> content channel. Each item has a start and expiration date, plus its own color and link settings.</p>

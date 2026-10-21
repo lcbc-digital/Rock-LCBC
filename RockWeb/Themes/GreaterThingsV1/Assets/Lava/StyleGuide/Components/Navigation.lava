@@ -1,0 +1,64 @@
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Navigation', description:'Bootstrap nav variants styled via CSS custom properties.' %}
+
+
+//- MARK: Markup
+{% capture pills %}
+<ul class="nav nav-pills">
+    <li class="active"><a href="#">Active</a></li>
+    <li><a href="#">Link</a></li>
+    <li><a href="#">Link</a></li>
+    <li><a href="#">Link</a></li>
+</ul>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'pills', title:'Pills', demo:pills %}
+
+
+{% capture tabs %}
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#">Active</a></li>
+    <li><a href="#">Link</a></li>
+    <li><a href="#">Link</a></li>
+    <li><a href="#">Link</a></li>
+</ul>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'tabs', title:'Tabs', demo:tabs %}
+
+
+{% capture stacked %}
+<ul class="nav nav-stacked">
+    <li class="active"><a href="#">Active</a></li>
+    <li><a href="#">Link</a></li>
+    <li><a href="#">Link</a></li>
+</ul>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'stacked', title:'Stacked', demo:stacked %}
+
+
+{% capture pillsstacked %}
+<ul class="nav nav-pills nav-stacked">
+    <li class="active"><a href="#">Active</a></li>
+    <li><a href="#">Link</a></li>
+    <li><a href="#">Link</a></li>
+</ul>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'pills-stacked', title:'Pills Stacked', demo:pillsstacked %}
+
+
+{% capture justified %}
+<ul class="nav nav-justified nav-tabs">
+    <li class="active"><a href="#">Active</a></li>
+    <li><a href="#">Link</a></li>
+    <li><a href="#">Link</a></li>
+</ul>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'justified', title:'Justified', demo:justified %}
+
+
+{% capture customized %}
+<ul class="nav nav-pills" style="--nav-link-text-color: var(--secondary); --nav-interactive-background-color: var(--secondary-soft); --nav-active-background-color: var(--secondary); --nav-active-text-color: var(--white);">
+    <li class="active"><a href="#">Active</a></li>
+    <li><a href="#">Link</a></li>
+    <li><a href="#">Link</a></li>
+</ul>
+{% endcapture %}
+{% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'customized', title:'Customized via Inline Variables', demo:customized %}

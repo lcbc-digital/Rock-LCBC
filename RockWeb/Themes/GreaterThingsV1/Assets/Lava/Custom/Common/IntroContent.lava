@@ -1,0 +1,92 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', content:introContent, settings:introSettings %}
+          {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/IntroContent.lava', kicker:'Helpful Guides', heading:'Greater Things Resources', settings:introSettings %}
+    Description: Kicker, heading with optional highlighted terms, description, and up to two buttons.
+                 Used standalone or as the lead content above a template.
+
+    Parameters:
+        content - Dictionary of the template content. Any specific parameter below overrides the matching key.
+                - 'intro' should be specified in the object to keep the structure standardized in Template use cases.
+            Keys:
+                intro.kicker                 - The kicker text. (Optional, Text)
+                intro.heading                - The heading text. (Optional, Text)
+                intro.description            - The description text. (Optional, Text)
+
+                intro.buttons                - Up to two buttons. See ButtonGroup.lava for the shape. (Optional, Array)
+
+        kicker                  - The kicker text. (Optional, Text)
+        heading                 - The heading text. (Optional, Text)
+        description             - The description text. (Optional, Text)
+
+        buttons                 - Up to two buttons. See ButtonGroup.lava for the shape. (Optional, Array)
+
+        settings - Dictionary of the template settings. Keys:
+            headingsize         - The visual size of the heading. The element is always an h2; this only sets
+                                  the size class. (Optional, h1 - h6 | display-1 | display-2. Defaults to h2)
+            contentalignment    - The alignment of the content. (Optional, start | center | end | split.
+                                  Defaults to start)
+                                  split - Kicker and heading in a left column, description and buttons in a
+                                          right one, both left aligned, from the md breakpoint up. Below that
+                                          it falls back to the centered layout, since two columns in a phone
+                                          width would leave nothing but a pair of very narrow measures.
+-/
+
+//- MARK: Settings Logic
+{% assign headingSize = settings.headingsize | Default:'h2' %}
+{% assign contentAlignment = settings.contentalignment | Default:'start' %}
+
+{% assign alignmentClass = 'align-items-start text-left' %}
+{% case contentAlignment %}
+    {% when 'center' %}
+        {% assign alignmentClass = 'align-items-center text-center' %}
+    {% when 'end' %}
+        {% assign alignmentClass = 'align-items-end text-right' %}
+{% endcase %}
+
+//- MARK: Content Logic
+{% assign kickerText = kicker | Default:content.intro.kicker %}
+{% assign headingText = heading | Default:content.intro.heading %}
+{% assign descriptionText = description | Default:content.intro.description %}
+
+//- Resolved explicitly rather than with Default, which returns a string and would flatten the array.
+{% assign introButtons = buttons %}
+{% if introButtons == blank %}
+    {% assign introButtons = content.intro.buttons %}
+{% endif %}
+
+{% assign markerPattern = '[*][*](.+?)[*][*]' %}
+{% assign highlightedHeading = headingText | RegExReplace:markerPattern,'<span class="highlighted-text">$1</span>' %}
+{% assign highlightedDescription = descriptionText | RegExReplace:markerPattern,'<span class="highlighted-text">$1</span>' %}
+
+//- MARK: Markup
+{% if kickerText != blank or headingText != blank or descriptionText != blank %}
+    {% capture introLead %}
+        {% if kickerText != blank %}
+            <p class="label m-0 mb-3">{{ kickerText }}</p>
+        {% endif %}
+
+        {% if headingText != blank %}
+            <h2 class="{{ headingSize }} title text-balance m-0">{{ highlightedHeading }}</h2>
+        {% endif %}
+    {% endcapture %}
+
+    {% capture introSupport %}
+        {% if descriptionText != blank %}
+            <p class="description text-balance m-0">{{ highlightedDescription }}</p>
+        {% endif %}
+
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:introButtons %}
+    {% endcapture %}
+
+    {% if contentAlignment == 'split' %}
+        <div class="intro-content intro-content-split gsap-fade">
+            <div class="intro-content-lead">{{ introLead }}</div>
+            <div class="intro-content-support">{{ introSupport }}</div>
+        </div>
+    {% else %}
+        <div class="intro-content d-flex flex-column gap-3 gsap-fade {{ alignmentClass }}">
+            {{ introLead }}
+            {{ introSupport }}
+        </div>
+    {% endif %}
+{% endif %}

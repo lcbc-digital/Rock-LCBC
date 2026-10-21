@@ -1,0 +1,41 @@
+/-
+    One example: the live render, then its source.
+
+    {% capture demo %}<h1>Hello</h1>{% endcapture %}
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/StyleGuide/Partials/Example.lava', id:'headings', title:'Headings', demo:demo %}
+
+    id    - anchor id                                    (optional)
+    title - section heading                              (optional)
+    demo  - captured markup to render and document       (required)
+    lava  - 'true' runs the demo through RunLava before displaying it.
+            Use for shortcode demos, and wrap those captures in {% raw %}
+            so the source still shows the shortcode rather than its output.
+    codeonly - 'true' skips the live render and shows only the source, for
+            reference snippets that are demonstrated elsewhere on the page.
+-/
+
+//- MARK: Markup
+<section class="styleguide-example"{% if id and id != empty %} id="{{ id }}"{% endif %} tt-cascade-item>
+    {% if title and title != empty %}
+        <h3 class="styleguide-example-title">{{ title }}</h3>
+    {% endif %}
+
+    {% unless codeonly == 'true' %}
+        <div class="styleguide-example-demo">
+            {% if lava == 'true' %}{{ demo | RunLava }}{% else %}{{ demo }}{% endif %}
+        </div>
+    {% endunless %}
+
+    <div class="styleguide-example-code">
+        {[ syntaxhighlight language:'html' ]}{{ demo | Trim }}{[ endsyntaxhighlight ]}
+    </div>
+</section>
+
+//- MARK: Cleanup
+/- Include params share the page's scope and outlive the include, so every
+   optional one is cleared here. Without this, a call that sets title or
+   codeonly would silently apply to every later include that omits it. -/
+{% assign id = '' %}
+{% assign title = '' %}
+{% assign codeonly = '' %}
+{% assign lava = '' %}

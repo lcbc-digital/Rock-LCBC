@@ -1,0 +1,242 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/InteractionSummary.lava' %}
+    Description: Where visits came from. Three headline buckets, then every source ranked.
+
+                 Presentation only. Attribution, the bucket definitions and the reasons a visit is
+                 counted per session rather than per view are all documented beside the queries in
+                 PersistedDatasets/dashboard.lava.
+
+                 The two menus are built from the rows on screen, so they only ever offer a
+                 combination that exists. Filtering is done in the browser against those rows, which
+                 is why the list is not reloaded when a filter changes.
+
+    Requires from Base.lava:
+        dashboardWindow, dashboardShortRangeLabel
+-/
+
+//- MARK: Figures
+{% assign sources = dashboardWindow.Sources %}
+{% assign sourceItems = sources.Rows %}
+
+//- Assigned outside the panel because the modal below is gated on it too.
+{% assign sourceListLimit = 10 %}
+
+{% assign sourceCount = sourceItems | Size %}
+
+//- MARK: Trend
+//- Withdrawn on the 1 day window, for the reason set out in WebsiteSummary.lava.
+{% assign trendSocialVisits = sources.PriorSocialVisits %}
+{% assign trendSharingVisits = sources.PriorSharingVisits %}
+{% assign trendServiceVisits = sources.PriorServiceVisits %}
+
+{% if dashboardWindowDays == 1 %}
+    {% assign trendSocialVisits = '' %}
+    {% assign trendSharingVisits = '' %}
+    {% assign trendServiceVisits = '' %}
+{% endif %}
+
+{% capture socialValue %}{{ sources.SocialVisits | Format:'#,##0' }}{% endcapture %}
+{% capture sharingValue %}{{ sources.SharingVisits | Format:'#,##0' }}{% endcapture %}
+{% capture serviceValue %}{{ sources.ServiceVisits | Format:'#,##0' }}{% endcapture %}
+
+//- MARK: Filter Options
+{% assign mediumOptions = '' | Split:',' %}
+
+{% for sourceRow in sourceItems %}
+    {% if sourceRow.MediumName != blank %}
+        {% unless mediumOptions contains sourceRow.MediumName %}
+            {% assign mediumOptions = mediumOptions | AddToArray:sourceRow.MediumName %}
+        {% endunless %}
+    {% endif %}
+{% endfor %}
+
+{% assign mediumOptions = mediumOptions | Sort %}
+
+//- Deduplicated: a source can appear against more than one medium.
+{% assign sourceOptions = '' | Split:',' %}
+
+{% for sourceRow in sourceItems %}
+    {% unless sourceOptions contains sourceRow.SourceName %}
+        {% assign sourceOptions = sourceOptions | AddToArray:sourceRow.SourceName %}
+    {% endunless %}
+{% endfor %}
+
+{% assign sourceOptions = sourceOptions | Sort %}
+
+//- MARK: Markup
+<section class="dashboard-section">
+
+    <h2 class="dashboard-section-title">Interactions Summary</h2>
+
+    <div class="metric-grid">
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/MetricCard.lava', metricIcon:'ti-bubble', metricLabel:'From Social Media', metricValue:socialValue, metricUnit:'visits', metricCurrent:sources.SocialVisits, metricPrior:trendSocialVisits, metricTone:'blue' %}
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/MetricCard.lava', metricIcon:'ti-share-3', metricLabel:'From Sharing', metricValue:sharingValue, metricUnit:'visits', metricCurrent:sources.SharingVisits, metricPrior:trendSharingVisits, metricTone:'indigo' %}
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/MetricCard.lava', metricIcon:'ti-building-church', metricLabel:'From Service', metricValue:serviceValue, metricUnit:'visits', metricCurrent:sources.ServiceVisits, metricPrior:trendServiceVisits, metricTone:'orange' %}
+    </div>
+
+    <div class="panel panel-block">
+        <div class="panel-heading rank-heading">
+            <h3 class="panel-title">Traffic Sources</h3>
+
+            <div class="rank-heading-tools">
+                {% if mediumOptions != empty %}
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="js-medium-label">All Mediums</span>
+                            <i class="ti ti-chevron-down dashboard-period-caret" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="#" class="js-medium-filter" data-medium="">All Mediums</a></li>
+                            <li class="divider" role="separator"></li>
+                            {% for mediumOption in mediumOptions %}
+                                <li><a href="#" class="js-medium-filter" data-medium="{{ mediumOption | Humanize }}">{{ mediumOption | Humanize }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                {% if sourceOptions != empty %}
+                    <div class="dropdown">
+                        <button type="button" class="btn btn-default btn-sm" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="js-source-label">All Sources</span>
+                            <i class="ti ti-chevron-down dashboard-period-caret" aria-hidden="true"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-right">
+                            <li><a href="#" class="js-source-filter" data-source="">All Sources</a></li>
+                            <li class="divider" role="separator"></li>
+                            {% for sourceOption in sourceOptions %}
+                                <li><a href="#" class="js-source-filter" data-source="{{ sourceOption }}">{{ sourceOption }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="panel-body">
+            {% if sourceCount > 0 %}
+                <ul class="rank-list js-source-list">
+                    {% for sourceRow in sourceItems limit:sourceListLimit %}
+                        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/RankRow.lava', rankLabel:sourceRow.SourceName, rankTotal:sourceRow.UniqueVisitors, rankSubset:'', rankPeak:sourceRow.PeakViews, rankTone:'', rankMedium:sourceRow.MediumName, rankAsUtm:'true' %}
+                    {% endfor %}
+                </ul>
+
+                <div class="alert alert-info rank-empty js-source-empty" hidden>Nothing matches both filters.</div>
+
+                {% if sourceCount > sourceListLimit %}
+                    <button type="button" class="btn btn-link rank-details" data-toggle="modal" data-target="#dashboard-sources-modal">
+                        <i class="ti ti-arrows-maximize" aria-hidden="true"></i>
+                        <span>View All</span>
+                    </button>
+                {% endif %}
+            {% else %}
+                <p class="text-muted">No visits were recorded in the selected window.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    //- MARK: All Sources Modal
+    {% if sourceCount > sourceListLimit %}
+
+        <div class="modal fade" id="dashboard-sources-modal" tabindex="-1" role="dialog" aria-labelledby="dashboard-sources-modal-title">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title rank-modal-title" id="dashboard-sources-modal-title">{{ dashboardShortRangeLabel }}</h4>
+                    </div>
+
+                    <div class="modal-body">
+                        <ul class="rank-list js-source-list">
+                            {% for sourceRow in sourceItems %}
+                                {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/RankRow.lava', rankLabel:sourceRow.SourceName, rankTotal:sourceRow.UniqueVisitors, rankSubset:'', rankPeak:sourceRow.PeakViews, rankTone:'', rankMedium:sourceRow.MediumName, rankAsUtm:'true' %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    /-
+        MARK: Button Interactions
+        DISABLED. The dataset query behind this panel read every component on the site for 30 days,
+        and the tagging that fed it is commented out in Common/ButtonGroup.lava.
+
+        Restore in three places together, or the panel renders empty: this include, the
+        buttonClickItems query and Buttons output in PersistedDatasets/dashboard.lava, and the
+        Tracking Tag block in ButtonGroup.lava. ButtonInteractions.lava itself is untouched.
+
+        {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/ButtonInteractions.lava' %}
+    -/
+
+    //- MARK: Script
+    <script>
+        (function () {
+            var lists = document.querySelectorAll('.js-source-list');
+            if (!lists.length) return;
+
+            var mediumFilter = '';
+            var sourceFilter = '';
+
+            function applyFilters() {
+                lists.forEach(function (list) {
+                    var rows = list.querySelectorAll('.rank-row');
+                    var peak = 0;
+                    var shown = 0;
+
+                    rows.forEach(function (row) {
+                        var matches = (!mediumFilter || row.getAttribute('data-medium') === mediumFilter) &&
+                                      (!sourceFilter || row.getAttribute('data-source') === sourceFilter);
+
+                        row.hidden = !matches;
+
+                        if (matches) {
+                            shown += 1;
+                            peak = Math.max(peak, parseInt(row.getAttribute('data-hits'), 10) || 0);
+                        }
+                    });
+
+                    // Rescaled against what is left visible.
+                    rows.forEach(function (row) {
+                        if (row.hidden || peak <= 0) return;
+
+                        var hits = parseInt(row.getAttribute('data-hits'), 10) || 0;
+                        row.style.setProperty('--rank-total', ((hits / peak) * 100).toFixed(1) + '%');
+                    });
+
+                    var empty = list.parentNode.querySelector('.js-source-empty');
+                    if (empty) empty.hidden = shown > 0;
+                });
+            }
+
+            function bind(selector, attribute, labelSelector, emptyText, assign) {
+                document.querySelectorAll(selector).forEach(function (option) {
+                    option.addEventListener('click', function (event) {
+                        event.preventDefault();
+
+                        assign(option.getAttribute(attribute));
+
+                        document.querySelectorAll(labelSelector).forEach(function (label) {
+                            label.textContent = option.textContent.trim() || emptyText;
+                        });
+
+                        applyFilters();
+                    });
+                });
+            }
+
+            bind('.js-medium-filter', 'data-medium', '.js-medium-label', 'All Mediums', function (value) {
+                mediumFilter = value;
+            });
+
+            bind('.js-source-filter', 'data-source', '.js-source-label', 'All Sources', function (value) {
+                sourceFilter = value;
+            });
+        })();
+    </script>
+
+</section>

@@ -1,0 +1,77 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Features/Dashboard/Partials/MetricCard.lava', metricIcon:'ti-eye', metricLabel:'Page Views', metricValue:pageViewsValue, metricUnit:'views', metricCurrent:website.PageViews, metricPrior:priorWebsite.PageViews, metricTone:'blue' %}
+    Description: One metric card. Icon chip and label, the figure, then how it moved against the
+                 comparison window. Wrap a row of these in <div class="metric-grid">.
+
+                 The card works out its own trend from the two raw numbers, because assignments made
+                 inside an include do not come back out: values pass in only.
+
+                 Pass every parameter on every include, including the ones you want empty. Lava
+                 includes share scope going in, so a parameter left off inherits the card above.
+
+    Parameters:
+        metricIcon    - Tabler icon class without the leading ti. (Required, Text. e.g. ti-eye)
+        metricLabel   - What is being counted. (Required, Text)
+        metricValue   - The figure as it should read, already formatted. Format in the caller so the
+                        number stays a number wherever it is used for arithmetic. (Required, Text)
+        metricUnit    - Word after the figure. '' for none. (Required, Text. e.g. views, visits)
+        metricCurrent - The raw figure for the selected range, for the trend. (Required, Number)
+        metricPrior   - The same figure for the comparison window. '' omits the trend row.
+                        (Required, Number or empty)
+        metricTone    - Accent for the icon chip. (Required, blue | indigo | teal | green | orange)
+-/
+
+//- MARK: Trend
+{% assign metricTrendText = '' %}
+{% assign metricTrendDirection = 'flat' %}
+{% assign metricTrendIcon = 'ti-minus' %}
+
+{% if metricPrior != '' %}
+    {% assign metricCurrentValue = metricCurrent | AsDecimal %}
+    {% assign metricPriorValue = metricPrior | AsDecimal %}
+
+    {% if metricPriorValue > 0 %}
+        {% assign metricChange = metricCurrentValue | Minus:metricPriorValue | DividedBy:metricPriorValue,4 | Times:100 %}
+
+        {% if metricChange > 0 %}
+            {% assign metricTrendDirection = 'up' %}
+            {% assign metricTrendIcon = 'ti-trending-up' %}
+            {% capture metricTrendText %}+{{ metricChange | Format:'#,##0.#' }}% vs last period{% endcapture %}
+        {% elseif metricChange < 0 %}
+            {% assign metricTrendDirection = 'down' %}
+            {% assign metricTrendIcon = 'ti-trending-down' %}
+            {% capture metricTrendText %}{{ metricChange | Format:'#,##0.#' }}% vs last period{% endcapture %}
+        {% else %}
+            {% assign metricTrendText = 'No change vs last period' %}
+        {% endif %}
+    {% elseif metricCurrentValue > 0 %}
+        {% assign metricTrendDirection = 'up' %}
+        {% assign metricTrendIcon = 'ti-trending-up' %}
+        {% assign metricTrendText = 'New this period' %}
+    {% else %}
+        {% assign metricTrendText = 'No visits either period' %}
+    {% endif %}
+{% endif %}
+
+//- MARK: Markup
+<div class="metric-card tone-{{ metricTone | Default:'blue' }}">
+
+    <div class="metric-head">
+        <span class="metric-icon">
+            <i class="ti {{ metricIcon }}" aria-hidden="true"></i>
+        </span>
+        <span class="metric-label">{{ metricLabel }}</span>
+    </div>
+
+    <p class="metric-value">
+        {{ metricValue }}{% if metricUnit != blank %} <span class="metric-unit">{{ metricUnit }}</span>{% endif %}
+    </p>
+
+    {% if metricTrendText != blank %}
+        <p class="metric-trend direction-{{ metricTrendDirection }}">
+            <i class="ti {{ metricTrendIcon }}" aria-hidden="true"></i>
+            <span>{{ metricTrendText }}</span>
+        </p>
+    {% endif %}
+
+</div>

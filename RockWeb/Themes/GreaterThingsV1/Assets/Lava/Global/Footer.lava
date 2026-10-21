@@ -1,0 +1,96 @@
+/-
+    {% include '~/Themes/GreaterThingsV1/Assets/Lava/Global/Footer.lava' %}
+
+    Nothing here is defaulted. Anything the caller leaves out is left out of the markup rather than
+    rendered pointing at nothing, so a footer with no parameters is just the logo, socials and
+    copyright.
+-/
+
+//- MARK: Settings
+{% assign logomarkImageUrl = "/Themes/GreaterThingsV1/Assets/Images/Logos/Logomark.svg" %}
+{% assign logomarkAltText = "{{ 'Global' | Attribute:'OrganizationName' }} Greater Things" %}
+{% assign homeUrl = 'Global' | Attribute:'GreaterThingsFooterLogoUrl','RawValue' | Default:'/' %}
+
+{% assign largeTextDesktopImageUrl = "/Themes/GreaterThingsV1/Assets/Images/Logos/GreaterThingsAreComing-Desktop.svg" %}
+{% assign largeTextMobileImageUrl = "/Themes/GreaterThingsV1/Assets/Images/Logos/GreaterThingsAreComing-Mobile.svg" %}
+{% assign largeTextAltText = "Greater Things Are Coming" %}
+
+
+{% assign ctaText = 'Global' | Attribute:'GreaterThingsFooterButtonText' %}
+{% assign ctaUrl = 'Global' | Attribute:'GreaterThingsFooterButtonUrl','RawValue' %}
+
+/- The CTA renders through ButtonGroup, so it is built here into the shape that partial takes.
+   ButtonGroup does the tracking, which is why context is set: outside a module there is nothing for
+   it to read a place from, and the button would report nameless.
+
+   Only the CTA is tracked. Terms and Privacy are obligations rather than buttons, and counting them
+   as presses would put two rows nobody acts on at the top of every page in the dashboard. -/
+{% assign ctaButtons = '' %}
+{% if ctaUrl != blank and ctaText != blank %}
+    {% assign ctaButton = ''
+        | AddToDictionary:'Key',ctaUrl
+        | AddToDictionary:'Value',ctaText
+    %}
+    {% assign ctaButtons = '' | AddToArray:ctaButton %}
+{% endif %}
+
+//- Social destinations come from the Social Links defined type, not from here. Edit them at
+//- /admin/general/defined-types, where the Billboard template reads them from as well.
+
+{% assign copyrightYear = "2026" %}
+{% assign termsOfServiceUrl = 'Global' | Attribute:'GreaterThingsFooterTermsUrl','RawValue' %}
+{% assign privacyPolicyUrl = 'Global' | Attribute:'GreaterThingsFooterPrivacyUrl','RawValue' %}
+
+
+//- MARK: Markup
+<div id="SiteFooter">
+    {% include '~/Themes/GreaterThingsV1/Assets/Images/Textures/RippedSeperator.lava', fill:'#141314', class:'footer-seperator w-100' %}
+
+    <div class="footer-marquee bg-neutral-2">
+        <div class="marquee-track">
+            <img src="{{ largeTextDesktopImageUrl }}" alt="{{ largeTextAltText }}" class="large-text-image">
+            <img src="{{ largeTextDesktopImageUrl }}" alt="" aria-hidden="true" class="large-text-image">
+            <img src="{{ largeTextDesktopImageUrl }}" alt="" aria-hidden="true" class="large-text-image">
+            <img src="{{ largeTextDesktopImageUrl }}" alt="" aria-hidden="true" class="large-text-image">
+        </div>
+    </div>
+
+    <div class="container-fluid w-100 py-5 px-md-5 bg-neutral-2" tt-cascade="fade-up" tt-cascade-stagger="80" tt-cascade-duration="550" tt-cascade-duration-increment="0" tt-cascade-distance="10">
+        <div class="large-text" tt-cascade-item>
+            <img src="{{ largeTextMobileImageUrl }}" alt="{{ largeTextAltText }}" class="large-text-image mobile">
+        </div>
+
+        <div class="footer-action-items">
+            {% if ctaButtons != empty %}
+                {% include '~~/Assets/Lava/Custom/Common/ButtonGroup.lava', buttons:ctaButtons, styles:'btn-primary text-uppercase footer-cta', direction:'row', context:'footer', wrapperattributes:'tt-cascade-item' %}
+            {% else %}
+                <div class="footer-cta" aria-hidden="true"></div>
+            {% endif %}
+
+            <div class="footer-links">
+
+                <a href="{{ homeUrl }}" class="btn btn-ghost btn-sm site-icon-link" tt-cascade-item>
+                    <img src="{{ logomarkImageUrl }}" alt="{{ logomarkAltText }}" class="site-logo-image">
+                </a>
+
+                <div class="footer-social-links" tt-cascade-item>
+                    {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Common/SocialLinks.lava', buttonclass:'btn btn-primary btn-icon' %}
+                </div>
+
+            </div>
+        </div>
+
+        <div class="footer-legal-links" tt-cascade-item>
+            <p class="small">
+                © {{ copyrightYear }}
+                {% if termsOfServiceUrl != blank %}
+                    | <a href="{{ termsOfServiceUrl }}">Terms of Service</a>
+                {% endif %}
+                {% if privacyPolicyUrl != blank %}
+                    | <a href="{{ privacyPolicyUrl }}">Privacy Policy</a>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+</div>

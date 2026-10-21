@@ -1,0 +1,99 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Schedule.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - Schedule channel. Turns the flat Schedule attribute matrix
+                 into the array of days the template expects, then renders the template.
+
+                 Rock matrices cannot nest, so a matrix of days each holding a matrix of sessions is
+                 not available. Instead the matrix is one flat list of sessions, every row carrying its
+                 own date and time, and the days are rebuilt here.
+
+                 Everything shown on a day tab comes from that one field. The date groups the sessions
+                 and labels the tab, and the weekday is worked out from it rather than typed, so a tab
+                 can never say Friday over a Saturday date.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: Sessions
+{% assign scheduleRows = module | Attribute:'Schedule','Object' | Property:'AttributeMatrixItems' %}
+
+{% assign sessionList = '' %}
+{% for row in scheduleRows %}
+    {% assign rowDateTime = row | Attribute:'SessionDateTime','RawValue' %}
+
+    {% if rowDateTime != blank %}
+        {% assign rowDayKey = rowDateTime | Date:'yyyyMMdd' %}
+        {% assign rowSortKey = rowDateTime | Date:'yyyyMMddHHmm' %}
+
+        {% assign rowMinutes = rowDateTime | Date:'mm' %}
+        {% if rowMinutes == '00' %}
+            {% assign rowTime = rowDateTime | Date:'h tt' %}
+        {% else %}
+            {% assign rowTime = rowDateTime | Date:'h:mm tt' %}
+        {% endif %}
+
+        {% assign rowDateLabel = rowDateTime | Date:'MMM d' %}
+        {% assign rowDayName = rowDateTime | Date:'dddd' %}
+
+        {% assign rowDescription = row | Attribute:'Description' %}
+        {% assign rowLabel = row | Attribute:'Label' %}
+        {% assign rowLabelColor = row | Attribute:'LabelColor' %}
+
+        {% assign session = ''
+            | AddToDictionary:'daykey',rowDayKey
+            | AddToDictionary:'sortkey',rowSortKey
+            | AddToDictionary:'date',rowDateLabel
+            | AddToDictionary:'day',rowDayName
+            | AddToDictionary:'time',rowTime
+            | AddToDictionary:'description',rowDescription
+            | AddToDictionary:'label',rowLabel
+            | AddToDictionary:'labelcolor',rowLabelColor
+        %}
+
+        {% assign sessionList = sessionList | AddToArray:session %}
+    {% endif %}
+{% endfor %}
+
+{% assign sessionList = sessionList | OrderBy:'sortkey' %}
+
+//- MARK: Days
+{% assign scheduleDays = '' %}
+{% assign currentSessions = '' %}
+{% assign currentDayKey = '' %}
+
+{% for session in sessionList %}
+    {% if session.daykey != currentDayKey %}
+        {% if currentDayKey != blank %}
+            {% assign finishedDay = ''
+                | AddToDictionary:'date',currentDate
+                | AddToDictionary:'day',currentDay
+                | AddToDictionary:'sessions',currentSessions
+            %}
+            {% assign scheduleDays = scheduleDays | AddToArray:finishedDay %}
+        {% endif %}
+
+        {% assign currentDayKey = session.daykey %}
+        {% assign currentDate = session.date %}
+        {% assign currentDay = session.day %}
+        {% assign currentSessions = '' %}
+    {% endif %}
+
+    {% assign currentSessions = currentSessions | AddToArray:session %}
+{% endfor %}
+
+{% if currentDayKey != blank %}
+    {% assign finishedDay = ''
+        | AddToDictionary:'date',currentDate
+        | AddToDictionary:'day',currentDay
+        | AddToDictionary:'sessions',currentSessions
+    %}
+    {% assign scheduleDays = scheduleDays | AddToArray:finishedDay %}
+{% endif %}
+
+{% assign content = content | AddToDictionary:'days',scheduleDays %}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/Schedule.lava', content:content, settings:settings %}

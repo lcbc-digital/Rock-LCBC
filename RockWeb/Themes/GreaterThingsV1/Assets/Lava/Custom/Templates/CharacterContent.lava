@@ -1,0 +1,82 @@
+/-
+    Path: {% include '~/Themes/GreaterThingsV1/Assets/Lava/Custom/Templates/CharacterContent.lava' %}
+    Description: Content that wraps around a character cutout.
+
+    Parameters:
+        data - Dictionary of the template content. Keys:
+            overline             - Small label above the title (Optional, Text)
+            title                - Remainder of the title (Required, Text)
+            description          - Body copy; on mobile this wraps around the character. 280 character max. (Optional, Text)
+            backgroundimage      - Section background, rendered grayscaled and blurred (Required, Image Url)
+            characterimage       - Desktop character cutout (Required, Image Url)
+                                 - This should be a transparent background PNG with the same exact dimensions as the background image.
+            characterimagemobile - Mobile character cutout; also drives shape-outside. (Required, Image Url)
+                                 - The mobile image should be a transparent background PNG with a 800px x 2000px image with the character in the bottom 800px x 1200px of the image. This is due to shape-outside complexities.
+            textureimage         - Texture band behind the character (Optional, Image Url)
+-/
+
+//- MARK: Logic
+
+{% assign overline = data.overline | Default:'' %}
+{% assign title = data.title | Default:'' %}
+{% assign description = data.description | Default:'' %}
+{% assign backgroundImage = data.backgroundimage | Default:'/Themes/GreaterThingsV1/Assets/Images/Content/PrimaryGoal-Background.jpg' %}
+{% assign characterImage = data.characterimage | Default:'/Themes/GreaterThingsV1/Assets/Images/Content/PrimaryGoal-PersonCutout.png' %}
+{% assign characterImageMobile = data.characterimagemobile | Default:characterImage %}
+{% assign textureImage = data.textureimage | Default:'/Themes/GreaterThingsV1/Assets/Images/Textures/TextureThree.jpg' %}
+
+{% capture backgroundImage %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:backgroundImage, cdnParams:'' %}{% endcapture %}
+{% assign backgroundImage = backgroundImage | Trim %}
+{% capture characterImage %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:characterImage, cdnParams:'' %}{% endcapture %}
+{% assign characterImage = characterImage | Trim %}
+//- shape-outside needs a same-origin or CORS image, and the CDN host sends no CORS headers, so the shape
+//- keeps the path on this site. The visible image still goes through the CDN.
+{% assign characterShapeImage = characterImageMobile %}
+{% capture characterImageMobile %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:characterImageMobile, cdnParams:'' %}{% endcapture %}
+{% assign characterImageMobile = characterImageMobile | Trim %}
+{% capture textureImage %}{% include '~~/Assets/Lava/Custom/Common/CdnUrl.lava', cdnUrl:textureImage, cdnParams:'' %}{% endcapture %}
+{% assign textureImage = textureImage | Trim %}
+
+{% assign markerPattern = '[*][*](.+?)[*][*]' %}
+{% assign highlightedTitle = title | RegExReplace:markerPattern,'<span class="highlighted-text">$1</span>' %}
+
+
+//- MARK: Markup
+{% if data %}
+    <section class="character-content-template bg-neutral-2 d-none d-md-block overflow-hidden" style="--character-content-background: url('{{ backgroundImage }}'); --character-content-image: url('{{ characterImage }}'); --character-texture: url('{{ textureImage }}')">
+        <div class="character-texture"></div>
+        <div class="container-fluid px-md-5">
+            <div class="col-md-6 col-lg-4">
+                <div class="d-flex flex-column gsap-fade" data-intro-fade>
+                    {% if overline != '' %}
+                        <h2 class="label mb-4">{{ overline }}</h2>
+                    {% endif %}
+                    <h3 class="title m-0">
+                        {{ highlightedTitle }}
+                    </h3>
+                    {% if description != '' %}
+                        <p class="description text-neutral-1 o-80 mt-3">{{ description }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="character-content-template character-content-template-mobile bg-neutral-2 d-block d-md-none" style="--character-content-background: url('{{ backgroundImage }}'); --character-texture: url('{{ textureImage }}')">
+        <div class="mobile-texture"></div>
+        //- The cutout has to stay a sibling of the copy for shape-outside to wrap it, so the
+        //- fade is hung on the container rather than on a wrapper around the text.
+        <div class="container-fluid gsap-fade" data-intro-fade>
+            {% if overline != '' %}
+                <h2 class="label mb-4">{{ overline }}</h2>
+            {% endif %}
+            <span class="title">
+                {{ highlightedTitle }}
+            </span>
+            <img class="mobile-person" src="{{ characterImageMobile }}" alt="" style="--character-shape: url('{{ characterShapeImage }}')">
+            {% if description != '' %}
+                <p class="description text-neutral-1 o-80">{{ description }}</p>
+            {% endif %}
+        </div>
+    </section>
+{% endif %}

@@ -1,0 +1,44 @@
+/-
+    Path: {% include '~~/Assets/Lava/Custom/ModularSystem/Modules/Pricing.lava', module:module, content:content, settings:settings %}
+    Description: Adapter for the Module V2 - Pricing channel. Turns the Prices attribute matrix into the
+                 array of card dictionaries the template expects, then renders the template.
+
+    Parameters:
+        module   - The content channel item. (Required, ContentChannelItem)
+        content  - The content dictionary from Modules/Base.lava. (Required, Dictionary)
+        settings - The settings dictionary from Modules/Base.lava. (Required, Dictionary)
+-/
+
+//- MARK: Prices
+{% assign priceRows = module | Attribute:'Prices','Object' | Property:'AttributeMatrixItems' | OrderBy:'Order' %}
+
+{% assign priceList = '' %}
+{% for row in priceRows %}
+    {% assign rowTitle = row | Attribute:'Title' %}
+    {% assign rowPrice = row | Attribute:'Price' %}
+    {% assign rowDescription = row | Attribute:'Description' %}
+    {% assign rowFeature = row | Attribute:'Feature' %}
+
+    //- See ButtonGroup.lava for why the JSON round trip is required on a key value list.
+    {% assign rowButtons = row | Attribute:'Buttons','Object' | ToJSON | FromJSON %}
+
+    {% assign priceCard = ''
+        | AddToDictionary:'title',rowTitle
+        | AddToDictionary:'price',rowPrice
+        | AddToDictionary:'description',rowDescription
+        | AddToDictionary:'buttons',rowButtons
+        | AddToDictionary:'feature',rowFeature
+    %}
+
+    {% assign priceList = priceList | AddToArray:priceCard %}
+{% endfor %}
+
+{% assign content = content | AddToDictionary:'prices',priceList %}
+
+//- MARK: Colors
+{% assign cardBackgroundColor = module | Attribute:'CardBackgroundColor' %}
+{% assign colors = settings.colors | AddToDictionary:'card',cardBackgroundColor %}
+{% assign settings = settings | AddToDictionary:'colors',colors %}
+
+//- MARK: Markup
+{% include '~~/Assets/Lava/Custom/Templates/Pricing.lava', content:content, settings:settings %}

@@ -1,0 +1,174 @@
+/-
+    Roster variants. Profile shows the circular-photo card; poster shows the full-tile photo card.
+    Both use the same four people so the layout difference reads clearly.
+
+    Parameters:
+        variant - Which example to draw. Already validated by Base.lava. (Required, Text)
+-/
+
+//- MARK: Sample Content
+{% assign tedButton = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','Send a Message' %}
+{% assign tedButtons = '' | AddToArray:tedButton %}
+
+{% assign tedDecker = ''
+    | AddToDictionary:'image','https://rocksolidchurchdemo.com/GetAvatar.ashx?PhotoId=135&Size=400'
+    | AddToDictionary:'name','Ted Decker'
+    | AddToDictionary:'role','Lead Pastor'
+    | AddToDictionary:'bio','<p>Ted has served as Lead Pastor for over two decades, bringing vision and depth to everything he does. He is passionate about helping people take their next step of faith.</p>'
+    | AddToDictionary:'buttons',tedButtons
+%}
+
+{% assign cindyButton1 = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','Send a Message' %}
+{% assign cindyButton2 = '' | AddToDictionary:'Key','#' | AddToDictionary:'Value','Book a Meeting' %}
+{% assign cindyButtons = '' | AddToArray:cindyButton1 | AddToArray:cindyButton2 %}
+
+{% assign cindyDecker = ''
+    | AddToDictionary:'image','https://rocksolidchurchdemo.com/GetAvatar.ashx?PhotoId=136&Size=400'
+    | AddToDictionary:'name','Cindy Decker'
+    | AddToDictionary:'role','Worship Director'
+    | AddToDictionary:'bio','<p>Cindy leads our worship ministry with creativity and heart, curating experiences that invite people into genuine encounters with God.</p>'
+    | AddToDictionary:'buttons',cindyButtons
+%}
+
+{% assign alishaMarble = ''
+    | AddToDictionary:'image','https://rocksolidchurchdemo.com/GetAvatar.ashx?PhotoId=147&Size=400'
+    | AddToDictionary:'name','Alisha Marble'
+    | AddToDictionary:'role','Connections Pastor'
+    | AddToDictionary:'bio','<p>Alisha is passionate about helping people find their place in the church. She leads our connections ministry with warmth and intentionality.</p>'
+%}
+
+{% assign peteFoster = ''
+    | AddToDictionary:'image','https://rocksolidchurchdemo.com/GetAvatar.ashx?PhotoId=150&Size=400'
+    | AddToDictionary:'name','Pete Foster'
+    | AddToDictionary:'role','Executive Pastor'
+    | AddToDictionary:'bio','<p>Pete oversees the day-to-day operations of the church, working behind the scenes to keep everything running with excellence.</p>'
+%}
+
+{% assign people = ''
+    | AddToArray:tedDecker
+    | AddToArray:cindyDecker
+    | AddToArray:alishaMarble
+    | AddToArray:peteFoster
+%}
+
+{% assign intro = ''
+    | AddToDictionary:'kicker','Our Team'
+    | AddToDictionary:'heading','The People Behind the Mission'
+%}
+
+//- MARK: Settings
+{% case variant %}
+
+    {% when 'band' %}
+        {% assign rosterSettings = ''
+            | AddToDictionary:'cardtype','profile'
+            | AddToDictionary:'bandcolor','#1a1a2e'
+        %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'people',people
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'roster',rosterSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-few' %}
+        {% assign fewPeople = '' | AddToArray:tedDecker | AddToArray:cindyDecker %}
+        {% assign rosterSettings = '' | AddToDictionary:'cardtype','profile' %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'people',fewPeople
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'roster',rosterSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-no-image' %}
+        {% assign noImagePerson = ''
+            | AddToDictionary:'name','Ted Decker'
+            | AddToDictionary:'role','Lead Pastor'
+            | AddToDictionary:'bio','<p>Ted has served as Lead Pastor for over two decades, bringing vision and depth to everything he does.</p>'
+        %}
+        {% assign noImagePeople = ''
+            | AddToArray:noImagePerson
+            | AddToArray:cindyDecker
+            | AddToArray:alishaMarble
+            | AddToArray:peteFoster
+        %}
+        {% assign rosterSettings = '' | AddToDictionary:'cardtype','profile' %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'people',noImagePeople
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'roster',rosterSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% when 'dev-mixed' %}
+        {% assign nameOnlyPerson = ''
+            | AddToDictionary:'image','https://rocksolidchurchdemo.com/GetAvatar.ashx?PhotoId=135&Size=400'
+            | AddToDictionary:'name','Ted Decker'
+        %}
+        {% assign noRolePerson = ''
+            | AddToDictionary:'image','https://rocksolidchurchdemo.com/GetAvatar.ashx?PhotoId=136&Size=400'
+            | AddToDictionary:'name','Cindy Decker'
+            | AddToDictionary:'bio','<p>Cindy leads our worship ministry with creativity and heart.</p>'
+        %}
+        {% assign noBioPerson = ''
+            | AddToDictionary:'image','https://rocksolidchurchdemo.com/GetAvatar.ashx?PhotoId=147&Size=400'
+            | AddToDictionary:'name','Alisha Marble'
+            | AddToDictionary:'role','Connections Pastor'
+        %}
+        {% assign longContentPerson = ''
+            | AddToDictionary:'image','https://rocksolidchurchdemo.com/GetAvatar.ashx?PhotoId=150&Size=400'
+            | AddToDictionary:'name','Christopher Bartholomew Whitfield'
+            | AddToDictionary:'role','Senior Executive Pastor of Discipleship and Community Formation'
+            | AddToDictionary:'bio','<p>Theodore has served in pastoral ministry for over thirty years across multiple continents, bringing a depth of wisdom and a breadth of experience that shapes everything this church does.</p>'
+        %}
+        {% assign mixedPeople = ''
+            | AddToArray:nameOnlyPerson
+            | AddToArray:noRolePerson
+            | AddToArray:noBioPerson
+            | AddToArray:longContentPerson
+        %}
+        {% assign rosterSettings = '' | AddToDictionary:'cardtype','profile' %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'people',mixedPeople
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'roster',rosterSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+    {% else %}
+        //- 'profile' and 'poster' pass variant directly as the cardtype.
+        {% assign rosterSettings = '' | AddToDictionary:'cardtype',variant %}
+        {% assign content = ''
+            | AddToDictionary:'intro',intro
+            | AddToDictionary:'people',people
+        %}
+        {% assign settings = ''
+            | AddToDictionary:'roster',rosterSettings
+            | AddToDictionary:'verticalpadding','small'
+        %}
+
+{% endcase %}
+
+//- MARK: Markup
+<div class="container styleguide-brief">
+    {% include '~~/Assets/Lava/StyleGuide/Partials/PageHeader.lava', title:'Roster', description:'A swiper of people cards. Profile uses a circular photo on a pale card; poster fills the tile with the photo.' %}
+</div>
+
+{% capture rows %}
+    <tr>
+        <th scope="row">Card type</th>
+        <td>{{ variant }}</td>
+    </tr>
+{% endcapture %}
+{% include '~~/Assets/Lava/StyleGuide/Partials/SettingsTable.lava', rows:rows %}
+
+{% include '~~/Assets/Lava/Custom/Templates/Roster.lava', content:content, settings:settings %}
